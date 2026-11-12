@@ -1,0 +1,631 @@
+{
+  "source": "https://github.com/Routbe/rout-compass-explorer-93a611eb",
+  "commit": "427ac48",
+  "kind": "source-repository",
+  "permissionConfirmed": true,
+  "credentialsCopied": false,
+  "databaseMigrationsApplied": false,
+  "sourceWebsiteComparison": "Not applicable: repository source imported, not GitHub website UI.",
+  "checks": [
+    {
+      "route": "/",
+      "layout": "desktop",
+      "viewport": {
+        "width": 1280,
+        "height": 1800
+      },
+      "scrollContainer": "document.scrollingElement",
+      "scrollPosition": 0,
+      "trigger": "home scene",
+      "observed": {
+        "ready": true,
+        "canvasCount": 2,
+        "errors": []
+      },
+      "status": "passed"
+    },
+    {
+      "route": "/",
+      "layout": "desktop",
+      "viewport": {
+        "width": 1280,
+        "height": 1800
+      },
+      "scrollContainer": "document.scrollingElement",
+      "scrollPosition": 0,
+      "trigger": "platform menu",
+      "observed": {
+        "contents": "Close\nPlatform\n\nTOOLS\n\nQR generator\nFast standalone studio\nProfile studio\nSovereign link-in-bio & micro-site builder\nCalendar and bookings\nLinked and sovereign booking pages\nBatch generator\nBulk QR generation\nDynamic links and analytics\nTrackable short links\n\nINFRASTRUCTURE\n\nCustom domains\nDNS & CNAME configuration\nDeveloper console\nManage apps, API keys & infrastructure\nOpen source and documentation\nAGPLv3 & protocol\nNL\nEN\nFR\nDE",
+        "bounds": {
+          "x": 881,
+          "y": 0,
+          "width": 384,
+          "height": 1800
+        }
+      },
+      "status": "passed"
+    },
+    {
+      "route": "/",
+      "layout": "desktop",
+      "viewport": {
+        "width": 1280,
+        "height": 1800
+      },
+      "scrollContainer": "document.scrollingElement",
+      "scrollPosition": 0,
+      "trigger": "Escape closes menu",
+      "observed": {
+        "closed": true,
+        "focusReturned": true
+      },
+      "status": "passed"
+    },
+    {
+      "route": "/",
+      "layout": "desktop",
+      "viewport": {
+        "width": 1280,
+        "height": 1800
+      },
+      "scrollContainer": "document.scrollingElement",
+      "scrollPosition": 0,
+      "trigger": "Dutch language",
+      "observed": {
+        "lead": "SOEVEREINE DIGITALE NODE\n\nROUT\n\nJe digitale identiteit. Onder jouw controle.\n\nSoevereine Europese infrastructuur voor je digitale identiteit, fysieke toegang, communicatie en routing. Privacy als uitgangspunt; passkeys en cryptografische kaarten verbinden je digitale en fysieke wereld.\n\nVoer een URL, commando of @handle in\n~/rout $\n\nDruk op Enter om te routeren\n\nhttps://\n@handle\n/studio\n/dashboard\nClaim je identiteit\nVerken het OS"
+      },
+      "status": "passed"
+    },
+    {
+      "route": "/",
+      "layout": "desktop",
+      "viewport": {
+        "width": 1280,
+        "height": 1800
+      },
+      "scrollContainer": "document.scrollingElement",
+      "scrollPosition": 1054,
+      "trigger": "Explore the OS",
+      "observed": {
+        "ecosystemVisible": true
+      },
+      "status": "passed"
+    },
+    {
+      "route": "/",
+      "layout": "desktop",
+      "viewport": {
+        "width": 1280,
+        "height": 1800
+      },
+      "scrollContainer": "document.scrollingElement",
+      "scrollPosition": 1418,
+      "trigger": "wheel to profile",
+      "observed": {
+        "heading": "Your place on the web. Entirely yours.",
+        "images": []
+      },
+      "status": "passed"
+    },
+    {
+      "route": "/",
+      "layout": "desktop",
+      "viewport": {
+        "width": 1280,
+        "height": 1800
+      },
+      "scrollContainer": "document.scrollingElement",
+      "scrollPosition": 2746,
+      "trigger": "wheel to qr",
+      "observed": {
+        "heading": "From a simple link to a distinctive design.",
+        "images": [
+          {
+            "src": "/src/assets/rout-qr-everyday-refined.jpg",
+            "loaded": true
+          }
+        ]
+      },
+      "status": "passed"
+    },
+    {
+      "route": "/",
+      "layout": "desktop",
+      "viewport": {
+        "width": 1280,
+        "height": 1800
+      },
+      "scrollContainer": "document.scrollingElement",
+      "scrollPosition": 4767,
+      "trigger": "wheel to analytics",
+      "observed": {
+        "heading": "Every link has a destination. Every scan a story.",
+        "images": []
+      },
+      "status": "passed"
+    },
+    {
+      "route": "/",
+      "layout": "desktop",
+      "viewport": {
+        "width": 1280,
+        "height": 1800
+      },
+      "scrollContainer": "document.scrollingElement",
+      "scrollPosition": 6172,
+      "trigger": "wheel to identity",
+      "observed": {
+        "heading": "Your identity is more than a sign-in button.",
+        "images": []
+      },
+      "status": "passed"
+    },
+    {
+      "route": "/",
+      "layout": "desktop",
+      "viewport": {
+        "width": 1280,
+        "height": 1800
+      },
+      "scrollContainer": "document.scrollingElement",
+      "scrollPosition": 7330,
+      "trigger": "wheel to wallet",
+      "observed": {
+        "heading": "Your digital world. Now in your hand.",
+        "images": [
+          {
+            "src": "/src/assets/rout-infrastructure.jpg",
+            "loaded": true
+          }
+        ]
+      },
+      "status": "passed"
+    },
+    {
+      "route": "/",
+      "layout": "desktop",
+      "viewport": {
+        "width": 1280,
+        "height": 1800
+      },
+      "scrollContainer": "document.scrollingElement",
+      "scrollPosition": 9137,
+      "trigger": "wheel to commerce",
+      "observed": {
+        "heading": "Give your audience a way to give back.",
+        "images": []
+      },
+      "status": "passed"
+    },
+    {
+      "route": "/",
+      "layout": "desktop",
+      "viewport": {
+        "width": 1280,
+        "height": 1800
+      },
+      "scrollContainer": "document.scrollingElement",
+      "scrollPosition": 11580,
+      "trigger": "wheel to social",
+      "observed": {
+        "heading": "More room for real conversations.",
+        "images": []
+      },
+      "status": "passed"
+    },
+    {
+      "route": "/",
+      "layout": "desktop",
+      "viewport": {
+        "width": 1280,
+        "height": 1800
+      },
+      "scrollContainer": "document.scrollingElement",
+      "scrollPosition": 11503,
+      "trigger": "wheel to workspace",
+      "observed": {
+        "heading": "For one creator. Or a whole team.",
+        "images": []
+      },
+      "status": "passed"
+    },
+    {
+      "route": "/",
+      "layout": "desktop",
+      "viewport": {
+        "width": 1280,
+        "height": 1800
+      },
+      "scrollContainer": "document.scrollingElement",
+      "scrollPosition": 12670,
+      "trigger": "wheel to developer",
+      "observed": {
+        "heading": "Open protocols. New possibilities.",
+        "images": []
+      },
+      "status": "passed"
+    },
+    {
+      "route": "/",
+      "layout": "desktop",
+      "viewport": {
+        "width": 1280,
+        "height": 1800
+      },
+      "scrollContainer": "document.scrollingElement",
+      "scrollPosition": 14944,
+      "trigger": "wheel to footer",
+      "observed": {
+        "footer": "ROUT\nNederlands\nEnglish\nFran\u00e7ais\nDeutsch\n\nOpen, sovereign & high-precision QR infrastructure.\n\nPLATFORM\n\nQR generator\nProfile Studio\nBatch engine\nDynamic routing\n\nINFRASTRUCTURE\n\nCustom domains\nDeveloper Console\nDeveloper docs\nSelf-hosting guide\n\nECOSYSTEM\n\nExplore profiles\nManifesto\nPress & brand kit\nGitHub repository\n\nSUPPORT & LEGAL\n\nContact form\nSovereignty\nPrivacy policy\nTerms\n\n\u00a9 2026 ROUT \u00b7 Open source (AGPLv3) \u00b7 Designed & engineered by delplanche.cloud\n\nDegraded performance\n\u00b7 0 ms\n\nVoor AI-agents"
+      },
+      "status": "passed"
+    },
+    {
+      "route": "/studio?mode=qr&url=https%3A%2F%2Fexample.com%2Fmenu%3Ft%3D1",
+      "layout": "desktop",
+      "viewport": {
+        "width": 1280,
+        "height": 1800
+      },
+      "scrollContainer": "document.scrollingElement",
+      "scrollPosition": 0,
+      "trigger": "URL routes to QR studio",
+      "observed": {
+        "url": "http://localhost:8080/studio?mode=qr&url=https%3A%2F%2Fexample.com%2Fmenu%3Ft%3D1",
+        "body": "ROUT\nExplore\nNL\nEN\nFR\nDE\nSign in\nSelect QR type\nTYPE\nLink & Web\nPayment\nContact & Messaging\nFile & Media\nUtility\nURL\nSend anyone straight to any web address.\nApp link\nRoute users to the right app store for their device.\nSocial profile hub\nBundle all your social links behind one QR code.\nSteam profile\nShare your Steam profile in one scan.\nLive view\nN\u00ba 01\nScannable\n100% \u00b7 Optimal\nContrast\n17.5:1\nPass AA\nOptical profile\nStandard\nTolerant\nDetected modules\n33 \u00d7 33 grid\nOptimal\nError correction\nLevel H\n30% recovery\nQuiet zone\n72 px \u00b7 4.7 modules\nSafe border\nLogo coverage\n0.0% of max 30%\nWithin limit\nMinimum print size\n20 mm\nComfortable\nDownload QR code\nCopy\nWEBSITE URL\n\nValid web address.\n\nSave\nPROTOCOL\nSTATIC\nDYNAMIC\nLees hoe dit werkt\nTurn it into a short link\nChoose your domain (ROUT or your own), get a short link and track every scan.\nQR Smart Labels\nCampagnes & UTM\nStyle your QR\n\nExample detected\n\nexample.com\n\nBrand it\nInstellingen\n\nTheme\n\nGeen theme selected\n\nAlle\nMinimaal\nKleurrijk\nDonker\nMerk\nGeen\nPaper\nMidnight\nPastel\nForest\nSunset\nOcean\nMono\nInverted\nNeon\nBlueprint\nTerracotta\n\nPattern\n\nSquare pattern selected\n\nSquare\nDots\nRounded\nOrganic mesh\nCalligraphy\nBallpoint\nChalk\nFine-tune\n\nCenter Logo\n\nNo center logo selected\n\nNone\nUpload\n\nA quiet zone is punched out behind the logo so the code stays scannable.\n\nColors\n\nAAA \u00b7 17.5:1\n\nForeground colour #1C1917, background transparent selected\n\nVoorgrond\n\nAchtergrond\n\nStyle presets\n\nSave current\nInk on Paper\nMidnight Monolith\nNeon Blueprint\nExport styles (JSON)\nImport styles\nFrame\nPrint size\n\nLIVE EXAMPLES\n\nReal profiles, real people.\nM\n\nmaximilien.brussels\n\nrout.be/maximilien.brussels\n\nView profile\nDiscover more profiles\n\nNo profile yet?\n\nStart the tour\n\nWHY ROUT\n\nSovereign QR infrastructure, built for print.\n\nEvery account g",
+        "errors": []
+      },
+      "status": "passed"
+    },
+    {
+      "route": "/",
+      "layout": "phone",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scrollContainer": "document.scrollingElement",
+      "scrollPosition": 0,
+      "trigger": "home scene",
+      "observed": {
+        "ready": true,
+        "canvasCount": 2,
+        "errors": []
+      },
+      "status": "passed"
+    },
+    {
+      "route": "/",
+      "layout": "phone",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scrollContainer": "document.scrollingElement",
+      "scrollPosition": 0,
+      "trigger": "platform menu",
+      "observed": {
+        "contents": "Close\nPlatform\n\nTOOLS\n\nQR generator\nFast standalone studio\nProfile studio\nSovereign link-in-bio & micro-site builder\nCalendar and bookings\nLinked and sovereign booking pages\nBatch generator\nBulk QR generation\nDynamic links and analytics\nTrackable short links\n\nINFRASTRUCTURE\n\nCustom domains\nDNS & CNAME configuration\nDeveloper console\nManage apps, API keys & infrastructure\nOpen source and documentation\nAGPLv3 & protocol\nNL\nEN\nFR\nDE",
+        "bounds": {
+          "x": 55,
+          "y": 0,
+          "width": 320,
+          "height": 844
+        }
+      },
+      "status": "passed"
+    },
+    {
+      "route": "/",
+      "layout": "phone",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scrollContainer": "document.scrollingElement",
+      "scrollPosition": 0,
+      "trigger": "Escape closes menu",
+      "observed": {
+        "closed": true,
+        "focusReturned": true
+      },
+      "status": "passed"
+    },
+    {
+      "route": "/",
+      "layout": "phone",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scrollContainer": "document.scrollingElement",
+      "scrollPosition": 0,
+      "trigger": "Dutch language",
+      "observed": {
+        "lead": "SOEVEREINE DIGITALE NODE\n\nROUT\n\nJe digitale identiteit. Onder jouw controle.\n\nSoevereine Europese infrastructuur voor je digitale identiteit, fysieke toegang, communicatie en routing. Privacy als uitgangspunt; passkeys en cryptografische kaarten verbinden je digitale en fysieke wereld.\n\nVoer een URL, commando of @handle in\n\nDruk op Enter om te routeren\n\nhttps://\n@handle\n/studio\n/dashboard\nClaim je identiteit\nVerken het OS"
+      },
+      "status": "passed"
+    },
+    {
+      "route": "/",
+      "layout": "phone",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scrollContainer": "document.scrollingElement",
+      "scrollPosition": 915,
+      "trigger": "Explore the OS",
+      "observed": {
+        "ecosystemVisible": true
+      },
+      "status": "passed"
+    },
+    {
+      "route": "/",
+      "layout": "phone",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scrollContainer": "document.scrollingElement",
+      "scrollPosition": 1367,
+      "trigger": "wheel to profile",
+      "observed": {
+        "heading": "Your place on the web. Entirely yours.",
+        "images": []
+      },
+      "status": "passed"
+    },
+    {
+      "route": "/",
+      "layout": "phone",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scrollContainer": "document.scrollingElement",
+      "scrollPosition": 3137,
+      "trigger": "wheel to qr",
+      "observed": {
+        "heading": "From a simple link to a distinctive design.",
+        "images": [
+          {
+            "src": "/src/assets/rout-qr-everyday-refined.jpg",
+            "loaded": true
+          }
+        ]
+      },
+      "status": "passed"
+    },
+    {
+      "route": "/",
+      "layout": "phone",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scrollContainer": "document.scrollingElement",
+      "scrollPosition": 5456,
+      "trigger": "wheel to analytics",
+      "observed": {
+        "heading": "Every link has a destination. Every scan a story.",
+        "images": []
+      },
+      "status": "passed"
+    },
+    {
+      "route": "/",
+      "layout": "phone",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scrollContainer": "document.scrollingElement",
+      "scrollPosition": 7014,
+      "trigger": "wheel to identity",
+      "observed": {
+        "heading": "Your identity is more than a sign-in button.",
+        "images": []
+      },
+      "status": "passed"
+    },
+    {
+      "route": "/",
+      "layout": "phone",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scrollContainer": "document.scrollingElement",
+      "scrollPosition": 8425,
+      "trigger": "wheel to wallet",
+      "observed": {
+        "heading": "Your digital world. Now in your hand.",
+        "images": [
+          {
+            "src": "/src/assets/rout-infrastructure.jpg",
+            "loaded": true
+          }
+        ]
+      },
+      "status": "passed"
+    },
+    {
+      "route": "/",
+      "layout": "phone",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scrollContainer": "document.scrollingElement",
+      "scrollPosition": 10498,
+      "trigger": "wheel to commerce",
+      "observed": {
+        "heading": "Give your audience a way to give back.",
+        "images": []
+      },
+      "status": "passed"
+    },
+    {
+      "route": "/",
+      "layout": "phone",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scrollContainer": "document.scrollingElement",
+      "scrollPosition": 11985,
+      "trigger": "wheel to social",
+      "observed": {
+        "heading": "More room for real conversations.",
+        "images": []
+      },
+      "status": "passed"
+    },
+    {
+      "route": "/",
+      "layout": "phone",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scrollContainer": "document.scrollingElement",
+      "scrollPosition": 13836,
+      "trigger": "wheel to workspace",
+      "observed": {
+        "heading": "For one creator. Or a whole team.",
+        "images": []
+      },
+      "status": "passed"
+    },
+    {
+      "route": "/",
+      "layout": "phone",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scrollContainer": "document.scrollingElement",
+      "scrollPosition": 15351,
+      "trigger": "wheel to developer",
+      "observed": {
+        "heading": "Open protocols. New possibilities.",
+        "images": []
+      },
+      "status": "passed"
+    },
+    {
+      "route": "/",
+      "layout": "phone",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scrollContainer": "document.scrollingElement",
+      "scrollPosition": 20127,
+      "trigger": "wheel to footer",
+      "observed": {
+        "footer": "ROUT\nNederlands\nEnglish\nFran\u00e7ais\nDeutsch\n\nOpen, sovereign & high-precision QR infrastructure.\n\nPLATFORM\n\nQR generator\nProfile Studio\nBatch engine\nDynamic routing\n\nINFRASTRUCTURE\n\nCustom domains\nDeveloper Console\nDeveloper docs\nSelf-hosting guide\n\nECOSYSTEM\n\nExplore profiles\nManifesto\nPress & brand kit\nGitHub repository\n\nSUPPORT & LEGAL\n\nContact form\nSovereignty\nPrivacy policy\nTerms\n\n\u00a9 2026 ROUT \u00b7 Open source (AGPLv3) \u00b7 Designed & engineered by delplanche.cloud\n\nDegraded performance\n\u00b7 0 ms\n\nVoor AI-agents"
+      },
+      "status": "passed"
+    },
+    {
+      "route": "/studio?mode=qr&url=https%3A%2F%2Fexample.com%2Fmenu%3Ft%3D1",
+      "layout": "phone",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scrollContainer": "document.scrollingElement",
+      "scrollPosition": 0,
+      "trigger": "URL routes to QR studio",
+      "observed": {
+        "url": "http://localhost:8080/studio?mode=qr&url=https%3A%2F%2Fexample.com%2Fmenu%3Ft%3D1",
+        "body": "ROUT\nSign in\nSelect QR type\nLink & Web\nPayment\nContact & Messaging\nFile & Media\nUtility\nLive view\nN\u00ba 01\nScannable\n100% \u00b7 Optimal\nContrast\n17.5:1\nPass AA\nOptical profile\nStandard\nTolerant\nDetected modules\n33 \u00d7 33 grid\nOptimal\nError correction\nLevel H\n30% recovery\nQuiet zone\n72 px \u00b7 4.7 modules\nSafe border\nLogo coverage\n0.0% of max 30%\nWithin limit\nMinimum print size\n20 mm\nComfortable\nDownload QR code\nWEBSITE URL\n\nValid web address.\n\nSave\nPROTOCOL\nSTATIC\nDYNAMIC\nLees hoe dit werkt\nTurn it into a short link\nChoose your domain (ROUT or your own), get a short link and track every scan.\nQR Smart Labels\nCampagnes & UTM\nStyle your QR\n\nExample detected\n\nexample.com\n\nBrand it\nInstellingen\n\nTheme\n\nGeen theme selected\n\nAlle\nMinimaal\nKleurrijk\nDonker\nMerk\nGeen\nPaper\nMidnight\nPastel\nForest\nSunset\nOcean\nMono\nInverted\nNeon\nBlueprint\nTerracotta\n\nPattern\n\nSquare pattern selected\n\nSquare\nDots\nRounded\nOrganic mesh\nCalligraphy\nBallpoint\nChalk\nFine-tune\n\nCenter Logo\n\nNo center logo selected\n\nNone\nUpload\n\nA quiet zone is punched out behind the logo so the code stays scannable.\n\nColors\n\nAAA \u00b7 17.5:1\n\nForeground colour #1C1917, background transparent selected\n\nVoorgrond\n\nAchtergrond\n\nStyle presets\n\nSave current\nInk on Paper\nMidnight Monolith\nNeon Blueprint\nExport styles (JSON)\nImport styles\nFrame\nPrint size\n\nLIVE EXAMPLES\n\nReal profiles, real people.\nM\n\nmaximilien.brussels\n\nrout.be/maximilien.brussels\n\nView profile\nDiscover more profiles\n\nNo profile yet?\n\nStart the tour\n\nWHY ROUT\n\nSovereign QR infrastructure, built for print.\n\nEvery account gets a free @rout.be address, an Early Believer badge and a verified blue mark \u2014 no payment required.\n\n100% sovereign & private\n\nStatic codes are generated in your browser. No stealth tracking, no redirect lock-in, no selling of user data.\n\nHigh-precision ve",
+        "errors": []
+      },
+      "status": "passed"
+    },
+    {
+      "layout": "desktop",
+      "route": "/studio?mode=qr&url=https%3A%2F%2Fexample.com%2Fmenu%3Ft%3D1",
+      "trigger": "Download QR code",
+      "expected": "QR image file for https://example.com/menu?t=1",
+      "observed": {
+        "name": "rout-example-com-qr-png-20261107-013700.png",
+        "bytes": 87248,
+        "inputValues": [
+          "https://example.com/menu?t=1"
+        ],
+        "errors": []
+      },
+      "screenshot": "/tmp/browser/rout-import/desktop-qr-downloaded.png",
+      "status": "passed"
+    },
+    {
+      "layout": "desktop",
+      "route": "/",
+      "trigger": "Claim your identity",
+      "expected": "/auth account screen",
+      "observed": {
+        "destination": "/auth/sign-in",
+        "headings": [
+          "Sign in to ROUT"
+        ]
+      },
+      "screenshot": "/tmp/browser/rout-import/desktop-claim-destination.png",
+      "status": "passed",
+      "accountSubmission": "not attempted; original account backend unconfigured"
+    },
+    {
+      "layout": "phone",
+      "route": "/studio?mode=qr&url=https%3A%2F%2Fexample.com%2Fmenu%3Ft%3D1",
+      "trigger": "Download QR code",
+      "expected": "QR image file for https://example.com/menu?t=1",
+      "observed": {
+        "name": "rout-example-com-qr-png-20261107-013715.png",
+        "bytes": 87248,
+        "inputValues": [
+          "https://example.com/menu?t=1"
+        ],
+        "errors": []
+      },
+      "screenshot": "/tmp/browser/rout-import/phone-qr-downloaded.png",
+      "status": "passed"
+    },
+    {
+      "layout": "phone",
+      "route": "/",
+      "trigger": "Claim your identity",
+      "expected": "/auth account screen",
+      "observed": {
+        "destination": "/auth/sign-in",
+        "headings": [
+          "Sign in to ROUT"
+        ]
+      },
+      "screenshot": "/tmp/browser/rout-import/phone-claim-destination.png",
+      "status": "passed",
+      "accountSubmission": "not attempted; original account backend unconfigured"
+    }
+  ],
+  "blocked": [
+    "Original accounts and private data require compatible external database and Better Auth configuration. No credentials or account data copied.",
+    "Payment, email, OAuth, storage and scheduled services require configuration and verification."
+  ],
+  "routeModulesImported": 417,
+  "tests": "24 tests passed across five routing, documentation, and Omni-Bar suites.",
+  "build": "OK (latest automatic build diagnostics)",
+  "verified": "Home page, all nine home-page chapters, desktop and phone menus, Escape/focus return, language switching, animated globe readiness, URL-to-QR navigation, and real PNG downloads.",
+  "unverified": [
+    "All 417 route modules and every secondary interaction have not been tested.",
+    "Authenticated flows blocked by original account/database configuration; sign-in screen visibly reports this.",
+    "Detailed motion/media comparison against a separately hosted source unavailable: GitHub repository source was imported."
+  ],
+  "layoutGaps": [
+    "Original preview-only environment switcher overlaps lower phone controls; retained from source.",
+    "Original menu hint truncation retained."
+  ],
+  "staticFallbacksAdded": false
+}

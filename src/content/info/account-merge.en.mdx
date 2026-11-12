@@ -1,0 +1,23 @@
+---
+title: "Merge accounts"
+description: "Bring two ROUT accounts together with control over data and identity."
+category: "info"
+last_updated: "2026-11-01"
+ai_ready: true
+---
+
+# Merge accounts
+
+## Check both accounts first
+
+A ROUT merge uses a short-lived ticket from the primary account, a preview by the second account, an email code, and explicit choices for name and design. The handlers require fresh passkey verification.
+
+<StepByStep><Step title="Start with the account that stays">Create a PIN/QR ticket. A ticket does not replace verification.</Step><Step title="Check the second account">View the preview and confirm the email code.</Step><Step title="Choose deliberately">Choose the name and design. The database executes the dependent mutations atomically.</Step></StepByStep>
+
+## Not all accounts can merge
+
+Identity, financial, encrypted ledger, and disclosure data can block the merge. Duplicates follow explicit rules; not everything is moved blindly. This does not merge accounts in external apps.
+
+## Current availability
+
+The SQL capability has been prepared and tested offline, but live migrations and the rout_app connection remain blocked. The preview does not yet prove a completed sign-in or merge flow.

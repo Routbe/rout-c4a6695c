@@ -1,0 +1,53 @@
+{
+  "repository": "https://github.com/Routbe/rout-compass-explorer-93a611eb",
+  "commit": "427ac48",
+  "checkedFiles": 2861,
+  "missingFiles": [],
+  "changedFiles": [
+    "src/start.ts"
+  ],
+  "requiredAdaptations": {
+    "src/start.ts": "Preserved generated Cloud auth attachment; original ROUT request and CSRF middleware unchanged."
+  },
+  "sourceParity": true,
+  "tests": "35 tests passed across eight original suites",
+  "browserChecks": [
+    {
+      "viewport": "current",
+      "menu": "passed",
+      "urlToQr": "passed",
+      "downloadBytes": 80062,
+      "pageErrors": []
+    },
+    {
+      "viewport": "desktop",
+      "menu": "passed",
+      "urlToQr": "passed",
+      "downloadBytes": 409574,
+      "pageErrors": []
+    },
+    {
+      "viewport": "phone",
+      "menu": "passed",
+      "urlToQr": "passed",
+      "downloadBytes": 64268,
+      "pageErrors": []
+    }
+  ],
+  "exactProductionParity": "Not verified: original accounts and connected services require secure configuration.",
+  "neonLinked": true,
+  "neonVerification": {
+    "connection": "My Neon",
+    "reachable": true,
+    "publicTableCount": 193,
+    "runtimeRoleExists": true,
+    "loginCanAssumeRuntimeRole": true,
+    "runtimeRoleSuperuser": false,
+    "runtimeRoleBypassesRls": false,
+    "runtimeRoleCanUseTableOwnerRole": false,
+    "recordsChanged": false,
+    "permissionsChanged": false,
+    "authenticatedEndToEnd": "not verified; original account signing configuration not present",
+    "postConnectionHomepage": "ROUT home renders, no browser page errors"
+  }
+}

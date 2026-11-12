@@ -1,0 +1,46 @@
+import { act, fireEvent, render } from "@testing-library/react";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import type { SocialGridConfig } from "@/lib/social-grid";
+vi.mock("@tanstack/react-router", () => ({ useRouter: () => ({ history: { push: vi.fn() } }) }));
+vi.mock("react-i18next", () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
+import { SocialGridCard } from "./SocialGridCard";
+const config = { title: "", items: [{ id: "tile", mediaUrl: "/api/public/gallery-media?path=22222222-2222-4222-8222-222222222222%2Fomni-cover.webp", kineticPreviewUrl: "/api/public/gallery-media?path=22222222-2222-4222-8222-222222222222%2Fomni-preview.webm", targetUrl: "https://example.com/story", platform: "article", caption: "Story", contentType: "article" }] } as SocialGridConfig;
+let changed: (() => void) | undefined;
+let reduced = false;
+beforeEach(() => {
+  reduced = false; changed = undefined;
+  vi.spyOn(window, "matchMedia").mockImplementation(() => ({ get matches() { return reduced; }, addEventListener: (_event: string, fn: () => void) => { changed = fn; }, removeEventListener: vi.fn() }) as unknown as MediaQueryList);
+  vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue(undefined);
+  vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {});
+});
+afterEach(() => { vi.restoreAllMocks(); vi.useRealTimers(); });
+it("long press starts a muted loop after 350ms and touch end pauses it", async () => {
+  vi.useFakeTimers();
+  const view = render(<SocialGridCard config={config} style={{}} />);
+  const link = view.container.querySelector("a"); if (!link) throw new Error("no_link");
+  const video = view.container.querySelector("video"); if (!video) throw new Error("no_video");
+  expect(video.muted).toBe(true); expect(video.loop).toBe(true);
+  fireEvent.touchStart(link, { touches: [{ clientX: 20, clientY: 20 }] });
+  await act(async () => { vi.advanceTimersByTime(349); });
+  expect(video.play).not.toHaveBeenCalled();
+  await act(async () => { vi.advanceTimersByTime(1); });
+  expect(video.play).toHaveBeenCalledTimes(1);
+  fireEvent.touchEnd(link);
+  expect(video.pause).toHaveBeenCalled();
+  view.unmount();
+});
+it("reduced motion prevents playback and changing the preference pauses an active loop", async () => {
+  vi.useFakeTimers();
+  const view = render(<SocialGridCard config={config} style={{}} />);
+  const link = view.container.querySelector("a"); if (!link) throw new Error("no_link");
+  const video = view.container.querySelector("video"); if (!video) throw new Error("no_video");
+  fireEvent.touchStart(link, { touches: [{ clientX: 20, clientY: 20 }] });
+  await act(async () => { vi.advanceTimersByTime(350); });
+  expect(video.play).toHaveBeenCalledTimes(1);
+  act(() => { reduced = true; changed?.(); });
+  expect(video.pause).toHaveBeenCalled();
+  fireEvent.touchStart(link, { touches: [{ clientX: 20, clientY: 20 }] });
+  await act(async () => { vi.advanceTimersByTime(350); });
+  expect(video.play).toHaveBeenCalledTimes(1);
+  view.unmount();
+});

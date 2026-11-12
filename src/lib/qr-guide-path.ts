@@ -1,0 +1,2 @@
+const paths: Record<string, string> = { iban: "payment/sepa", wero: "payment/wero", bancontact: "payment/wero", payconiq: "payment/wero", paypal: "payment/paypal", crypto: "payment/crypto", vcard: "contact/vcard", whatsapp: "contact/whatsapp", email: "contact/email", sms: "contact/sms", pdf: "media/pdf", image: "media/image", wifi: "tools/wifi", event: "tools/calendar", maps: "tools/maps" };
+export function qrGuidePath(type: string) { const path = paths[type]; return path ? `/qr-code-generator/${path}` : undefined; }

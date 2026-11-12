@@ -1,0 +1,33 @@
+---
+title: "Sécurité du compte"
+description: "Passkeys, fusion de comptes et limites de la récupération."
+category: "info"
+last_updated: "2026-11-01"
+ai_ready: true
+---
+
+# Sécurité du compte
+
+Un compte sécurisé nécessite plus qu'une méthode de connexion robuste. Gardez le contrôle sur vos options de récupération et vos fournisseurs associés.
+
+## Passkeys et vérification en deux étapes
+
+ROUT utilise l'intégration de compte existante pour les passkeys et la vérification en deux étapes. Une passkey peut être liée à votre appareil ou à votre gestionnaire de mots de passe. Les options disponibles dépendent de votre appareil et du service de compte configuré.
+
+## Modifications sensibles
+
+Une session active ne suffit pas à elle seule pour toutes les modifications. Pour la fusion, la définition ou modification d'un mot de passe et certains paramètres d'authentification en deux étapes, un code supplémentaire par e-mail peut être requis. Ne partagez jamais ces codes avec une application connectée.
+
+## Fusionner des comptes
+
+La fusion déplace des données et des accès, et peut avoir des conséquences irréversibles. Vérifiez la source, la destination et les fournisseurs associés. L'opération peut être refusée si des données d'identité ou d'audit non transférables sont présentes. Consultez d'abord [Fusionner des comptes](/info/account-merge).
+
+## La récupération n'est pas une garantie générale
+
+Récupérer un compte et déchiffrer un ledger chiffré sont deux choses distinctes. Sans clé de ledger exploitable, les contenus plus anciens peuvent rester illisibles. Threshold Recovery et WebAuthn PRF ne constituent pas des garanties de récupération éprouvées dans cet environnement.
+
+<Callout type="warning" title="Préservez soigneusement vos accès">Ne supprimez pas votre dernière méthode de connexion utilisable sans vérifier au préalable qu'une alternative fonctionnelle est en place. Une configuration manquante d'e-mail ou de fournisseur peut empêcher toute récupération.</Callout>
+
+## En savoir plus
+
+[Cryptographie](/safety/cryptography) décrit les limites des clés ; [Confidentialité](/safety/privacy) décrit le traitement des données.

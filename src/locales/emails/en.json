@@ -1,0 +1,12 @@
+{
+  "login.subject": "Your ROUT sign-in link",
+  "login.preview": "Your code is {{otp_code}} — or tap the button to sign in.",
+  "login.greeting": "Hi {{user_handle}},",
+  "login.greetingAnon": "Hi,",
+  "login.body": "Tap the button to sign in right away. On another device? Type this code on the sign-in screen instead.",
+  "login.cta": "Sign in to ROUT",
+  "login.codeLabel": "Your sign-in code",
+  "login.expiry": "The link and code work for 15 minutes, once.",
+  "login.ignore": "Didn't ask for this? You can safely ignore this email.",
+  "footer": "ROUT · Made in Belgium · No tracking in this email."
+}

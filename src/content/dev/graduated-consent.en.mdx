@@ -1,0 +1,43 @@
+---
+title: "Graduated consent"
+description: "Start with a plain sign-in and ask for verification only later."
+category: "dev"
+last_updated: "2026-11-11"
+ai_ready: true
+---
+
+# Graduated consent
+
+Don't ask for everything at first sign-in. Start small and ask for more at the moment you truly need it. The consent screen then shows only what is new.
+
+## Step 1: plain sign-in
+
+Start with `openid`, optionally `profile` and `email`. You receive a `sub` that only applies to your app.
+
+## Step 2: verify with ROUT when needed
+
+Later, send the member to `/oauth/authorize` again with the extra scope. The member only sees the new request.
+
+```text
+# Day 1: plain sign-in
+scope=openid profile email
+
+# Later, at checkout: "Verify with ROUT"
+scope=openid sybil:verify
+```
+
+| Scope | What you get | Requires |
+| --- | --- | --- |
+| `sybil:verify` | Proof this is one real human | Tier 1 or 2 |
+| `identity:legal_name` | Legal name | Tier 2 |
+| `identity:national_id` | National id number | Tier 2, trusted KYC partner and a fresh step-up |
+
+## When the member isn't verified yet
+
+If the member lacks the required tier, the claim is simply missing. Handle that gracefully: explain and let the member try again later. For `identity:national_id` you otherwise get a 403 with `tier_2_required` or `step_up_required`.
+
+## Good habits
+
+- Request a sensitive scope only at the action that needs it.
+- Store only the result you need, not the whole token.
+- Every sensitive disclosure is logged, so members can see who received what.

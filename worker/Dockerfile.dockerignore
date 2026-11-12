@@ -1,0 +1,7 @@
+# Dockerfile-scoped ignore rules for builds from the repository root.
+**/.git
+**/.env*
+**/node_modules
+**/dist
+**/.output
+**/.lovable

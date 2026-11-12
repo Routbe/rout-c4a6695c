@@ -1,0 +1,50 @@
+import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { ReactNode } from "react";
+const mocks = vi.hoisted(() => ({ get: vi.fn(), terminate: vi.fn(), cancel: vi.fn(async () => {}), clear: vi.fn(), signOut: vi.fn(async () => {}), invalidate: vi.fn(async () => {}), navigate: vi.fn() }));
+vi.mock("@tanstack/react-query", () => {
+  const client = { cancelQueries: mocks.cancel, clear: mocks.clear };
+  return { useQueryClient: () => client };
+});
+vi.mock("@tanstack/react-router", () => ({ useRouter: () => ({ invalidate: mocks.invalidate, navigate: mocks.navigate }) }));
+vi.mock("@/lib/auth.functions", () => ({ getSessionUser: mocks.get }));
+vi.mock("@/lib/auth-client", () => ({ authClient: { signOut: mocks.signOut } }));
+vi.mock("@/lib/crypto-enclave/client", () => ({ terminateEnclave: mocks.terminate }));
+vi.mock("@/lib/signup-profile.functions", () => ({ syncSignupProfile: vi.fn(async () => {}) }));
+vi.mock("@/lib/referral.functions", () => ({ claimReferral: vi.fn() }));
+vi.mock("@/lib/referral", () => ({ readReferrer: () => null, clearReferrer: vi.fn() }));
+vi.mock("@/lib/local-first/snapshot-store", () => ({ clearSnapshots: vi.fn(async () => {}) }));
+import { AuthProvider, useAuth } from "./useAuth";
+const owner = (id: string) => ({ id, user_metadata: { signup_profile_applied: true } });
+const wrapper = ({ children }: { children: ReactNode }) => <AuthProvider>{children}</AuthProvider>;
+describe("crypto state across auth transitions", () => {
+  beforeEach(() => { vi.clearAllMocks(); mocks.get.mockReset(); vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true }))); });
+  afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+  it("ignores a session refresh that completes after logout and terminates crypto before waiting for logout", async () => {
+    mocks.get.mockResolvedValueOnce(owner("A"));
+    const hook = renderHook(useAuth, { wrapper });
+    await waitFor(() => expect(hook.result.current.user?.id).toBe("A"));
+    let resolve: ((value: unknown) => void) | undefined;
+    mocks.get.mockImplementationOnce(() => new Promise((r) => { resolve = r; }));
+    let refresh: Promise<void>;
+    act(() => { refresh = hook.result.current.refresh(); });
+    await act(async () => { await hook.result.current.signOut(); });
+    expect(mocks.terminate).toHaveBeenCalled();
+    await act(async () => { resolve?.(owner("A")); await refresh; });
+    expect(hook.result.current.user).toBeNull();
+  });
+  it("applies only the newest refresh and drops private crypto/cache on owner change", async () => {
+    mocks.get.mockResolvedValueOnce(owner("A"));
+    const hook = renderHook(useAuth, { wrapper });
+    await waitFor(() => expect(hook.result.current.user?.id).toBe("A"));
+    let resolve: ((value: unknown) => void) | undefined;
+    mocks.get.mockImplementationOnce(() => new Promise((r) => { resolve = r; })).mockResolvedValueOnce(owner("B"));
+    let stale: Promise<void>;
+    act(() => { stale = hook.result.current.refresh(); });
+    await act(async () => { await hook.result.current.refresh(); });
+    await act(async () => { resolve?.(owner("A")); await stale; });
+    expect(hook.result.current.user?.id).toBe("B");
+    expect(mocks.terminate).toHaveBeenCalledTimes(2);
+    expect(mocks.clear).toHaveBeenCalledTimes(2);
+  });
+});

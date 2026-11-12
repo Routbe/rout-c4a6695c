@@ -1,0 +1,46 @@
+---
+title: "Meerdere workspaces beheren als agency"
+description: "Schakel met één login tussen je persoonlijke omgeving en de workspaces van je klanten."
+category: "support"
+last_updated: "2026-11-01"
+ai_ready: true
+seo_title: "Meerdere workspaces beheren als agency | ROUT"
+seo_description: "Freelancers en bureaus wisselen met één ROUT-login tussen klantomgevingen, elk met een eigen Profiel Hub, team, QR-codes en Developer Console."
+seo_keywords: ["meerdere workspaces", "agency", "klantomgevingen", "workspace wisselen", "ROUT"]
+schema_type: "Article"
+---
+
+## Eén login, meerdere omgevingen
+
+Je persoonlijke account is je enige login. Elke workspace waarin je lid bent, verschijnt in de **workspacekiezer** bovenaan Studio. Wisselen vraagt geen nieuwe login: ROUT controleert bij elke wissel op de server of je nog lid bent.
+
+Elke omgeving heeft haar eigen:
+
+- **Profiel Hub** — de link-in-bio van de klant op `rout.be/w/<naam>`, los van je persoonlijke profiel;
+- QR-codes, korte links en statistieken;
+- Developer Console met API-sleutels en OAuth-apps;
+- team, domeinen en opslag.
+
+<WorkspaceVsPersonalTable />
+
+## Wisselen tussen klanten
+
+<OnboardingSteps steps={[
+  { title: "Open de kiezer", text: "Klik bovenaan Studio op de naam van de actieve omgeving." },
+  { title: "Kies de klant", text: "Selecteer de workspace. Je blijft op dezelfde soort pagina, nu in die omgeving." },
+  { title: "Controleer de naam", text: "Kijk naar de naam bovenaan voor je assets, sleutels of domeinen wijzigt." },
+  { title: "Terug naar jezelf", text: "Kies Persoonlijk om weer je eigen profiel en QR-codes te zien." }
+]} />
+
+Open je Studio terwijl een workspace actief is, dan opent ROUT automatisch de Profiel Hub van die workspace in plaats van je persoonlijke.
+
+## Tips voor bureaus
+
+- Laat de klant zelf **eigenaar** zijn en neem zelf de rol **Admin**: de klant houdt facturatie en eindbeslissing.
+- Gebruik per klant een aparte workspace; deel nooit sleutels tussen klanten.
+- Elke workspace-URL bevat de naam (`/studio/w/<naam>/…`), dus een bladwijzer per klant werkt.
+
+<FAQ items={[
+  { question: "Hoeveel workspaces kan ik hebben?", answer: "De kiezer toont tot honderd workspaces waarin je lid bent." },
+  { question: "Ziet mijn klant mijn andere klanten?", answer: "Nee. Leden zien alleen de mensen en gegevens van hun eigen workspace." }
+]} />

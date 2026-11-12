@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="x-apple-disable-message-reformatting" />
+<meta name="color-scheme" content="light only" />
+<meta name="supported-color-schemes" content="light only" />
+<title>Cancellation confirmed — ROUT</title>
+<!--[if mso]><noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript><![endif]-->
+<style type="text/css">
+:root { color-scheme: light only; supported-color-schemes: light only; }
+body { margin: 0 !important; padding: 0 !important; width: 100% !important; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; }
+@media only screen and (max-width: 600px) { .rout-card { border-radius: 12px !important; } .rout-padding { padding: 24px 18px !important; } }
+</style>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f6f6f4; -webkit-font-smoothing: antialiased;">
+<div style="display: none; max-height: 0px; overflow: hidden; opacity: 0; font-size: 1px; line-height: 1px; color: #ffffff; mso-hide: all;">Your subscription has been cancelled. You keep access until the end of the current period. &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; </div>
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f6f6f4; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;">
+<tr><td align="center" style="padding: 40px 16px;">
+<!--[if mso]><table role="presentation" align="center" width="520" border="0" cellspacing="0" cellpadding="0"><tr><td><![endif]-->
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="rout-card" style="max-width: 520px; background-color: #ffffff; border: 1px solid #e6e6e1; border-radius: 20px; overflow: hidden;">
+<tr><td class="rout-padding" style="padding: 28px 28px 20px 28px; border-bottom: 1px solid #f0f0ec;">
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%"><tr>
+<td valign="top" width="42"><a href="https://rout.be" target="_blank" style="text-decoration: none;"><img src="https://rout.be/img/rout-bunny.png" width="34" height="34" alt="ROUT" style="display: block; border: 0;"></a></td>
+<td valign="top"><div style="font-weight: 600; font-size: 16px; line-height: 1.2; letter-spacing: 0.14em; color: #111111; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;">ROUT</div><div style="font-size: 12px; color: #777777; margin-top: 3px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;">Sovereign Infrastructure</div></td>
+<td valign="top" align="right" style="font-weight: 500; font-size: 11px; line-height: 1.2; color: #888888; letter-spacing: 0.05em; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;"><span style="font-size: 12px;">•</span> CANCELED</td>
+</tr></table>
+</td></tr>
+<tr><td class="rout-padding" style="padding: 28px 28px 24px 28px; font-size: 14px; line-height: 22px; color: #222222; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;">
+<h1 style="margin: 0 0 12px 0; font-size: 20px; line-height: 28px; font-weight: 700; color: #111111; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;">Cancellation confirmed</h1>
+<p style="margin: 0 0 16px 0; color: #222222; font-size: 14px; line-height: 22px;">{% if params.NAME or params.name %}Dear {{ params.NAME | default: params.name }},{% else %}Dear there,{% endif %}</p>
+<p style="margin: 0 0 20px 0; color: #444444; font-size: 14px; line-height: 22px;">We confirm that your subscription has been cancelled. You will not be charged again.</p>
+<table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: #fafafa; border: 1px solid #eaeaea; border-radius: 10px; margin: 0 0 24px 0;"><tr><td style="padding: 18px 20px; font-size: 13px; line-height: 22px; color: #444444; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;"><div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: #888888; margin-bottom: 10px;">Overview:</div><table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0"><tr><td style="padding: 4px 0; color: #666666; vertical-align: top;">Plan:</td><td align="right" style="padding: 4px 0 4px 12px; font-weight: 700; color: #111111; word-break: break-word;">{{ params.PLAN | default: params.plan | default: "ROUT Node" }}</td></tr><tr><td style="padding: 4px 0; color: #666666; vertical-align: top;">Access until:</td><td align="right" style="padding: 4px 0 4px 12px; font-weight: 600; color: #111111; word-break: break-word;">{{ params.END_DATE | default: params.end_date | default: "End of current period" }}</td></tr></table></td></tr></table>
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 24px;"><tr><td align="center"><span style="display: inline-block; margin: 0 4px 8px 4px;"><a href="{{ params.URL | default: params.url | default: 'https://rout.be/dashboard' }}" target="_blank" style="display: inline-block; background-color: #ffffff; color: #111111; border: 1px solid #e6e6e1; text-decoration: none; padding: 13px 26px; border-radius: 10px; font-size: 14px; font-weight: 600; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; letter-spacing: -0.01em;">Reactivate subscription &rarr;</a></span></td></tr></table>
+<p style="margin: 0 0 20px 0; color: #444444; font-size: 14px; line-height: 22px;">Your data is kept in line with our privacy policy. Changed your mind? You can reactivate at any time.</p>
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin-top: 20px;"><tr><td style="border-left: 3px solid #111111; padding-left: 14px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;"><div style="font-weight: 700; font-size: 14px; color: #111111;">ROUT Billing Desk</div><div style="font-size: 12px; color: #666666; margin-top: 2px;">Finance &amp; Subscriptions</div></td></tr></table>
+</td></tr>
+<tr><td class="rout-padding" style="padding: 20px 28px 28px 28px; background-color: #fafafa; border-top: 1px solid #f0f0ec; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;">
+<div style="margin-bottom: 20px;"><a href="https://rout.be/rout.be" target="_blank" style="text-decoration: none;"><img src="https://rout.be/img/verified-on-rout.png" width="160" height="34" alt="Verified on ROUT" style="display: block; border: 0; width: 160px; height: 34px;"></a></div>
+<div style="font-size: 12px; line-height: 1.6; color: #666666; margin-bottom: 16px;"><a href="https://rout.be" target="_blank" style="color: #111111; text-decoration: none;">rout.be</a> <span style="color: #cccccc; margin: 0 8px;">·</span> <a href="https://rout.be/privacy" target="_blank" style="color: #666666; text-decoration: none;">Privacy</a> <span style="color: #cccccc; margin: 0 8px;">·</span> <a href="https://rout.be/terms" target="_blank" style="color: #666666; text-decoration: none;">Terms</a> <span style="color: #cccccc; margin: 0 8px;">·</span> <a href="https://rout.be/manifesto" target="_blank" style="color: #666666; text-decoration: none;">Manifesto</a></div>
+<div style="border-top: 1px solid #eeeeea; padding-top: 14px; font-size: 11px; line-height: 1.6; color: #888888;"><div>© 2026 ROUT <span style="color: #cccccc;">·</span> Open Source (AGPLv3)</div><div style="margin-top: 2px; color: #777777;">Designed &amp; engineered by <a href="https://delplanche.cloud" target="_blank" style="color: #111111; text-decoration: underline; font-weight: 600;">Delplanche</a></div></div>
+</td></tr>
+</table>
+<!--[if mso]></td></tr></table><![endif]-->
+</td></tr></table>
+</body>
+</html>

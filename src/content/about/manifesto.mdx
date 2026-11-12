@@ -1,0 +1,69 @@
+---
+title: "Manifesto"
+description: "De mens is geen product. Onze keuzes voor autonomie, open broncode en privacy."
+category: "about"
+last_updated: "2026-11-01"
+ai_ready: true
+---
+
+# De mens is geen product.
+
+Een naam. Een identiteit. Een plek op het web. Niet geleend van een platform, maar onder jouw controle.
+
+## Geen toestemming om je te exploiteren
+
+Je hoeft niet te kiezen tussen meedoen en gevolgd worden. ROUT kiest voor een andere verhouding: software dient de gebruiker. Niet een advertentiemodel, niet de verkoop van gedrag, niet een verborgen profiel van wie je bent.
+
+Dit begint met bescheidenheid. Vraag alleen gegevens die nodig zijn. Leg uit waarom. Geef geen persoonsgegevens door alleen omdat een integratie ze kan ontvangen. Een klik op “Login met ROUT” is geen blanco volmacht.
+
+<Callout type="success" title="Onze grens">
+Geen advertentietrackers, geen trackingcookies en geen third-party font-CDN’s. Lettertypen en visuele assets worden lokaal geleverd. Functionele sessies blijven nodig voor aanmelden.
+</Callout>
+
+## Je identiteit is niet je e-mailadres
+
+Een adres kan veranderen. Een naam kan groeien. Een bedrijf kan een nieuw domein gebruiken. Geen van die veranderingen hoort je digitale geschiedenis te breken.
+
+ROUT gebruikt standaard OpenID Connect om apps een gecontroleerde identiteit te geven. Pairwise identifiers beperken het hergebruik van dezelfde identifier tussen apps. De gebruiker bepaalt welke claims gedeeld worden. Een app moet zelf de ontvangen tokens controleren en lokale accounts zorgvuldig koppelen.
+
+### Privacy is geen magie
+
+Een standaard OIDC-aanmelding is niet onzichtbaar voor ROUT. Wij verwerken de aanvraag, het toestemmingsmoment en de uitgifte van het token. Wie anders beweert, verwart een belofte met cryptografie.
+
+Opt-in auditgegevens kunnen versleuteld worden opgeslagen. Dat beperkt de leesbaarheid van opgeslagen inhoud; het maakt de aanmeldinfrastructuur niet blind. In [Transparantie](/safety/transparency) scheiden we waarneembare gebeurtenissen, operationele gegevens en versleutelde inhoud.
+
+## Open broncode is een machtsverdeling
+
+Open source gaat niet alleen over kunnen kijken. Je moet kunnen begrijpen, aanpassen en zelf exploiteren. Daarom kiezen we voor **AGPL-3.0-or-later**: network copyleft vraagt dat gebruikers van een aangepaste netwerkdienst toegang krijgen tot de bijbehorende broncode, volgens de licentievoorwaarden.
+
+Dat is geen verbod op commercie. Het is een grens aan het afsluiten van gemeenschappelijk werk. Licentieverplichtingen hangen af van het gebruik en de distributie; laat juridische vragen beoordelen in plaats van deze tekst als advies te gebruiken.
+
+### Geen vrijheid op papier
+
+Controle vraagt meer dan een downloadknop. Open protocollen, expliciete gegevensmodellen en gedocumenteerde beperkingen maken migratie mogelijk. Zelfhosting vraagt nog steeds beheer: updates, sleutels, opslag, e-mail en incidentrespons verdwijnen niet doordat code publiek is.
+
+## Een profiel zonder een surveillancecontract
+
+Het profiel verzamelt wat jij wilt tonen: links, gekoppelde accounts en herkenbare badges. Niet elk verificatiesignaal betekent hetzelfde. Een menselijke koppeling is geen openbaarmaking van een wettelijke naam. Een custom badge is een uitspraak van een uitgever, geen officiële ROUT-identiteitscontrole.
+
+<BadgePreview type="human" />
+
+Maak het verschil zichtbaar. Een ontvanger moet kunnen zien **wie** een badge heeft uitgegeven en **wat** precies wordt beweerd. Meer gegevens tonen is niet automatisch meer vertrouwen.
+
+## Veiligheid zonder gijzeling
+
+Browserkeys voor de versleutelde ledger horen bij de gebruiker. Verlies van die sleutels kan historische inhoud onleesbaar maken, maar mag het ROUT-account nooit blokkeren. Beveiliging die het account aan één onherstelbaar geheim ophangt, beschermt de verkeerde partij.
+
+Accounts samenvoegen is een bewuste, gecontroleerde handeling. Niet een achtergrondtaak op basis van hetzelfde e-mailadres. Identiteits-, financiële of ledgergegevens kunnen een merge blokkeren; we verbergen dat niet achter “naadloos”.
+
+## Onze belofte is toetsbaar
+
+| Principe | Wat het in de praktijk betekent |
+| --- | --- |
+| Minimale gegevens | Claims met toestemming, geen automatische primaire-e-mailfallback bij een mislukte privékeuze. |
+| Open standaarden | Fase 1 blijft compatibel met OIDC; blinded tokens horen bij een aparte toekomstige SDK. |
+| Open broncode | AGPL-3.0-or-later, met de werkelijke licentievoorwaarden als bron. |
+| Eerlijke grenzen | Geen post-quantum-, compliance- of uptimeclaims zonder bewijs. |
+| Toegankelijkheid | Leesbare contrasten, toetsenbordbediening en duidelijke betekenis naast kleur. |
+
+ROUT is niet af omdat een manifest dat zegt. Het wordt geloofwaardig wanneer de code, het beleid en de werking dezelfde grenzen respecteren.

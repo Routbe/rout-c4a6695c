@@ -1,0 +1,50 @@
+---
+title: "E-mail sync webhooks"
+description: "Handshake, handtekening en payload van user-email-updated."
+category: "dev"
+last_updated: "2026-11-11"
+ai_ready: true
+---
+
+# E-mail sync webhooks
+
+Als een lid een nieuw e-mailadres kiest, kan ROUT je app dat laten weten. Alleen apps die het lid uitdrukkelijk selecteert krijgen een bericht.
+
+## Je webhook registreren
+
+Stel in de Developer Console een webhook-URL in. Die moet `https` gebruiken op poort 443, zonder gebruikersnaam of wachtwoord, en mag niet naar `localhost`, interne namen of privé-IP-adressen wijzen. ROUT volgt geen redirects.
+
+## De payload
+
+```http
+POST /your/webhook HTTP/1.1
+Content-Type: application/json
+X-Rout-Signature: t=1793491200,v1=5d41402abc4b2a76b9719d911017c592...
+
+{"event":"https://schemas.rout.be/events/user-email-updated","sub":"PAIRWISE_SUBJECT","previous_email":"old@example.test","new_email":"new@example.test","updated_at":1793491200}
+```
+
+- `sub` is de app-specifieke code van het lid, dezelfde als in je tokens. Koppel daarop, nooit op e-mail.
+- `previous_email` kan `null` zijn.
+- Een privérelais wordt nooit stil vervangen door het echte adres.
+
+## De handtekening controleren
+
+`X-Rout-Signature` bevat `t` (unix-tijd) en `v1`: HMAC-SHA256 met je webhook-geheim over `<t>.<ruwe body>`, in hex. Controleer op de ruwe body, vóór JSON-parsing.
+
+```ts
+import { createHmac, timingSafeEqual } from "node:crypto";
+
+export function verifyRout(header: string, rawBody: string, secret: string) {
+  const parts = Object.fromEntries(header.split(",").map(p => p.split("=") as [string, string]));
+  const t = Number(parts.t);
+  if (!t || Math.abs(Date.now() / 1000 - t) > 300) return false; // replay window
+  const expected = createHmac("sha256", secret).update(`${t}.${rawBody}`).digest("hex");
+  const given = Buffer.from(parts.v1 ?? "", "hex");
+  return given.length === 32 && timingSafeEqual(given, Buffer.from(expected, "hex"));
+}
+```
+
+## Antwoorden
+
+Antwoord met een `2xx` zodra je het bericht hebt opgeslagen. Verwerk idempotent: hetzelfde bericht kan opnieuw komen. Zie ook de algemene [webhooks](/dev/webhooks).

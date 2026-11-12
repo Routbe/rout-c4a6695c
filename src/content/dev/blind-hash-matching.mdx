@@ -1,0 +1,79 @@
+---
+title: "Blind Hash Matching"
+description: "Herken bestaande klanten zonder lijsten van accounts te ontvangen."
+category: "dev"
+last_updated: "2026-11-11"
+ai_ready: true
+---
+
+# Blind Hash Matching
+
+Je app kent een klant misschien al via e-mail of GitHub. Met Blind Hash Matching vraag je ROUT niet "welke accounts heeft deze persoon?", maar stuur je hashes van wat jij al weet. De browser van het lid vergelijkt lokaal. Alleen de ene identiteit die het lid bevestigt komt terug.
+
+## Stap 1: vraag de scope aan
+
+Voeg `accounts:merge` toe aan de scopes van je app in de Developer Console en aan je autorisatieverzoek.
+
+## Stap 2: maak de hashes
+
+De invoer is exact `rout-bhm-v1|<client_id>|<kind>:<waarde>`. E-mail wordt getrimd en in kleine letters gezet; provider-ID's alleen getrimd. Toegestane soorten: `email`, `google`, `github`, `gitlab`, `apple`, `microsoft`, `discord`. Maximaal 20 hashes; de rest wordt genegeerd.
+
+```ts
+// Node 18+, Deno, Bun or browser
+async function bhm(clientId: string, kind: string, value: string) {
+  const v = kind === "email" ? value.trim().toLowerCase() : value.trim();
+  const data = new TextEncoder().encode(`rout-bhm-v1|${clientId}|${kind}:${v}`);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+const hashes = await Promise.all([
+  bhm(CLIENT_ID, "email", user.email),
+  bhm(CLIENT_ID, "github", user.githubId),
+]);
+location.href = authorizeUrl + "#rout_blind_hashes=" + hashes.slice(0, 20).join(",");
+```
+
+```python
+import hashlib
+
+def bhm(client_id: str, kind: str, value: str) -> str:
+    v = value.strip().lower() if kind == "email" else value.strip()
+    return hashlib.sha256(f"rout-bhm-v1|{client_id}|{kind}:{v}".encode()).hexdigest()
+
+fragment = "#rout_blind_hashes=" + ",".join([bhm(CLIENT_ID, "email", email)][:20])
+```
+
+```php
+<?php
+function bhm(string $clientId, string $kind, string $value): string {
+    $v = $kind === 'email' ? strtolower(trim($value)) : trim($value);
+    return hash('sha256', "rout-bhm-v1|{$clientId}|{$kind}:{$v}");
+}
+$fragment = '#rout_blind_hashes=' . implode(',', array_slice([bhm($clientId, 'email', $email)], 0, 20));
+```
+
+## Stap 3: zet ze in het fragment
+
+Hashes gaan na het `#`, nooit in de query. Een fragment wordt niet naar servers gestuurd en komt dus niet in logs.
+
+```text
+https://rout.be/oauth/authorize?response_type=code&client_id=CLIENT_ID
+  &redirect_uri=https%3A%2F%2Fapp.example%2Fcallback
+  &scope=openid%20accounts%3Amerge&code_challenge=...&code_challenge_method=S256
+  #rout_blind_hashes=3f2a...,9bc1...
+```
+
+## Stap 4: lees de bevestigde match
+
+Bevestigt het lid een match, dan staat die alleen in het id_token, niet in UserInfo:
+
+```json
+{ "sub": "PAIRWISE_SUBJECT", "rout_matched_account": { "kind": "email", "value": "jona@example.test" } }
+```
+
+Koppel de ROUT-`sub` binnen een transactie aan precies die gebruiker, en weiger als die gebruiker al aan een ander ROUT-account hangt. Ontbreekt de claim, dan is er geen match of weigerde het lid: ga verder als nieuw account.
+
+## Wat je nooit krijgt
+
+Geen lijst van gekoppelde accounts, geen bevestiging dat een hash niet matcht en geen match zonder toestemming. De claim `linked_accounts` wordt aanvaard maar nooit gevuld. Lees ook [waarom ROUT geen lijsten deelt](/info/no-account-lists).

@@ -1,0 +1,49 @@
+---
+title: "Get started"
+description: "Registreer je app, configureer PKCE en test je callback."
+category: "dev"
+last_updated: "2026-11-01"
+ai_ready: true
+---
+
+# Get started
+
+Begin met een app die uitsluitend de gegevens vraagt die zij werkelijk nodig heeft. Registreer haar in de [ROUT Console](/console) en test de volledige redirect voordat je productiegebruik toestaat.
+
+## Registreer je client
+
+Geef de app een herkenbare naam en leg de toegestane callback-URI’s vast. Een client ID is een identifier, geen geheim. Een client secret hoort alleen op een vertrouwde server. Een browser- of mobiele app kan geen duurzaam geheim bewaren.
+
+## Scheid test en productie
+
+Gebruik afzonderlijke clientregistraties en exacte callback-URI’s voor je test- en productieomgeving. Gebruik geen wildcard om een verkeerde callback te maskeren. Houd de issuer en de publieke deployment-origin consistent.
+
+## Authorization Code met PKCE
+
+| Waarde | Doel |
+| --- | --- |
+| `client_id` | De geregistreerde app |
+| `redirect_uri` | Exact geregistreerde callback |
+| `state` | Bind de terugkeer aan de gestarte aanvraag |
+| `nonce` | Bind het ID-token aan de aanvraag |
+| `code_challenge` | PKCE S256 challenge |
+| `scope` | Alleen de benodigde gegevens |
+
+```text
+1. Ontdek de issuer via /.well-known/openid-configuration.
+2. Genereer state, nonce en een PKCE verifier per aanvraag.
+3. Stuur de browser naar het geadverteerde authorization_endpoint.
+4. Controleer state bij de callback.
+5. Wissel de code in met de oorspronkelijke verifier.
+6. Valideer issuer, audience, nonce, handtekening en geldigheid.
+```
+
+## Controleer echte fouten
+
+Test ook geweigerde toestemming, een verlopen code, een verkeerde callback en hergebruik van een code. Sla tokens niet op in logregels of URL’s. Gebruik een onderhouden OIDC-library in plaats van een eigen tokenvalidator.
+
+<Callout type="warning" title="Deployment-afhankelijk">Een aanwezige Console en documentatie bewijzen niet dat de accountdienst, databaserol en signing keys van een deployment werken. Test registratie, callback en sessie met een echte account voor je live gaat.</Callout>
+
+## Volgende stap
+
+[Identity & OIDC](/dev/identity-oidc) beschrijft de protocolgrenzen. [Webhooks](/dev/webhooks) beschrijft asynchrone wijzigingen.

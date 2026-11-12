@@ -1,0 +1,63 @@
+---
+title: "La carte ROUT"
+description: "Ta carte sécurisée pour payer et accéder, avec un grand QR au recto vers la carte profil de ton choix et un petit QR sécurisé au verso."
+category: "about"
+last_updated: "2026-11-11"
+ai_ready: true
+seo_title: "Carte ROUT — paiement, accès et ton profil sur une seule carte | ROUT"
+seo_keywords: ["carte ROUT", "paiement NFC", "carte d'accès numérique", "Google Wallet", "Apple Wallet", "carte profil"]
+faqs:
+  - question: "Quelle différence entre la carte ROUT et une carte profil ?"
+    answer: "La carte ROUT est ta carte sécurisée pour payer et accéder (NFC et, dans Google Wallet, un QR qui change chaque minute). Une carte profil n'est qu'une carte de visite avec un QR vers ton profil public ou ton alias : pas de NFC, pas de paiement."
+  - question: "Où mène le grand QR au recto ?"
+    answer: "Vers la carte profil que tu choisis : ton profil public ou ton profil alias. Tout le monde peut le scanner. Il ne donne jamais accès et ne peut pas payer."
+  - question: "À quoi sert le petit QR au verso ?"
+    answer: "C'est ton code sécurisé de paiement et d'accès. Il ne mène jamais à un profil, expire vite et ne fonctionne qu'une fois. Ne le partage pas."
+  - question: "Et si je perds ma carte ?"
+    answer: "Gèle-la dans ton compte. Tous les codes QR et codes en direct deviennent aussitôt invalides jusqu'au dégel. Le grand QR n'ouvre toujours que ton profil."
+  - question: "Qui peut obtenir une carte ROUT ?"
+    answer: "Uniquement les membres vérifiés. Sans profil vérifié, pas de cartes wallet."
+---
+
+# La carte ROUT
+
+La carte ROUT est ta carte sécurisée pour **payer et accéder**. Chaque face a son rôle, et elle existe à côté de deux cartes profil ordinaires. Seuls les **membres vérifiés** peuvent créer des cartes.
+
+## Deux faces, deux rôles
+
+| Face | Quoi | Qui peut scanner |
+| --- | --- | --- |
+| **Recto — grand QR** | Ouvre la carte profil choisie : profil public ou profil alias | Tout le monde. Ne donne jamais accès, ne paie pas |
+| **Verso — petit QR + NFC** | Ton code sécurisé de paiement et d'accès | Seulement un lecteur ou une caisse vérifiés |
+
+Pour ton profil public, le grand QR se termine par six chiffres (`rout.be/<nom>/123456`) qui changent **toutes les 10 minutes** : une photo transférée de ta carte devient vite périmée. Un partenaire (piscine, transport) peut vérifier si le code est encore frais ; le visiteur arrive simplement sur ton profil.
+
+Le petit QR au verso est un long code sécurisé à usage unique qui expire **chaque minute**. Il ne mène jamais à un profil.
+
+## Choisis où mène le recto
+
+Dans l'écran de la carte ROUT, choisis **Profil public** ou **Profil alias** sous **Grand QR au recto**. Attention : si l'alias est choisi, quiconque scanne ta carte voit que cet alias t'appartient.
+
+## Trois cartes dans ton Wallet
+
+| Carte | But | NFC | QR |
+| --- | --- | --- | --- |
+| **Carte ROUT** (Sovereign Key) | Paiement et accès | Oui | Google Wallet : QR qui change chaque minute, valable une fois. Apple Wallet : pas de QR, NFC uniquement |
+| **Carte profil public** | Ta carte de visite | Non | QR vers ton profil public |
+| **Carte profil alias** | Carte de visite de ton alias | Non | QR vers ton profil alias |
+
+La carte ROUT du Wallet ne contient aucune donnée de profil. Les cartes profil n'ont jamais de NFC et ne paient jamais. Plus d'infos : [Wallet](/info/wallet).
+
+<Callout type="info" title="En attente d'approbation">La carte ROUT sécurisée dans Google Wallet et Apple Wallet sera disponible dès que Google (Smart Tap) et Apple auront approuvé la fonction NFC. La carte physique suivra. Les cartes profil fonctionnent indépendamment.</Callout>
+
+## Numéro de carte et vie privée
+
+Le numéro de carte est dérivé avec une clé secrète. Il ne révèle pas ton identifiant interne, et les cartes de ton profil principal et de tes alias ne peuvent pas être reliées. Le numéro de série reste identique si tu changes de nom d'utilisateur.
+
+## Perdue ? Gèle-la
+
+Un bouton suffit pour geler la carte. Tous les codes deviennent invalides jusqu'au dégel. Celui qui la trouve ne peut ni payer ni savoir à qui elle appartient, hormis le profil que tu partages publiquement.
+
+## Pour aller plus loin
+
+[Wallet](/info/wallet), [Comment fonctionne ROUT](/about/platform), [Cryptographie](/safety/cryptography) et les [visuels Google Wallet](/press/wallet).

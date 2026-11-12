@@ -1,0 +1,1 @@
+- The Developer Console renders the shared site header (logo → home, language, profile) and Footer around its own sticky sidebar in `_authenticated/console.tsx`. Why: the console must feel like part of ROUT.

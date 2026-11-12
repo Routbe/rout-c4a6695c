@@ -1,0 +1,12 @@
+{
+  "login.subject": "Dein ROUT-Anmeldelink",
+  "login.preview": "Dein Code ist {{otp_code}} — oder tippe auf den Button, um dich anzumelden.",
+  "login.greeting": "Hallo {{user_handle}},",
+  "login.greetingAnon": "Hallo,",
+  "login.body": "Tippe auf den Button, um dich sofort anzumelden. Auf einem anderen Gerät? Gib stattdessen diesen Code im Anmeldefenster ein.",
+  "login.cta": "Bei ROUT anmelden",
+  "login.codeLabel": "Dein Anmeldecode",
+  "login.expiry": "Link und Code gelten 15 Minuten und nur einmal.",
+  "login.ignore": "Nicht angefordert? Dann ignoriere diese E-Mail einfach.",
+  "footer": "ROUT · Gemacht in Belgien · Kein Tracking in dieser E-Mail."
+}

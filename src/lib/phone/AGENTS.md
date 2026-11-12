@@ -1,0 +1,2 @@
+- Phone verification uses a provider-neutral contract led by the Android gateway; chat channels count only after server confirmation. Why: sovereignty without unproven claims.
+- SMS goes only through the provider-neutral `src/lib/phone/sms-provider.server.ts` (Android gateway default; Twilio/Brevo optional); phone numbers live encrypted in `user_phone_numbers` (db/63), never in `profiles`. Why: profiles is publicly readable through the gateway.

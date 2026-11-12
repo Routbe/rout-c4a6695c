@@ -1,0 +1,33 @@
+---
+title: "Sign in with ROUT"
+description: "Sign in without passwords using passkeys, and log in to other apps with your ROUT ID via OpenID Connect, with permission for each piece of data."
+category: "info"
+last_updated: "2026-11-04"
+ai_ready: true
+seo_keywords: ["Sign in with ROUT", "ROUT ID", "passkey", "OpenID Connect", "single sign-on"]
+faqs:
+  - question: "Does an app see my email address when I sign in with ROUT?"
+    answer: "Only if you grant permission. You choose for each piece of information what an app is allowed to read, and you can use a privacy alias that shields your real address."
+  - question: "Do I need a password?"
+    answer: "No. You sign in with a passkey on your device. Sensitive changes also require a one-time code sent via email."
+---
+
+# Sign in with ROUT
+
+Your ROUT ID is a single account you use to sign in to both ROUT and other apps.
+
+## Passwordless
+
+Passkeys rely on your device's security: no passwords that can leak or be phished. For irreversible changes, such as merging accounts or modifying 2FA, ROUT asks for a one-time six-digit code via email.
+
+## Signing in to other apps
+
+Apps and partners use the open standard OpenID Connect. The first time, you see which data an app requests and you choose what you share. An app never receives more than what you allow.
+
+## Other ways to sign in
+
+You can also connect Google, Apple, Bluesky, Mastodon, and other accounts. Accounts without an email address verified by the provider are only linked after entering an email code, ensuring no one can type in your address to take over your account.
+
+## Further reading
+
+[Account security](/info/account-security), [Merging accounts](/info/account-merge), and for developers [Identity via OIDC](/dev/identity-oidc).
