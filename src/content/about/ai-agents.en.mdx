@@ -1,0 +1,39 @@
+---
+title: "Workspaces built by AI"
+description: "How an AI agent builds a complete ROUT workspace without an account, and how you claim it safely."
+category: "about"
+last_updated: "2026-11-04"
+ai_ready: true
+---
+
+# Workspaces built by AI
+
+An AI agent can set up a complete ROUT workspace for you — profile design and "Login with ROUT" apps included — without you doing anything first. Once everything is ready, you claim the workspace and become its owner.
+
+## What the AI can do on its own
+
+- Create a workspace with a name, address and description.
+- Design a profile in the Studio: name, tagline, theme, card style, blocks and display settings.
+- Prepare up to three login apps with their redirect addresses.
+
+Until someone claims it, nothing is public: no profile, no working login app, no e-mail. An unclaimed workspace is fully deleted after 48 hours.
+
+## How to claim
+
+The AI gives you a **claim link**, a **QR code** or a **claim code** (`ROUT-XXXXX-…`):
+
+1. Open the link, **or**
+2. Go to **Profile → Personal** and tap the **gear** next to **New workspace**.
+3. Choose **Claim workspace**, scan the QR code or type the code.
+4. Sign in and confirm. You become owner; the login apps go live and you see their secrets once.
+
+## Security
+
+- Link, code and sandbox key are random and stored only as hashes.
+- Every claim works once. After the claim the AI loses its key.
+- The AI never receives your e-mail address or other data.
+- The profile only goes live when you publish it.
+
+## For AI agents
+
+Machine-readable steps: [/.well-known/rout-agent.json](/.well-known/rout-agent.json) and [llms.txt](/llms.txt). In short: `GET /api/agent/sandbox` → solve the proof-of-work → `POST /api/agent/sandbox` → `POST /api/agent/sandbox/workspace` → `PATCH /api/agent/sandbox/profile` → `PUT /api/agent/sandbox/apps` → hand the claim link, QR code or code to your human.

@@ -1,0 +1,43 @@
+---
+title: "Graduated consent"
+description: "Begin met een simpele login en vraag pas later om verificatie."
+category: "dev"
+last_updated: "2026-11-11"
+ai_ready: true
+---
+
+# Graduated consent
+
+Vraag niet alles bij de eerste login. Begin klein en vraag meer op het moment dat je het echt nodig hebt. Het toestemmingsscherm toont dan alleen wat nieuw is.
+
+## Stap 1: gewone login
+
+Start met `openid`, eventueel `profile` en `email`. Je krijgt een `sub` die alleen voor jouw app geldt.
+
+## Stap 2: verifieer met ROUT wanneer het nodig is
+
+Stuur het lid later opnieuw naar `/oauth/authorize` met de extra scope. Het lid ziet enkel de nieuwe vraag.
+
+```text
+# Day 1: plain sign-in
+scope=openid profile email
+
+# Later, at checkout: "Verify with ROUT"
+scope=openid sybil:verify
+```
+
+| Scope | Wat je krijgt | Vereist |
+| --- | --- | --- |
+| `sybil:verify` | Bewijs dat dit één echt mens is | Tier 1 of 2 |
+| `identity:legal_name` | Echte naam | Tier 2 |
+| `identity:national_id` | Nationaal nummer | Tier 2, vertrouwde KYC-partner en een verse step-up |
+
+## Als het lid nog niet geverifieerd is
+
+Heeft het lid het vereiste niveau niet, dan ontbreekt de claim gewoon. Ga daar netjes mee om: toon uitleg en laat het lid later opnieuw proberen. Bij `identity:national_id` krijg je anders een 403 met `tier_2_required` of `step_up_required`.
+
+## Goede gewoonten
+
+- Vraag een gevoelige scope pas bij de handeling die hem nodig heeft.
+- Bewaar alleen het resultaat dat je nodig hebt, niet het hele token.
+- Elke gevoelige vrijgave wordt gelogd, zodat het lid kan zien wie wat kreeg.

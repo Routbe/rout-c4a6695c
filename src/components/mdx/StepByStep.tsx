@@ -1,0 +1,3 @@
+import type { ReactNode } from "react";
+export function StepByStep({ children }: { children: ReactNode }) { return <div className="docs-steps my-8">{children}</div>; }
+export function Step({ title, children }: { title: string; children: ReactNode }) { return <section className="docs-step relative pb-7 pl-12"><h3 className="m-0 text-base font-semibold">{title}</h3><div className="mt-2 text-sm leading-7 text-muted-foreground">{children}</div></section>; }

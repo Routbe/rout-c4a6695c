@@ -1,0 +1,31 @@
+---
+title: "Zero-knowledge ledger"
+description: "Versleutelde auditdata zonder accountblokkade bij sleutelverlies."
+category: "safety"
+last_updated: "2026-11-01"
+ai_ready: true
+---
+
+# Zero-knowledge ledger
+
+De opt-in ledger beperkt leesbaarheid van opgeslagen inhoud met versleuteling. De term beschrijft een beschermingsdoel voor die inhoud, niet een bewijs dat de identity provider niets kan waarnemen.
+
+## Wat wordt beschermd
+
+De browser genereert sleutelmaterialen. Eventpayloads worden versleuteld; de server bewaart ciphertext en versleutelde envelopes. De cryptografische bouwstenen en hun grenzen staan in [Cryptografie](/safety/cryptography).
+
+## Wat zichtbaar blijft
+
+ROUT verwerkt aanvragen, sessies, toestemming en tokenuitgifte. Transport, operationele metadata en publicatie van een profiel blijven afzonderlijke gegevensstromen. Een encrypted payload maakt een standaard OIDC-login niet blind.
+
+## Sleutelverlies
+
+Een onbruikbare ledgersleutel kan oude inhoud onleesbaar maken. Dat mag niet worden voorgesteld als blokkade van het hele ROUT-account. Een account herstellen is niet hetzelfde als alle historische ciphertext kunnen ontsleutelen.
+
+## Herstel en post-quantum
+
+WebAuthn PRF, threshold recovery en hybride post-quantumsigning zijn geen hier bewezen live garanties. RSA-OAEP en ES256 zijn niet post-quantumveilig. Beoordeel een protocol op de werkelijke algoritmen en geteste herstelroute, niet op de naam.
+
+## Verder lezen
+
+[Transparantie](/safety/transparency) en [Accountbeveiliging](/info/account-security).

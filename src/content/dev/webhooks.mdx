@@ -1,0 +1,52 @@
+---
+title: "Webhooks"
+description: "E-mailupdates, HMAC-signaturen en grenzen van bezorging."
+category: "dev"
+last_updated: "2026-11-01"
+ai_ready: true
+---
+
+# Webhooks
+
+## E-mail is een keuze per app
+
+Een primaire e-mailtoewijzing is een snapshot. Een nieuw primair ROUT-adres wijzigt niet zonder meer alle gedeelde adressen. Een geselecteerde toewijzingswijziging kan een backchannel-notificatie sturen. Relay-adressen worden niet stilzwijgend vervangen door een primair adres.
+
+## Het werkelijke bericht
+
+De functionele gebeurtenis `user.email_updated` gebruikt in de huidige implementatie deze schema-identifier:
+
+```json
+{
+  "event": "https://schemas.rout.be/events/user-email-updated",
+  "sub": "OPAQUE_PAIRWISE_SUBJECT",
+  "previous_email": null,
+  "new_email": "selected@example.test",
+  "updated_at": 1793491200
+}
+```
+
+Dit is een voorbeeld, geen verstuurde gebeurtenis. Bewaar de subjectbinding; koppel niet op e-mail.
+
+## Verifieer de ruwe body
+
+De header is `X-Rout-Signature: t=<unix>,v1=<hex>`. De HMAC-SHA256-input is exact `<t>.<raw-body>`. Controleer de handtekening constant-time, de ouderdom van de timestamp en replay voordat je de body verwerkt. JSON opnieuw serialiseren verandert de getekende bytes.
+
+```text
+expected = HMAC_SHA256(secret, timestamp + "." + raw_body)
+reject if timestamp outside accepted window
+reject unless constant_time_equal(expected, v1)
+process idempotently using subject + updated_at
+```
+
+## Best-effort is geen deliverygarantie
+
+De e-maildispatcher gebruikt een timeout van vijf seconden en logt mislukking. Dit specifieke pad heeft geen bewezen duurzame retry/acknowledgment-queue. Een algemene webhookqueue elders in ROUT verandert die grens niet. Zorg zelf voor idempotentie en reconciliatie; HTTP 200 is geen bewijs dat alle lokale gegevens correct zijn bijgewerkt.
+
+## URL- en netwerkgrenzen
+
+Webhooks vereisen HTTPS, geen URL-credentials en geen localhost/private netwerkdoelen. DNS-resolutie en redirectbehandeling moeten dezelfde SSRF-grens respecteren; stringvalidatie alleen is geen volledig netwerkbewijs. Gebruik geen interne host als productiecallback.
+
+## Voor productie
+
+Test verkeerde signature, veranderde body, verlopen timestamp, dubbele bezorging, stale subject, geweigerde private netwerkdoelen en timeouts. Live bezorging is in deze omgeving nog niet geverifieerd.

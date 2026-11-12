@@ -1,0 +1,41 @@
+---
+title: "Design system"
+description: "Herkenbare Login met ROUT-knoppen met lokale assets en toegankelijke bediening."
+category: "dev"
+last_updated: "2026-11-01"
+ai_ready: true
+---
+
+# Design system
+
+Een aanmeldknop hoort de gebruiker duidelijk te vertellen welke identity provider wordt geopend. Gebruik ROUT’s bestaande assets en componenten; teken geen alternatieve versie van het merk.
+
+## Een herkenbare knop
+
+Gebruik een zichtbare label zoals **Login met ROUT**, het originele konijn en voldoende contrast. Bewaar de verhoudingen van het logo. Gebruik geen officiële verificatiebadge als vervanging voor het merk.
+
+## Thema en bediening
+
+Binnen ROUT komen kleuren uit het gedeelde thema en bediening uit de bestaande Button-component. Houd dezelfde kop en voeter als de publieke site; developerhulpmiddelen sluiten aan op de Console. De donkere basis is `#0B0B0C`, maar kleur alleen maakt een integratie niet merkgetrouw.
+
+```tsx
+// Binnen ROUT: start de bestaande, gevalideerde aanmeldflow.
+<Button onClick={startRoutLogin}>
+  <RoutLogo aria-hidden="true" />
+  <span>Login met ROUT</span>
+</Button>
+```
+
+Dit is een compositievoorbeeld, geen losse SDK-export of endpoint. Gebruik in een externe app haar toegankelijke knopcomponent en de officiële ROUT-asset.
+
+## Toegankelijkheid
+
+De knop moet met toetsenbord en schermlezer bruikbaar zijn. Geef een icon-only variant een duidelijke toegankelijke naam. Toon een zichtbare focusindicator, voorkom dubbel starten tijdens een aanvraag en behandel annulering zonder een blanco scherm.
+
+## Ruimte en assets
+
+Behoud ademruimte rond het logo en gebruik de aangeleverde SVG in plaats van een screenshot. Houd de klikzone stabiel wanneer de status wijzigt. Dit artikel legt geen nieuwe pixelmaat of alternatieve kleurenpalet op: de bestaande appcomponent is de referentie.
+
+## Verder lezen
+
+[Merk & design](/about/brand) en [Get started](/dev/get-started).

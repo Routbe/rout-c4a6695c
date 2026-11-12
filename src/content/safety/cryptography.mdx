@@ -1,0 +1,31 @@
+---
+title: "Cryptografie"
+description: "Browserkeys, RSA-OAEP en AES-GCM; eerlijke grenzen van post-quantum readiness."
+category: "safety"
+last_updated: "2026-11-01"
+ai_ready: true
+---
+
+# Cryptografie
+
+## Twee soorten auditgegevens
+
+De opt-in versleutelde ledger is niet dezelfde tabel als de disclosure-hashketen. De ledger bewaart encrypted payloads; disclosure entries gebruiken `entry_hash` en `previous_hash`. De beschermde auditkop hoort bij de disclosureketen.
+
+## Envelope encryption
+
+Sleutels worden in de browser gegenereerd. RSA-OAEP met 3072-bit sleutels beschermt de envelope; AES-256-GCM beschermt eventpayloads met random IV’s en authenticated key-identifiers. De server bewaart publieke keys en ciphertext/encrypted envelopes, geen onversleutelde privésleutel.
+
+<Callout type="warning" title="Geen blind loginprotocol">Een OIDC-redirect en tokenuitgifte blijven server-side zichtbaar. Opslagversleuteling maakt ROUT niet blind voor het verkeer dat het verwerkt.</Callout>
+
+## Sleutelverlies en herstel
+
+Sleutelverlies mag het ROUT-account niet blokkeren. Oude ledgerinhoud kan zonder bruikbare key onleesbaar blijven. Echte WebAuthn PRF- en threshold-recoverywerking zijn niet live bewezen; deze tekst belooft geen voltooid herstelprotocol.
+
+## Hashketen en auditkop
+
+De voorbereidende auditkop-migratie koppelt een AFTER INSERT-trigger aan `users.latest_audit_hash`. Entry en kopupdate vallen in dezelfde PostgreSQL-transactie. De verifier leest de rows en kop in één snapshot. Tail deletion kan zo binnen de databasepermissiegrens worden gedetecteerd. Dit beschermt niet tegen owner-level rollback van de hele database.
+
+## Post-quantum readiness
+
+JWKS behoudt ES256. Hybride/post-quantum signing is momenteel uitgeschakeld. RSA-OAEP en ES256 zijn geen post-quantumveilige algoritmen; modulariteit is geen cryptografische garantie. Blinded tokens blijven een apart toekomstig SDK-traject.

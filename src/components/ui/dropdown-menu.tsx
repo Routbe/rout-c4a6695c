@@ -3,6 +3,8 @@
 import * as React from "react";
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 import { Check, ChevronRight, Circle } from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { profileSpringPreset } from "@/lib/spatial-motion";
 
 import { cn } from "@/lib/utils";
 
@@ -72,6 +74,26 @@ const DropdownMenuContent = React.forwardRef<
   </DropdownMenuPrimitive.Portal>
 ));
 DropdownMenuContent.displayName = DropdownMenuPrimitive.Content.displayName;
+
+/** Radix retains keyboard, focus return and nested-menu behavior; Motion owns presence. */
+export function SpatialDropdownMenuContent({ open, children, className, ...props }: React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Content> & { open: boolean }) {
+  const reduced = useReducedMotion();
+  return (
+    <AnimatePresence>
+      {open && <DropdownMenuPrimitive.Portal forceMount>
+        <DropdownMenuPrimitive.Content {...props} forceMount asChild sideOffset={8}>
+          <motion.div className={cn("spatial-glass z-50 p-1 text-popover-foreground", className)}
+            initial={reduced ? false : { opacity: 0, scale: 0.88, y: -8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.92, y: -4 }}
+            transition={reduced ? { duration: 0 } : profileSpringPreset}>
+            {children}
+          </motion.div>
+        </DropdownMenuPrimitive.Content>
+      </DropdownMenuPrimitive.Portal>}
+    </AnimatePresence>
+  );
+}
 
 const DropdownMenuItem = React.forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.Item>,

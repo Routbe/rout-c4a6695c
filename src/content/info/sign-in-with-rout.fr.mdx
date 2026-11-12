@@ -1,0 +1,33 @@
+---
+title: "Connexion avec ROUT"
+description: "Connectez-vous sans mot de passe grâce aux passkeys, et utilisez votre ROUT ID pour vous connecter à d'autres applications via OpenID Connect, avec une autorisation par donnée."
+category: "info"
+last_updated: "2026-11-04"
+ai_ready: true
+seo_keywords: ["Connexion avec ROUT", "ROUT ID", "passkey", "OpenID Connect", "single sign-on"]
+faqs:
+  - question: "Une application voit-elle mon adresse e-mail lorsque je me connecte avec ROUT ?"
+    answer: "Uniquement si vous donnez votre autorisation. Vous choisissez pour chaque donnée ce qu'une application peut lire, et vous pouvez utiliser un alias de confidentialité qui masque votre véritable adresse."
+  - question: "Ai-je besoin d'un mot de passe ?"
+    answer: "Non. Vous vous connectez à l'aide d'une passkey sur votre appareil. Les modifications sensibles nécessitent en outre un code à usage unique envoyé par e-mail."
+---
+
+# Connexion avec ROUT
+
+Votre ROUT ID est un compte unique qui vous permet de vous connecter à la fois à ROUT et à d'autres applications.
+
+## Sans mot de passe
+
+Les passkeys utilisent la sécurité de votre appareil : aucun mot de passe ne peut fuiter ou être victime de phishing. Pour les modifications irréversibles, telles que la fusion de comptes ou la modification du 2FA, ROUT demande un code à usage unique de six chiffres par e-mail.
+
+## Se connecter à d'autres applications
+
+Les applications et partenaires utilisent le standard ouvert OpenID Connect. La première fois, vous voyez quelles données une application demande et vous choisissez ce que vous partagez. Une application ne reçoit jamais plus que ce que vous autorisez.
+
+## Autres moyens de se connecter
+
+Vous pouvez également associer des comptes Google, Apple, Bluesky, Mastodon et d'autres services. Les comptes dont l'adresse e-mail n'a pas été confirmée par le fournisseur ne sont associés qu'après validation d'un code reçu par e-mail, empêchant ainsi quiconque de saisir votre adresse pour s'approprier votre compte.
+
+## En savoir plus
+
+[Sécurité du compte](/info/account-security), [Fusionner des comptes](/info/account-merge) et, pour les développeurs, [Identité via OIDC](/dev/identity-oidc).

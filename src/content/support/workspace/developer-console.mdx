@@ -1,0 +1,52 @@
+---
+title: "Workspace API-sleutels en webhooks beheren"
+description: "Integraties horen bij de workspace, niet bij één medewerker. Zo maak, gebruik en rouleer je sleutels veilig."
+category: "support"
+last_updated: "2026-11-01"
+ai_ready: true
+seo_title: "Workspace API keys en webhooks beheren | ROUT"
+seo_description: "API-sleutels en OAuth-apps in een ROUT Workspace: wie ze mag beheren, waarom ze aan de workspace hangen en hoe je ze veilig rouleert."
+seo_keywords: ["workspace API keys", "webhooks", "OAuth app", "sleutel rouleren", "ROUT Developer Console"]
+schema_type: "HowTo"
+steps:
+  - title: "Maak een vervanger"
+    text: "Maak een nieuwe sleutel met dezelfde of minder rechten."
+  - title: "Werk je servers bij"
+    text: "Zet de nieuwe sleutel in de geheime instellingen van elke dienst die hem gebruikt."
+  - title: "Test"
+    text: "Controleer in de activiteit dat verzoeken met de nieuwe sleutel slagen."
+  - title: "Trek de oude in"
+    text: "Pas daarna de oude sleutel intrekken."
+---
+
+## Sleutels horen bij de workspace
+
+Maak je een API-sleutel of OAuth-app terwijl een workspace actief is, dan koppelt ROUT die aan **de workspace**. Ze staan in de lijst van die workspace en niet in de persoonlijke omgeving van de maker. Zo blijft een integratie zichtbaar en beheersbaar voor het team, ook als de developer die haar maakte het bedrijf verlaat.
+
+Controleer altijd de actieve omgeving bovenaan de console: in je **persoonlijke** omgeving gemaakte sleutels zijn van jou alleen.
+
+## Wie heeft toegang
+
+Eigenaar, Admin en Developer openen de Developer Console en API & Webhooks. Editors en Viewers krijgen een melding dat hun rol geen toegang geeft. [Bekijk alle rollen](/support/workspace/team-roles).
+
+## Een sleutel veilig rouleren
+
+<OnboardingSteps steps={[
+  { title: "Maak een vervanger", text: "Maak een nieuwe sleutel met dezelfde of minder rechten." },
+  { title: "Werk je servers bij", text: "Zet de nieuwe sleutel in de geheime instellingen van elke dienst die hem gebruikt." },
+  { title: "Test", text: "Controleer in de activiteit dat verzoeken met de nieuwe sleutel slagen." },
+  { title: "Trek de oude in", text: "Pas daarna de oude sleutel intrekken. Verzoeken ermee worden geweigerd." }
+]} />
+
+<WarningBox>
+Zet geheime sleutels nooit in een website, app-code of versiebeheer, en plak ze niet in chats of logs. Rouleer meteen als een sleutel mogelijk is uitgelekt, en altijd wanneer een developer met toegang vertrekt.
+</WarningBox>
+
+## Webhooks
+
+ROUT ondertekent uitgaande webhooks met een `X-Rout-Signature`-header. Controleer die handtekening en het tijdstip op je server voordat je een bericht vertrouwt. Het registreren van eigen webhook-adressen in de console wordt nog voorbereid.
+
+<FAQ items={[
+  { question: "Blijft een integratie werken als de maker uit het team gaat?", answer: "De sleutel hoort bij de workspace en blijft in haar lijst staan. Rouleer hem toch bij vertrek, zodat de vertrekkende persoon hem niet meer kan gebruiken." },
+  { question: "Kan een Editor sleutels zien?", answer: "Nee. Alleen Eigenaar, Admin en Developer openen de Developer Console." }
+]} />

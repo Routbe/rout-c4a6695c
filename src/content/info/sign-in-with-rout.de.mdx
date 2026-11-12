@@ -1,0 +1,33 @@
+---
+title: "Login mit ROUT"
+description: "Passwortlose Anmeldung mit Passkeys und mit deiner ROUT ID bei anderen Apps über OpenID Connect anmelden, mit Berechtigungen pro Angabe."
+category: "info"
+last_updated: "2026-11-04"
+ai_ready: true
+seo_keywords: ["Login mit ROUT", "ROUT ID", "Passkey", "OpenID Connect", "Single Sign-on"]
+faqs:
+  - question: "Sieht eine App meine E-Mail-Adresse, wenn ich mich mit ROUT anmelde?"
+    answer: "Nur wenn du die Erlaubnis dazu erteilst. Du wählst pro Angabe aus, was eine App lesen darf, und kannst ein Datenschutz-Alias verwenden, das deine echte Adresse verbirgt."
+  - question: "Brauche ich ein Passwort?"
+    answer: "Nein. Du meldest dich mit einem Passkey auf deinem Gerät an. Für sensible Änderungen wird zusätzlich ein Einmalcode per E-Mail verlangt."
+---
+
+# Login mit ROUT
+
+Deine ROUT ID ist ein einziges Konto, mit dem du dich sowohl bei ROUT als auch bei anderen Apps anmeldest.
+
+## Ohne Passwort
+
+Passkeys nutzen die Sicherheit deines Geräts: kein Passwort, das lecken oder gephisht werden kann. Für unwiderrufliche Änderungen wie das Zusammenführen von Konten oder das Anpassen der 2FA fordert ROUT einen sechsstelligen Einmalcode per E-Mail an.
+
+## Bei anderen Apps anmelden
+
+Apps und Partner nutzen den offenen Standard OpenID Connect. Beim ersten Mal siehst du, welche Daten eine App anfordert, und wählst aus, was du teilen möchtest. Eine App erhält nie mehr, als du erlaubst.
+
+## Andere Anmeldemethoden
+
+Du kannst auch Google-, Apple-, Bluesky-, Mastodon- und andere Konten verknüpfen. Konten ohne vom Anbieter bestätigte E-Mail-Adresse werden erst nach Eingabe eines E-Mail-Codes verknüpft, sodass niemand einfach deine Adresse eingeben und dein Konto übernehmen kann.
+
+## Weiterlesen
+
+[Kontosicherheit](/info/account-security), [Konten zusammenführen](/info/account-merge) und für Entwickler [Identität über OIDC](/dev/identity-oidc).

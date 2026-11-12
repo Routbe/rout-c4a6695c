@@ -1,0 +1,91 @@
+---
+title: "Badges officiels"
+description: "Ce que signifient le label humain et les badges d'identité, de créateur et d'entreprise."
+category: "info"
+last_updated: "2026-11-01"
+ai_ready: true
+---
+
+# Que dit un badge ?
+
+Un badge indique quelque chose de précis. Pas tout sur une personne, pas tout sur une entreprise, et jamais que vous devez faire aveuglément confiance à quelqu'un.
+
+## Quatre signaux, quatre significations
+
+Ne regardez pas seulement la couleur. La signification et la source en font partie intégrante. ROUT fait la distinction entre une association humaine, un contrôle d'identité public, un statut de créateur et une vérification d'entreprise.
+
+### Label blanc : associé à un être humain
+
+<BadgePreview type="human" />
+
+Un alias peut être associé à un compte principal vérifié sans que le nom légal ne soit visible sur cet alias. Le label humain affiche cette association. L'affichage actuel de ROUT utilise une main avec un label de qualité ; le terme « bouclier blanc » est également utilisé pour ce signal.
+
+Ce n'est pas une preuve que tous les messages sont exacts, ni un score de réputation, ni un substitut à un contrôle d'habilitation distinct.
+
+### Coche bleue : identité publique
+
+<BadgePreview type="verified" />
+
+La coche d'identité bleue est associée au profil principal vérifié. Cela diffère d'un simple contrôle attestant que quelqu'un possède un compte social. Lisez les explications de vérification sur le profil pour comprendre quelle identité a été vérifiée.
+
+Une marque bleue ne confère aucune licence professionnelle, aucune garantie financière ni aucune recommandation de la part de ROUT.
+
+### Coche rose : créateur / influenceur
+
+<BadgePreview type="creator" />
+
+Le statut de créateur est un signal distinct, géré par l'application. Placer vous-même une icône rose dans une photo de profil ne confère pas ce statut. Les comptes sociaux associés et toute approbation éventuelle sont contrôlés en dehors de l'affichage public du profil.
+
+Le badge n'est pas une garantie de qualité pour le contenu, la portée ou les collaborations. Le nombre d'abonnés peut varier et les chiffres mis en cache ne constituent pas une mesure en direct.
+
+### Coche noire : entreprise vérifiée
+
+<BadgePreview type="business" />
+
+La vérification d'entreprise permet de reconnaître l'identité professionnelle. Ce signal n'est pas une approbation générale de produits, ni une assurance, ni une preuve qu'une personne est autorisée à effectuer n'importe quelle action au nom de cette entreprise.
+
+Lors d'une transaction sensible, vérifiez toujours le domaine, le contexte et les pouvoirs de la personne de contact.
+
+## Officiel n'est pas synonyme d'émis par une application
+
+Un badge personnalisé peut représenter un club, une famille, une organisation ou un autre émetteur. Un diplôme ou un certificat est une affirmation de cet émetteur. Il n'acquiert pas automatiquement la valeur d'un badge d'identité ROUT.
+
+<Callout type="warning" title="Vérifiez l'émetteur">
+Un titre et une belle icône ne prouvent aucune accréditation. Examinez l'émetteur, la date, les critères décrits et une éventuelle révocation. Un badge visuel n'est pas automatiquement une verifiable credential cryptographique.
+</Callout>
+
+L'affichage existant des badges personnalisés ouvre les détails lorsque vous cliquez dessus. L'émission externe étendue de diplômes et un flux d'acceptation complet ne sont pas encore confirmés comme un service opérationnel. Ce guide ne promet donc aucune API ni aucun commutateur de visibilité qui n'ait pas été vérifié en direct.
+
+Poursuivez votre lecture avec [Badges personnalisés](/info/custom-badges) et [Credentials](/info/credentials).
+
+## Comment évaluer un profil
+
+<StepByStep>
+<Step title="Lisez la signification">Ouvrez l'explication du badge. Un contrôle de nom, une association humaine et la propriété d'un compte sont des vérifications différentes.</Step>
+<Step title="Vérifiez la source">Pour un badge personnalisé, l'origine doit être claire. Un nom ressemblant à une instance officielle ne constitue pas une preuve de cette relation.</Step>
+<Step title="Vérifiez le contexte">N'utilisez pas un badge comme substitut à un contrat, une validation de diplôme, un contrôle d'âge ou une sécurité de paiement.</Step>
+</StepByStep>
+
+## Si quelque chose ne va pas
+
+Un badge qui a été révoqué, rejeté ou non sélectionné pour publication ne doit pas être traité comme une credential publique actuelle. L'extension de credential dispose de champs distincts à cet effet ; son application publique intégrale doit faire partie de l'implémentation, et non seulement de la documentation.
+
+Vous constatez un signal suspect ? Conservez l'URL publique du profil et signalez l'anomalie concrète via [Contact](/contact). Ne partagez aucun document d'identité, jeton d'accès ou clé privée dans un signalement.
+
+## Foire aux questions
+
+### Puis-je m'attribuer moi-même une coche officielle ?
+
+Non. Un champ de profil, une image ou un badge personnalisé ne peuvent conférer un statut de vérification officiel. Ce statut est contrôlé séparément.
+
+### Pourquoi mon alias n'affiche-t-il pas le même nom que mon profil principal ?
+
+Un alias peut précisément servir à ne pas divulguer votre nom légal publiquement. Une association humaine peut être visible sans publier ce nom.
+
+### Les badges sont-ils valables indéfiniment ?
+
+Non. Le statut et le contexte peuvent changer. Une révocation, des modifications de compte et de nouvelles vérifications peuvent influer sur un signal. Vérifiez l'explication actuelle plutôt que de vous fier à une ancienne capture d'écran.
+
+### Un badge prouve-t-il qu'une personne est unique ?
+
+Tous les badges ne le font pas. Les pairwise subjects OIDC et les nullifiers Sybil sont des mécanismes techniques d'identité, et non une signification que l'on peut attribuer à chaque icône visible.

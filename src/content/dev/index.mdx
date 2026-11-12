@@ -1,0 +1,31 @@
+---
+title: "Developer Portal"
+description: "Bouw op standaard OIDC. Vraag niet meer gegevens dan nodig."
+category: "dev"
+last_updated: "2026-11-01"
+ai_ready: true
+---
+
+# Developer Portal
+
+Standaard OIDC. Expliciete claims. Geen shortcuts rond toestemming.
+
+## Begin met de identityflow
+
+[Get started](/dev/get-started) beschrijft clientregistratie. [Identity & OIDC](/dev/identity-oidc) behandelt PKCE, pairwise subjects en sessieherkenning.
+
+<ApiEndpoint method="GET" path="/.well-known/openid-configuration" />
+
+## Bouw op gecontroleerde grenzen
+
+[E-mailwebhooks](/dev/webhooks) hebben een expliciet deliverymodel. [Credentials API](/dev/credentials-api) maakt duidelijk welke uitgiftefunctionaliteit bestaat en wat nog niet is geïmplementeerd.
+
+## Documentatie voor mensen en agents
+
+[AI & MCP](/dev/ai-mcp) onderscheidt publiek leesbare documentatie van geautoriseerde toegang tot privégegevens. Een ai_ready-label verleent geen toestemming.
+
+<Callout type="warning" title="Huidige omgeving">De runtime weigert onveilige ownerverbindingen. Een beschreven endpoint is niet automatisch live beschikbaar.</Callout>
+
+## Naar de Console
+
+Registreer en beheer je integratie in de [ROUT Console](/console). Bekijk het [Design system](/dev/design-system) voor herkenbare loginacties.

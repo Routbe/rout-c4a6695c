@@ -1,0 +1,23 @@
+---
+title: "Fusionner des comptes"
+description: "Regrouper deux comptes ROUT tout en gardant le contrôle sur vos données et votre identité."
+category: "info"
+last_updated: "2026-11-01"
+ai_ready: true
+---
+
+# Fusionner des comptes
+
+## Vérifier d'abord les deux comptes
+
+Une fusion ROUT utilise un ticket temporaire émis par le compte principal, un aperçu vérifié par le second compte, un code par e-mail et des choix explicites concernant le nom et le design. Les gestionnaires exigent une vérification passkey récente.
+
+<StepByStep><Step title="Commencez par le compte conservé">Générez un ticket PIN/QR. Un ticket ne remplace pas une vérification.</Step><Step title="Vérifiez le second compte">Consultez l'aperçu et confirmez le code reçu par e-mail.</Step><Step title="Faites un choix éclairé">Choisissez le nom et le design. La base de données applique les mutations dépendantes de manière atomique.</Step></StepByStep>
+
+## Tous les comptes ne peuvent pas fusionner
+
+Les données d'identité, financières, de grand livre chiffré et de divulgation peuvent bloquer la fusion. Les doublons suivent des règles explicites ; rien n'est transféré à l'aveugle. Cela ne fusionne pas les comptes dans des applications externes.
+
+## Disponibilité actuelle
+
+La capacité SQL est préparée et testée hors ligne, mais les migrations en direct et la connexion à rout_app restent bloquées. L'aperçu ne garantit pas encore un flux de connexion ou de fusion finalisé.

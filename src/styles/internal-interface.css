@@ -1,0 +1,420 @@
+/*
+ * Workspace materials (signed-in tools, Studio and QR only).
+ * - glass: the imported cascade, untouched.
+ * - mechanical (default): calm opaque surfaces, hairline edges. Keys are classic
+ *   keyboard keys: solid cap, hard wall below, no glow/sheen/blur, and a press
+ *   that travels exactly the wall height.
+ * Member artwork (profiles, QR, exports, previews) is a scope limit and never restyled.
+ */
+:root {
+  --interface-color-spectrum: conic-gradient(from 0deg, oklch(0.63 0.25 29), oklch(0.97 0.21 110), oklch(0.87 0.29 142), oklch(0.9 0.15 195), oklch(0.45 0.31 264), oklch(0.7 0.32 328), oklch(0.63 0.25 29));
+}
+:root[data-workspace-ui="internal"][data-theme="mechanical"] {
+  --m-radius-surface: 16px;
+  --m-radius-overlay: 14px;
+  --m-radius-field: 10px;
+  --m-radius-pill: 9999px;
+  --m-press: 2px;
+  --m-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* Key travel: quick and firm, no bounce — a classic keyboard key. */
+  --m-key-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --m-surface: hsl(var(--card));
+  --m-overlay: hsl(var(--popover));
+  --m-page: hsl(var(--background));
+  --m-control: hsl(var(--secondary));
+  --m-hover: hsl(var(--foreground) / 0.06);
+  --m-hairline: hsl(var(--foreground) / 0.12);
+  --m-edge: hsl(var(--foreground) / 0.22);
+  --m-action-edge: oklch(0.12 0 0);
+  --m-action-shadow: var(--m-press) var(--m-press) 0 0 oklch(0.12 0 0);
+  --m-selected: hsl(var(--foreground));
+  --m-selected-ink: hsl(var(--background));
+  /* Keycaps: a solid cap on a hard wall. No sheen, no gradient, no blurred shadow. */
+  --m-key-travel: 1.5px;
+  --m-key-depth: 2px;
+  --m-key-wall: color-mix(in oklab, hsl(var(--primary)) 55%, oklch(0.1 0 0));
+  /* Classic key: 1px light inner edge, hard 2px wall without blur, 1.5px press. */
+  --m-key-top: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  --m-key-shadow: var(--m-key-top), 0 var(--m-key-depth) 0 0 var(--m-key-wall);
+  --m-key-shadow-down: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 0.5px 0 0 var(--m-key-wall);
+  /* Secondary: neutral cap on a quiet wall, lower travel. */
+  --m-cap-travel: 1.5px;
+  --m-cap-depth: 2px;
+  --m-cap-wall: hsl(var(--foreground) / 0.24);
+  --m-cap-top: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  --m-cap-shadow: var(--m-cap-top), 0 var(--m-cap-depth) 0 0 var(--m-cap-wall);
+  --m-cap-shadow-down: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 0.5px 0 0 var(--m-cap-wall);
+  /* Keys drawn inside their own box (never clipped by a list or card edge). */
+  --m-inset-key: inset 0 -2px 0 0 var(--m-cap-wall);
+  --m-inset-key-down: inset 0 0 0 0 var(--m-cap-wall);
+}
+/* Black on black disappears: dark mode uses a lighter hard wall instead. */
+:root.dark[data-workspace-ui="internal"][data-theme="mechanical"] {
+  --m-hairline: hsl(var(--foreground) / 0.11);
+  --m-edge: hsl(var(--foreground) / 0.2);
+  --m-action-edge: hsl(var(--foreground) / 0.55);
+  --m-action-shadow: var(--m-press) var(--m-press) 0 0 hsl(var(--foreground) / 0.32);
+  --m-hover: hsl(var(--foreground) / 0.08);
+  --m-key-wall: color-mix(in oklab, hsl(var(--primary)) 45%, oklch(0 0 0));
+  --m-cap-wall: hsl(var(--foreground) / 0.3);
+}
+
+/* Dark islands (Developer Console, its menu sheet) inside a light root: custom
+   properties resolve where they are declared, so the colour tokens must be
+   re-declared on the island or header/footer keep the light page colour. */
+:root[data-workspace-ui="internal"][data-theme="mechanical"] .dark {
+  --m-surface: hsl(var(--card));
+  --m-overlay: hsl(var(--popover));
+  --m-page: hsl(var(--background));
+  --m-control: hsl(var(--secondary));
+  --m-hover: hsl(var(--foreground) / 0.08);
+  --m-hairline: hsl(var(--foreground) / 0.11);
+  --m-edge: hsl(var(--foreground) / 0.2);
+  --m-action-edge: hsl(var(--foreground) / 0.55);
+  --m-action-shadow: var(--m-press) var(--m-press) 0 0 hsl(var(--foreground) / 0.32);
+  --m-selected: hsl(var(--foreground));
+  --m-selected-ink: hsl(var(--background));
+  --m-key-wall: color-mix(in oklab, hsl(var(--primary)) 45%, oklch(0 0 0));
+  --m-key-shadow: var(--m-key-top), 0 var(--m-key-depth) 0 0 var(--m-key-wall);
+  --m-key-shadow-down: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 0.5px 0 0 var(--m-key-wall);
+  --m-cap-wall: hsl(var(--foreground) / 0.3);
+  --m-cap-shadow: var(--m-cap-top), 0 var(--m-cap-depth) 0 0 var(--m-cap-wall);
+  --m-cap-shadow-down: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 0.5px 0 0 var(--m-cap-wall);
+  --m-inset-key: inset 0 -2px 0 0 var(--m-cap-wall);
+  --m-inset-key-down: inset 0 0 0 0 var(--m-cap-wall);
+}
+
+/* The wallet vault draws its own hardware keys in every material, so it is a scope limit too. */
+@scope (:root[data-workspace-ui="internal"][data-theme="mechanical"]) to ([data-profile-theme], [data-interface-artwork], .preview-sheet, .wallet-vault) {
+  /* 1 — No diffusion anywhere: blur, glow and soft shadows are not part of this material. */
+  *, *::before, *::after {
+    backdrop-filter: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  :is([class*="blur"], [class*="drop-shadow"], [class*="glow"]) { filter: none !important; }
+  /* Decorative glow layers have no meaning here and must never sit on top of a key. */
+  [class~="absolute"]:is([class*="blur-"], [class~="blur"]):not(:has(*)) { display: none !important; }
+  :is(.glow-card, .acrylic-card, .spatial-glass)::before,
+  :is(.glow-card, .acrylic-card, .spatial-glass)::after { display: none !important; }
+
+  /* 2 — Static surfaces: opaque, hairline, softly rounded, never shadowed. */
+  :is(.acrylic-card, .spatial-glass, .glow-card) {
+    background: var(--m-surface) !important;
+    background-image: none !important;
+    border: 1px solid var(--m-hairline) !important;
+    border-radius: var(--m-radius-surface) !important;
+  }
+  :is([class~="bg-card"], [class~="bg-card/50"], [class~="bg-card/60"], [class~="bg-card/70"], [class~="bg-card/80"]):is([class~="border"], [class*="rounded-xl"], [class*="rounded-2xl"]):not(button, a, input) {
+    background: var(--m-surface) !important;
+    background-image: none !important;
+    border-color: var(--m-hairline) !important;
+  }
+  :is(header, footer, [class~="bg-background/80"], [class~="bg-background/90"], [class~="bg-background/95"], .docs-header) {
+    background-color: var(--m-page) !important;
+  }
+
+  /* 3 — Overlays float on a crisp edge, not on a blur. */
+  :is([role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"], [data-radix-popper-content-wrapper] > *, [data-sonner-toast]) {
+    background: var(--m-overlay) !important;
+    background-image: none !important;
+    border: 1px solid var(--m-edge) !important;
+  }
+  :is([role="menu"], [role="listbox"], [data-radix-popper-content-wrapper] > *, [data-sonner-toast]) { border-radius: var(--m-radius-overlay) !important; }
+  [role="dialog"]:not([data-hardware-ui][class*="inset-y-0"]):not([class*="inset-x-0"]) { border-radius: calc(var(--m-radius-overlay) + 4px) !important; }
+  [role^="menuitem"], [role="option"] { border-radius: calc(var(--m-radius-overlay) - 6px) !important; filter: none !important; }
+  :is([role^="menuitem"], [role="option"]):is(:focus, [data-highlighted]) { background: var(--m-hover) !important; }
+
+  /* 4 — Controls. Every button is a pill; only primary actions are tactile. */
+  :is(.spatial-button, [data-hardware-ui] button:not([role="tab"]):not([role="switch"]):not([role="checkbox"]):not([role="radio"])) {
+    background-image: none !important;
+    filter: none !important;
+  }
+  .spatial-button {
+    border-radius: var(--m-radius-pill) !important;
+    border: 1px solid var(--m-edge) !important;
+    transition: background-color 120ms var(--m-ease), border-color 120ms var(--m-ease), color 120ms var(--m-ease), translate 75ms var(--m-key-ease), box-shadow 75ms var(--m-key-ease) !important;
+  }
+  .spatial-button[data-spatial-control="default"]:not([data-spatial-size="icon"]) {
+    background-image: none !important;
+    border-color: var(--m-key-wall) !important;
+  }
+  .spatial-button[data-spatial-control="destructive"]:not([data-spatial-size="icon"]) {
+    --m-key-wall: color-mix(in oklab, hsl(var(--destructive)) 58%, oklch(0.1 0 0));
+    border-color: var(--m-key-wall) !important;
+  }
+  .spatial-button[data-spatial-control="matcha"]:not([data-spatial-size="icon"]) {
+    --m-key-wall: color-mix(in oklab, currentColor 30%, oklch(0.1 0 0));
+    border-color: var(--m-key-wall) !important;
+  }
+  .spatial-button:is([data-spatial-control="default"], [data-spatial-control="destructive"], [data-spatial-control="matcha"]):not([data-spatial-size="icon"]) {
+    box-shadow: var(--m-key-shadow) !important;
+    margin-bottom: var(--m-key-depth);
+  }
+  .spatial-button:is([data-spatial-control="default"], [data-spatial-control="destructive"], [data-spatial-control="matcha"]):not([data-spatial-size="icon"]):not(:disabled):not([aria-disabled="true"]):active {
+    translate: 0 var(--m-key-travel);
+    box-shadow: var(--m-key-shadow-down) !important;
+  }
+  .spatial-button:is([data-spatial-control="outline"], [data-spatial-control="soft"], [data-spatial-control="secondary"]) {
+    background-color: var(--m-control) !important;
+  }
+  .spatial-button:is([data-spatial-control="outline"], [data-spatial-control="soft"], [data-spatial-control="secondary"]):hover { background-color: hsl(var(--accent)) !important; }
+  .spatial-button:is([data-spatial-control="ghost"], [data-spatial-control="link"]) { border-color: transparent !important; background-color: transparent !important; }
+  .spatial-button[data-spatial-control="ghost"]:hover { background-color: var(--m-hover) !important; }
+  .spatial-button[data-spatial-size="icon"]:not([data-spatial-control="outline"]):not([data-spatial-control="soft"]) { border-color: transparent !important; }
+  .spatial-button[data-spatial-control="link"] { border-radius: 4px !important; }
+  :is(button, [role="button"]):disabled, [aria-disabled="true"] { box-shadow: none !important; translate: none !important; }
+
+  /* Header controls: one quiet pill, icon slots without frames. */
+  .spatial-control-pill { background: var(--m-page) !important; background-image: none !important; border: 1px solid var(--m-hairline) !important; }
+  .spatial-control-slot :is(button, a) { border-color: transparent !important; background: transparent !important; box-shadow: none !important; }
+  .spatial-control-slot > .spatial-indicator { background: var(--m-hover) !important; border: 0 !important; border-radius: var(--m-radius-pill) !important; }
+  .spatial-account-trigger { background: var(--m-page) !important; border: 1px solid var(--m-hairline) !important; }
+
+  /* Segmented tabs: a pill track whose sliding indicator is the filled selection. */
+  .spatial-track {
+    background: var(--m-control) !important;
+    border: 1px solid var(--m-hairline) !important;
+    border-radius: var(--m-radius-pill) !important;
+  }
+  .spatial-tab, .spatial-track [role="tab"] { border-radius: var(--m-radius-pill) !important; border: 0 !important; background: transparent !important; transition: color 140ms var(--m-ease) !important; }
+  .spatial-track .spatial-indicator, .spatial-tab > .spatial-indicator {
+    background: var(--m-selected) !important;
+    border: 0 !important;
+    border-radius: var(--m-radius-pill) !important;
+  }
+  :is(.spatial-tab, [role="tab"]):is([data-state="active"], [aria-selected="true"]) { color: var(--m-selected-ink) !important; }
+  :is(.spatial-tab, [role="tab"]):is([data-state="active"], [aria-selected="true"]) :is(span, svg) { color: inherit !important; }
+  [role="tab"]:not(.spatial-tab) { border-radius: var(--m-radius-pill) !important; }
+  [role="tab"]:not(.spatial-tab):is([data-state="active"], [aria-selected="true"]) { background: var(--m-selected) !important; }
+
+  /* Toggles and choice groups: pills; the chosen one is filled. */
+  :is([role="radio"], [aria-pressed]):is(.spatial-button, [data-state]) { border-radius: var(--m-radius-pill) !important; }
+  :is([aria-pressed="true"], [role="radio"][data-state="checked"], [role="radio"][aria-checked="true"], .spatial-button[data-state="on"]):is(.spatial-button, button) {
+    background: var(--m-selected) !important;
+    border-color: var(--m-selected) !important;
+    color: var(--m-selected-ink) !important;
+  }
+  .spatial-choice-tile { border: 1px solid var(--m-hairline) !important; background: var(--m-surface) !important; background-image: none !important; border-radius: var(--m-radius-field) !important; }
+  .spatial-choice-tile[aria-checked="true"] { border-color: var(--m-selected) !important; outline: 1px solid var(--m-selected); outline-offset: -2px; }
+
+  /* Switches: flat track, flat thumb. */
+  .spatial-switch { background: var(--m-control) !important; border: 1px solid var(--m-edge) !important; }
+  .spatial-switch[data-state="checked"] { background: hsl(var(--primary)) !important; border-color: hsl(var(--primary)) !important; }
+  .spatial-switch-thumb { background: var(--m-page) !important; background-image: none !important; border: 1px solid var(--m-edge) !important; }
+
+  /* Fields: calm wells with a precise edge; focus sharpens the edge, never glows. */
+  :is(input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]), textarea, select, .spatial-input) {
+    background: var(--m-page) !important;
+    background-image: none !important;
+    border: 1px solid var(--m-edge) !important;
+    border-radius: var(--m-radius-field) !important;
+  }
+  .spatial-input > input, .spatial-input > textarea { border: 0 !important; background: transparent !important; }
+  :is(input, textarea, select):focus-visible, .spatial-input:focus-within { border-color: hsl(var(--foreground) / 0.7) !important; }
+
+  [data-interface-color] { background-image: var(--interface-color-spectrum) !important; }
+
+  :is(button, [role="button"], a, input, textarea, select, [role="tab"], [role="switch"]):focus-visible {
+    outline: 2px solid hsl(var(--ring)) !important;
+    outline-offset: 2px;
+  }
+
+  /* Secondary keys: neutral caps, lower profile, 2px travel. Ghost keys only dip. */
+  .spatial-button:is([data-spatial-control="outline"], [data-spatial-control="soft"], [data-spatial-control="secondary"]):not([data-spatial-size="icon"]) {
+    background-image: none !important;
+    background-color: var(--m-surface) !important;
+    border-color: var(--m-edge) !important;
+    box-shadow: var(--m-cap-shadow) !important;
+    margin-bottom: var(--m-cap-depth);
+  }
+  .spatial-button:is([data-spatial-control="outline"], [data-spatial-control="soft"], [data-spatial-control="secondary"]):not([data-spatial-size="icon"]):not(:disabled):active {
+    translate: 0 var(--m-cap-travel);
+    box-shadow: var(--m-cap-shadow-down) !important;
+  }
+  .spatial-button:is([data-spatial-control="ghost"], [data-spatial-size="icon"]):not(:disabled):active {
+    translate: 0 1px;
+    background-color: var(--m-hover) !important;
+  }
+
+  /* 5 — Keycaps: secondary keys (share, studio pills, status chips) rest on a
+     1px ledge and travel 1px; primary keys keep the 2px ledge above. */
+  [data-tactile] {
+    border: 1px solid var(--m-edge) !important;
+    background-color: var(--m-surface) !important;
+    background-image: none !important;
+    box-shadow: var(--m-cap-shadow) !important;
+    transition: translate 75ms var(--m-key-ease), box-shadow 75ms var(--m-key-ease), background-color 120ms var(--m-ease) !important;
+  }
+  [data-tactile]:not([class*="rounded-"]) { border-radius: var(--m-radius-pill) !important; }
+  [data-tactile]:hover { border-color: hsl(var(--foreground) / 0.35) !important; }
+  [data-tactile]:not(:disabled):active, [data-tactile][data-state="open"] {
+    translate: 0 var(--m-cap-travel);
+    box-shadow: var(--m-cap-shadow-down) !important;
+  }
+
+  /* A pill-shaped frame only holds pill-shaped keys: square corners would poke out of its curve. */
+  :is(.spatial-track, .spatial-control-pill, [class~="rounded-full"]) > :is(button, a, [role="tab"], [role="radio"], [data-tactile]),
+  :is(.spatial-track, .spatial-control-pill, [class~="rounded-full"]) > * > :is(button, a, [role="tab"], [role="radio"]) {
+    border-radius: var(--m-radius-pill) !important;
+  }
+
+  /* Keys that sit inside a rounded group (segmented tracks, toggle groups, tab lists)
+     are flush with their bed: no wall that could stick out of the rounded frame. */
+  :is(.spatial-track, [role="tablist"], [role="group"], [role="radiogroup"], [role="toolbar"], .spatial-control-pill) :is(.spatial-button, [data-tactile]) {
+    box-shadow: none !important;
+    margin-bottom: 0 !important;
+  }
+  :is(.spatial-track, [role="tablist"], [role="group"], [role="radiogroup"], [role="toolbar"], .spatial-control-pill) :is(.spatial-button, [data-tactile]):not(:disabled):active {
+    translate: 0 1px;
+    box-shadow: var(--m-cap-shadow-down) !important;
+  }
+
+  /* Plain bordered buttons (tiles, rows, chips) get the same key: a hard inner
+     bottom edge that disappears when pressed. Drawn inset, so no parent clips it. */
+  [data-hardware-ui] button[class~="border"]:not(.spatial-button):not([data-tactile]):not([role="tab"]):not([role="switch"]):not([role="checkbox"]):not([role="radio"]):not([aria-pressed="true"]) {
+    box-shadow: var(--m-inset-key) !important;
+    transition: translate 75ms var(--m-key-ease), box-shadow 75ms var(--m-key-ease), background-color 120ms var(--m-ease), border-color 120ms var(--m-ease) !important;
+  }
+  [data-hardware-ui] button[class~="border"]:not(.spatial-button):not([data-tactile]):not([role="tab"]):not([role="switch"]):not(:disabled):active {
+    translate: 0 1px;
+    box-shadow: var(--m-inset-key-down) !important;
+  }
+
+  /* 6 — Folders: one card per folder. Cards nested inside an open folder are
+     rows, not a second folder: no second frame, just a quiet well. */
+  :is(.acrylic-card, .spatial-glass, .glow-card) :is(.acrylic-card, .spatial-glass, .glow-card),
+  [role="region"] :is([class~="rounded-xl"], [class~="rounded-2xl"])[class~="border"]:not(button, a, input, [data-tactile], .spatial-button) {
+    background: var(--m-page) !important;
+    border: 1px solid var(--m-hairline) !important;
+    border-radius: var(--m-radius-field) !important;
+  }
+  [data-state="open"] > h3 > [data-radix-collection-item], [data-state="open"] > h3 > button { border-bottom: 1px solid var(--m-hairline) !important; }
+}
+
+/* The QR paper sheet keeps its print look, but its action keys still press like keys. */
+:root[data-workspace-ui="internal"][data-theme="mechanical"] .preview-sheet .spatial-button:is([data-spatial-control="default"], [data-spatial-control="destructive"], [data-spatial-control="matcha"]):not([data-spatial-size="icon"]):not(:disabled) {
+  border: 1px solid oklch(0.12 0 0) !important;
+  box-shadow: 2px 2px 0 0 oklch(0.12 0 0) !important;
+  transition: translate 75ms var(--m-key-ease), box-shadow 75ms var(--m-key-ease) !important;
+}
+:root[data-workspace-ui="internal"][data-theme="mechanical"] .preview-sheet .spatial-button:not(:disabled):active {
+  translate: 2px 2px;
+  box-shadow: 0 0 0 0 transparent !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-workspace-ui="internal"][data-theme="mechanical"] { --m-ease: steps(1, end); --m-key-ease: steps(1, end); }
+}
+
+/* Wallet vault (3-card export): hard block shadows in every theme, no soft shadows.
+   The Sovereign Key is pitch black with a heavier 4px ledge: it is a hardware key. */
+.wallet-vault { display: grid; gap: 0.75rem; }
+.wallet-vault-card {
+  --vault-edge: hsl(var(--foreground));
+  --vault-press: 2px;
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--vault-edge);
+  border-radius: 1rem;
+  background: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  border-color: hsl(var(--foreground) / 0.14);
+  box-shadow: inset 0 1px 0 0 oklch(1 0 0 / 0.5), 0 2px 0 0 hsl(var(--foreground) / 0.1), 0 12px 24px -16px oklch(0 0 0 / 0.35) !important;
+}
+.wallet-vault-card[data-kind="key"] {
+  --vault-ink: oklch(0.12 0 0);
+  --vault-press: 4px;
+  border: 2px solid var(--vault-ink);
+  background: var(--vault-ink);
+  color: oklch(0.97 0 0);
+  box-shadow: inset 0 1px 0 0 oklch(1 0 0 / 0.12), 0 4px 0 0 oklch(0.05 0 0), 0 18px 32px -14px oklch(0 0 0 / 0.55) !important;
+  background-image: repeating-linear-gradient(0deg, oklch(1 0 0 / 0.035) 0 1px, transparent 1px 6px), repeating-linear-gradient(90deg, oklch(1 0 0 / 0.035) 0 1px, transparent 1px 6px);
+}
+.wallet-vault-icon {
+  display: inline-grid; place-items: center; width: 2.25rem; height: 2.25rem; flex-shrink: 0;
+  border: 1px solid currentColor; border-radius: 999px;
+}
+.wallet-vault-tag { font-family: var(--font-mono, ui-monospace, monospace); font-size: 0.6875rem; letter-spacing: 0.04em; text-transform: uppercase; opacity: 0.75; }
+.wallet-vault-note { font-size: 0.75rem; opacity: 0.75; }
+.wallet-vault-warning { display: flex; gap: 0.5rem; align-items: center; font-size: 0.75rem; font-weight: 600; color: oklch(0.85 0.16 85); }
+.wallet-vault-keys { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+.wallet-vault-key {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.375rem;
+  min-height: 2.75rem; padding: 0 1rem; border-radius: 999px;
+  font-size: 0.8125rem; font-weight: 600;
+  --vault-wall: oklch(0.05 0 0);
+  margin-bottom: 3px;
+  border: 1px solid var(--vault-wall);
+  /* !important: the generic glass button skin must never repaint these keys (unreadable text). */
+  background: linear-gradient(180deg, color-mix(in oklab, hsl(var(--foreground)) 82%, hsl(var(--background))) 0%, hsl(var(--foreground)) 60%) !important;
+  color: hsl(var(--background)) !important;
+  backdrop-filter: none !important;
+  box-shadow: inset 0 1px 0 0 oklch(1 0 0 / 0.22), 0 3px 0 0 var(--vault-wall), 0 5px 6px -2px oklch(0 0 0 / 0.3) !important;
+  transition: translate 75ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 75ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.wallet-vault-card[data-kind="key"] .wallet-vault-key {
+  --vault-wall: oklch(0.62 0 0);
+  background: linear-gradient(180deg, oklch(1 0 0) 0%, oklch(0.93 0 0) 100%) !important; color: oklch(0.12 0 0) !important;
+}
+.wallet-vault-key:not(:disabled):active { translate: 0 3px; box-shadow: inset 0 2px 4px 0 oklch(0 0 0 / 0.25), 0 0 0 0 var(--vault-wall) !important; }
+/* Unavailable keys stay readable: dimmed, never faded into the card. */
+.wallet-vault-key:disabled { opacity: 0.55; cursor: not-allowed; box-shadow: none !important; }
+.wallet-vault-key:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .wallet-vault-key { transition: none; } }
+.dark .wallet-vault-card:not([data-kind="key"]) {
+  box-shadow: inset 0 1px 0 0 oklch(1 0 0 / 0.06), 0 2px 0 0 oklch(0 0 0 / 0.6), 0 14px 26px -16px oklch(0 0 0 / 0.8) !important;
+}
+
+/* Zero-trust scan terminal (ROUT card checks): flat obsidian, 1px grid, no gradients
+   or shadows; "//" prompts in mint, warnings in terracotta. Same in every material. */
+:root {
+  --zt-obsidian: oklch(0.165 0.008 290);
+  --zt-ink: oklch(0.96 0.005 290);
+  --zt-muted: oklch(0.96 0.005 290 / 0.62);
+  --zt-line: oklch(1 0 0 / 0.1);
+  --zt-mint: oklch(0.86 0.13 165);
+  --zt-terracotta: oklch(0.7 0.13 40);
+}
+.zt-surface {
+  min-height: 100svh;
+  background-color: var(--zt-obsidian);
+  background-image: linear-gradient(var(--zt-line) 1px, transparent 1px), linear-gradient(90deg, var(--zt-line) 1px, transparent 1px);
+  background-size: 32px 32px;
+  color: var(--zt-ink);
+}
+.zt-panel { border: 1px solid var(--zt-line); border-radius: 12px; background: var(--zt-obsidian); box-shadow: none !important; }
+.zt-rule { border-top: 1px solid var(--zt-line); }
+.zt-prompt { font-family: var(--font-mono, ui-monospace, monospace); letter-spacing: 0.06em; text-transform: uppercase; color: var(--zt-mint); }
+.zt-prompt[data-tone="alert"] { color: var(--zt-terracotta); }
+.zt-muted { color: var(--zt-muted); }
+.zt-mono { font-family: var(--font-mono, ui-monospace, monospace); }
+.zt-button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  min-height: 2.75rem; padding: 0 1.25rem; border-radius: 999px;
+  border: 1px solid var(--zt-mint); background: transparent !important; background-image: none !important;
+  color: var(--zt-mint) !important; font-weight: 600; box-shadow: none !important; backdrop-filter: none !important;
+  transition: background-color 120ms linear;
+}
+.zt-button:hover:not(:disabled) { background: color-mix(in oklab, var(--zt-mint) 12%, transparent) !important; }
+.zt-button:disabled { opacity: 0.45; cursor: not-allowed; }
+.zt-button:focus-visible { outline: 2px solid var(--zt-mint); outline-offset: 2px; }
+.zt-link { color: var(--zt-muted); text-decoration: underline; text-underline-offset: 3px; }
+.zt-link:hover { color: var(--zt-ink); }
+
+/* Glass material refinement: razor 1px edges, a 16px blur and no diffused glow around controls. */
+@scope (:root[data-workspace-ui="internal"][data-theme="glass"]) to ([data-profile-theme], [data-interface-artwork], .preview-sheet, .wallet-vault) {
+  :is(.spatial-button, .spatial-input, .acrylic-card, .spatial-glass) {
+    --glass-edge: rgba(0, 0, 0, 0.08);
+    border-color: var(--glass-edge) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    backdrop-filter: blur(16px) !important;
+  }
+  :is(.spatial-button) { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1) !important; filter: none !important; }
+  :is(.spatial-button):hover { filter: brightness(1.06) !important; }
+  :is(.spatial-input) { box-shadow: none !important; }
+}
+@scope (:root.dark[data-workspace-ui="internal"][data-theme="glass"]) to ([data-profile-theme], [data-interface-artwork], .preview-sheet, .wallet-vault) {
+  :is(.spatial-button, .spatial-input, .acrylic-card, .spatial-glass) { --glass-edge: rgba(255, 255, 255, 0.08); }
+}

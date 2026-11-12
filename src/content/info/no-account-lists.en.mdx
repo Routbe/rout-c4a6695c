@@ -1,0 +1,27 @@
+---
+title: "Why no lists"
+description: "Why ROUT never gives an app a list of your linked accounts."
+category: "info"
+last_updated: "2026-11-11"
+ai_ready: true
+---
+
+# Why ROUT never shares lists
+
+Many sign-in services hand apps a list of your linked accounts. ROUT never does, even when an app asks.
+
+## The problem with lists
+
+A list like "Google, GitHub, Discord" looks harmless. But every app that receives one can track you across services, build profiles or sell the data. One leak is enough.
+
+## How ROUT solves it
+
+An app that already knows you sends scrambled fingerprints of what it already knows, such as your email address. Your own browser compares them. If something matches, ROUT asks you whether to confirm that one link. Only that single detail goes to the app, and only with your yes.
+
+## What this means for you
+
+- An app learns nothing it didn't already know.
+- If you say no, the app can't even tell there was a match.
+- ROUT doesn't store the fingerprints.
+
+Want more? Read about [connected apps](/info/connected-apps) or the technical [developer guide](/dev/blind-hash-matching).

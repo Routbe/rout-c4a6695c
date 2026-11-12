@@ -1,0 +1,12 @@
+{
+  "login.subject": "Votre lien de connexion ROUT",
+  "login.preview": "Votre code est {{otp_code}} — ou touchez le bouton pour vous connecter.",
+  "login.greeting": "Bonjour {{user_handle}},",
+  "login.greetingAnon": "Bonjour,",
+  "login.body": "Touchez le bouton pour vous connecter tout de suite. Sur un autre appareil ? Saisissez plutôt ce code sur l'écran de connexion.",
+  "login.cta": "Se connecter à ROUT",
+  "login.codeLabel": "Votre code de connexion",
+  "login.expiry": "Le lien et le code sont valables 15 minutes, une seule fois.",
+  "login.ignore": "Vous n'avez rien demandé ? Ignorez simplement cet e-mail.",
+  "footer": "ROUT · Fabriqué en Belgique · Aucun suivi dans cet e-mail."
+}

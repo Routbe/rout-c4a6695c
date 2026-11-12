@@ -1,0 +1,39 @@
+---
+title: "Workspaces gebouwd door AI"
+description: "Hoe een AI-agent zonder account een volledige ROUT workspace bouwt, en hoe jij die veilig claimt."
+category: "about"
+last_updated: "2026-11-04"
+ai_ready: true
+---
+
+# Workspaces gebouwd door AI
+
+Een AI-agent kan voor jou een volledige ROUT workspace opzetten — met profiel-ontwerp en "Inloggen met ROUT"-apps — zonder dat jij eerst iets hoeft te doen. Pas als alles klaarstaat, claim jij de workspace en word je eigenaar.
+
+## Wat de AI zelf kan
+
+- Een workspace aanmaken met naam, adres en beschrijving.
+- Een profiel ontwerpen in de Studio: naam, slogan, thema, kaartstijl, blokken en weergave-instellingen.
+- Tot drie login-apps klaarzetten, met hun terugkeer-adressen.
+
+Zolang niemand de workspace claimt, is er niets publiek: geen profiel, geen werkende login-app, geen e-mail. Na 48 uur wordt een ongeclaimde workspace volledig verwijderd.
+
+## Zo claim je
+
+De AI geeft je een **claim-link**, een **QR-code** of een **claimcode** (`ROUT-XXXXX-…`). Je kiest zelf:
+
+1. Open de link, **of**
+2. Ga naar **Profiel → Persoonlijk** en tik op het **tandwiel** naast **Nieuwe workspace**.
+3. Kies **Claim workspace**, scan de QR-code of typ de code.
+4. Log in en bevestig. Jij wordt eigenaar; de login-apps gaan live en je ziet hun geheimen één keer.
+
+## Veiligheid
+
+- Link, code en sandbox-sleutel zijn willekeurig en worden enkel als hash bewaard.
+- Elke claim werkt één keer. Na het claimen verliest de AI zijn sleutel.
+- De AI krijgt nooit je e-mailadres of andere gegevens van jou.
+- Het profiel gaat pas live als jij het publiceert.
+
+## Voor AI-agents
+
+Machine-leesbare stappen staan in [/.well-known/rout-agent.json](/.well-known/rout-agent.json) en [llms.txt](/llms.txt). Kort: `GET /api/agent/sandbox` → los de rekenpuzzel op → `POST /api/agent/sandbox` → `POST /api/agent/sandbox/workspace` → `PATCH /api/agent/sandbox/profile` → `PUT /api/agent/sandbox/apps` → geef de claim-link, QR-code of code aan je mens.

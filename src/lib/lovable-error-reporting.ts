@@ -52,7 +52,7 @@ export function reportLovableError(error: unknown, context: Record<string, unkno
 
 const MAX_SERIALIZED_LENGTH = 2000;
 
-// Loaders and server fns throw raw Responses and plain objects (a Supabase
+// Loaders and server fns throw raw Responses and plain objects (a database
 // `{ message, code, details }`), which String() reduces to "[object ...]".
 function describeThrown(error: unknown): string {
   if (error instanceof Response) {

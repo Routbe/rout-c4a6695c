@@ -1,0 +1,50 @@
+---
+title: "Email sync webhooks"
+description: "Handshake, signature and payload of user-email-updated."
+category: "dev"
+last_updated: "2026-11-11"
+ai_ready: true
+---
+
+# Email sync webhooks
+
+When a member chooses a new email address, ROUT can tell your app. Only apps the member explicitly selects receive a message.
+
+## Registering your webhook
+
+Set a webhook URL in the Developer Console. It must use `https` on port 443, without username or password, and may not point to `localhost`, internal names or private IP addresses. ROUT does not follow redirects.
+
+## The payload
+
+```http
+POST /your/webhook HTTP/1.1
+Content-Type: application/json
+X-Rout-Signature: t=1793491200,v1=5d41402abc4b2a76b9719d911017c592...
+
+{"event":"https://schemas.rout.be/events/user-email-updated","sub":"PAIRWISE_SUBJECT","previous_email":"old@example.test","new_email":"new@example.test","updated_at":1793491200}
+```
+
+- `sub` is the member's app-specific code, the same as in your tokens. Match on it, never on email.
+- `previous_email` may be `null`.
+- A private relay is never silently replaced by the real address.
+
+## Verifying the signature
+
+`X-Rout-Signature` holds `t` (unix time) and `v1`: HMAC-SHA256 with your webhook secret over `<t>.<raw body>`, in hex. Verify against the raw body, before JSON parsing.
+
+```ts
+import { createHmac, timingSafeEqual } from "node:crypto";
+
+export function verifyRout(header: string, rawBody: string, secret: string) {
+  const parts = Object.fromEntries(header.split(",").map(p => p.split("=") as [string, string]));
+  const t = Number(parts.t);
+  if (!t || Math.abs(Date.now() / 1000 - t) > 300) return false; // replay window
+  const expected = createHmac("sha256", secret).update(`${t}.${rawBody}`).digest("hex");
+  const given = Buffer.from(parts.v1 ?? "", "hex");
+  return given.length === 32 && timingSafeEqual(given, Buffer.from(expected, "hex"));
+}
+```
+
+## Responding
+
+Reply with a `2xx` once you've stored the message. Process idempotently: the same message can arrive again. See also general [webhooks](/dev/webhooks).

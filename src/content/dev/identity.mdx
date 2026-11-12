@@ -1,0 +1,37 @@
+---
+title: "Identity"
+description: "Standaard OIDC zonder automatische accountkoppeling."
+category: "dev"
+last_updated: "2026-11-01"
+ai_ready: true
+---
+
+# Identity
+
+ROUT is de issuer; je app is de relying party. Identiteit ontstaat uit een gevalideerde protocolrespons, niet uit een gebruikersnaam of het feit dat iemand ROUT in een ander tabblad gebruikt.
+
+## De juiste sleutel
+
+Gebruik het gevalideerde paar `iss` en `sub` als externe accountidentifier. E-mailadressen kunnen wijzigen. Een pairwise subject is bedoeld om onnodige correlatie tussen apps te beperken en hoeft niet gelijk te zijn voor twee clients.
+
+## Geen automatische koppeling
+
+Een overeenkomend e-mailadres is geen voldoende basis om bestaande accounts zonder bevestiging samen te voegen. Laat de gebruiker controle over beide accounts bewijzen en behoud de server-side regels voor gevoelige wijzigingen.
+
+## Sessie versus toestemming
+
+Een ROUT-sessie is niet automatisch een sessie in je app. Je app doorloopt de geautoriseerde callback en maakt daarna haar eigen sessie. Toestemming voor scopes en de geldigheid van tokens blijven afzonderlijke controles.
+
+## Tokenvalidatie
+
+| Controle | Verwachting |
+| --- | --- |
+| Issuer | Exact de ontdekte, vertrouwde issuer |
+| Audience | De eigen geregistreerde client |
+| Handtekening | Een toegelaten algoritme en geldige JWKS-key |
+| Tijd | Niet verlopen; toepasselijke tijdclaims geldig |
+| Nonce | Overeenkomst met de gestarte aanvraag |
+
+## Verder lezen
+
+Lees de volledige [OIDC-documentatie](/dev/identity-oidc), [Get started](/dev/get-started) en [Accountbeveiliging](/info/account-security).

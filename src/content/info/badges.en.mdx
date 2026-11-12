@@ -1,0 +1,91 @@
+---
+title: "Official badges"
+description: "What the human seal of approval and identity, creator, and business badges mean."
+category: "info"
+last_updated: "2026-11-01"
+ai_ready: true
+---
+
+# What does a badge say?
+
+A badge tells you something specific. Not everything about a person, not everything about a company, and never that you should trust someone blindly.
+
+## Four signals, four meanings
+
+Don't just look at the color. The meaning and the source go hand in hand. ROUT distinguishes between a human link, public identity verification, creator status, and business verification.
+
+### White seal: linked to a human
+
+<BadgePreview type="human" />
+
+An alias can be linked to a verified primary account without revealing the legal name on that alias. The human seal shows that connection. The current ROUT display uses a hand with a seal; the term “white shield” is also used for this signal.
+
+This is not proof that all posts are accurate, not a reputation score, and not a replacement for a separate authorization check.
+
+### Blue checkmark: public identity
+
+<BadgePreview type="verified" />
+
+The blue identity checkmark belongs to the verified primary profile. It is different from verifying that someone owns a social media account. Read the verification explanation on the profile to understand which identity was verified.
+
+A blue checkmark does not grant a professional license, financial guarantee, or endorsement by ROUT.
+
+### Pink checkmark: creator / influencer
+
+<BadgePreview type="creator" />
+
+Creator status is a separate, application-managed signal. Adding a pink icon to a profile picture yourself does not grant that status. Linked social accounts and any approvals are verified outside the public profile view.
+
+The badge is not a quality guarantee for content, reach, or collaborations. Follower counts can change, and cached numbers are not a live measurement.
+
+### Black checkmark: verified business
+
+<BadgePreview type="business" />
+
+Business verification makes the business identity recognizable. The signal is not a general endorsement of products, not insurance, and not proof that someone is authorized to perform every action on behalf of that company.
+
+For sensitive transactions, always check the domain, context, and the contact person's authorization.
+
+## Official is not the same as issued by an app
+
+A custom badge can represent a club, family, organization, or other issuer. A diploma or certificate is an assertion by that issuer. It does not automatically carry the meaning of a ROUT identity badge.
+
+<Callout type="warning" title="Check the issuer">
+A title and a nice icon do not prove accreditation. Look at the issuer, the date, the described criteria, and any revocation. A visual badge is not automatically a cryptographically verifiable credential.
+</Callout>
+
+The existing custom badge display opens details when you click on it. Broad external issuance of diplomas and a complete acceptance flow have not yet been confirmed as a working service. Therefore, this guide makes no promises about an API or visibility toggle that hasn't been verified live.
+
+Read more at [Custom badges](/info/custom-badges) and [Credentials](/info/credentials).
+
+## How to evaluate a profile
+
+<StepByStep>
+<Step title="Read the meaning">Open the badge explanation. A name check, human link, and account ownership are completely different checks.</Step>
+<Step title="Check the source">With a custom badge, the origin must be clear. A name that resembles an official authority is not proof of an actual relationship.</Step>
+<Step title="Check the context">Do not use a badge as a replacement for a contract, diploma validation, age verification, or payment security.</Step>
+</StepByStep>
+
+## If something isn't right
+
+A badge that has been revoked, rejected, or not chosen for publication should not be treated as a valid public credential. The credential extension has separate fields for this; its full public enforcement must be part of the implementation, not just the documentation.
+
+Notice a suspicious signal? Save the public profile URL and report the specific discrepancy via [Contact](/contact). Do not share identity documents, access tokens, or private keys in a report.
+
+## Frequently asked questions
+
+### Can I give myself an official checkmark?
+
+No. A profile field, image, or custom badge cannot grant official verification status. That status is verified separately.
+
+### Why doesn't my alias show the same name as my primary profile?
+
+An alias may be intended specifically to keep your legal name private. A human link can be visible without publishing that name.
+
+### Are badges valid forever?
+
+No. Status and context can change. Revocation, account modifications, and new checks can affect a signal. Check the current explanation instead of an old screenshot.
+
+### Does a badge prove that a person is unique?
+
+Not every badge does. OIDC pairwise subjects and Sybil nullifiers are technical identity mechanisms, not a meaning you can attribute to every visible icon.

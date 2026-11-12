@@ -1,0 +1,33 @@
+---
+title: "Account Security"
+description: "Passkeys, account merging, and the limits of recovery."
+category: "info"
+last_updated: "2026-11-01"
+ai_ready: true
+---
+
+# Account Security
+
+A secure account requires more than just a strong sign-in method. Keep your recovery options and connected providers under control.
+
+## Passkeys and Two-Factor Authentication
+
+ROUT uses the existing account integration for passkeys and two-factor authentication. A passkey can be linked to your device or password manager. The available options depend on your device and the configured account service.
+
+## Sensitive Changes
+
+An active session alone is not enough for every change. Actions such as merging, setting or changing a password, and certain two-factor settings may require an additional email code. Never share such codes with a connected app.
+
+## Merging Accounts
+
+Merging moves data and access and can have irreversible consequences. Check the source, destination, and linked providers. The action may be rejected if immovable identity or audit records are present. Read [Merging Accounts](/info/account-merge) first.
+
+## Recovery Is Not a Blanket Guarantee
+
+Recovering an account and decrypting an encrypted ledger are different matters. Without a usable ledger key, older content may remain unreadable. Threshold Recovery and WebAuthn PRF are not proven recovery guarantees in this environment.
+
+<Callout type="warning" title="Protect your access carefully">Do not remove your last usable sign-in method without verifying a working alternative. A missing email or provider configuration can prevent recovery.</Callout>
+
+## Further Reading
+
+[Cryptography](/safety/cryptography) describes key boundaries; [Privacy](/safety/privacy) describes data processing.

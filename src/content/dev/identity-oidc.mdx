@@ -1,0 +1,131 @@
+---
+title: "Identity & OIDC"
+description: "Authorization Code met PKCE, pairwise subjects, scopes en veilige accountkoppeling."
+category: "dev"
+last_updated: "2026-11-01"
+ai_ready: true
+---
+
+# Identity & OIDC
+
+Integreer ROUT met Authorization Code + PKCE. Verifieer tokens. Koppel accounts alleen met bewijs en expliciete toestemming.
+
+<Callout type="warning" title="Implementatie versus live werking">
+Deze pagina beschrijft de aanwezige fase-1 OIDC-implementatie. De huidige projectomgeving blokkeert onveilige databaseverbindingen; aanmelden, JWKS en account-merging zijn daarom niet end-to-end bevestigd. Een protocolbeschrijving is geen beschikbaarheidsgarantie.
+</Callout>
+
+## Discovery is het contract
+
+Lees de discovery van de daadwerkelijke issuer. Neem endpoint-URL’s niet over van een preview, voorbeeld of afwijkende omgeving. Valideer dat de issuer overeenkomt met de geconfigureerde vertrouwensgrens.
+
+<ApiEndpoint method="GET" path="/.well-known/openid-configuration" />
+
+```json
+{
+  "response_types_supported": ["code"],
+  "subject_types_supported": ["pairwise", "public"],
+  "id_token_signing_alg_values_supported": ["ES256"],
+  "code_challenge_methods_supported": ["S256"]
+}
+```
+
+Dit is een fragment ter illustratie, geen volledige actuele response. Discovery en JWKS moeten door de client worden opgehaald en gecontroleerd. Gebruik een bewezen OIDC-library; implementeer JWT-validatie niet zelf.
+
+### Fase 1, geen Blind-Auth
+
+ROUT blijft een standaard OIDC-provider. Pairwise subjects en Sybil-nullifiers worden ondersteund door de identiteitslogica. RSA blind signatures, VOPRF en andere blind-tokenprotocollen behoren niet tot het discoverycontract. Een toekomstige SDK is geen eigenschap van de huidige login.
+
+## De authorization flow
+
+<StepByStep>
+<Step title="Registreer je client">Configureer toegestane redirect-URI’s en minimale scopes in de Console. Een callback moet exact overeenkomen; een wildcard is geen veilige redirectpolicy.</Step>
+<Step title="Begin na een bewuste actie">Genereer unieke state, nonce en een PKCE-verifier. Bewaar deze gebonden aan de lokale loginpoging. Gebruik S256 voor de challenge.</Step>
+<Step title="Verwerk de callback">Controleer state en wissel de eenmalige code in met dezelfde verifier en redirect-URI. Houd het clientsecret uitsluitend server-side voor confidential clients.</Step>
+<Step title="Verifieer en maak een lokale sessie">Controleer signature, issuer, audience, tijdsclaims en nonce. Identificeer de gebruiker op issuer + sub, niet op een e-mailadres.</Step>
+</StepByStep>
+
+```text
+GET {authorization_endpoint}?
+  response_type=code&
+  client_id=YOUR_CLIENT_ID&
+  redirect_uri=YOUR_EXACT_CALLBACK&
+  scope=openid%20profile&
+  state=ONE_TIME_STATE&
+  nonce=ONE_TIME_NONCE&
+  code_challenge=S256_CHALLENGE&
+  code_challenge_method=S256
+```
+
+De hoofdletters zijn vervangbare waarden, geen werkende credentials. Public clients (browser/native) kunnen geen geheim bewaren; PKCE is hun basis. Zet geen clientsecret in frontendcode, logs of URL’s.
+
+## Scopes en claims
+
+| Scope | Betekenis | Integratieregel |
+| --- | --- | --- |
+| `openid` | OIDC-identiteit | Verplicht; gebruik issuer + sub als externe sleutel. |
+| `profile` | Toegestane profielinformatie | Behandel naam en avatar als veranderlijke weergave. |
+| `email` | Gedeeld adres en verificatiestatus | Dit kan een alias of relay zijn; neem geen primair adres aan. |
+| `linked_accounts` | Toegestane gekoppelde accounts | Geen toestemming om conflicterende lokale accounts automatisch te mergen. |
+
+Alleen aangevraagde en toegestane claims mogen worden gebruikt. De precieze response blijft afhankelijk van clientconfiguratie, toestemming en beschikbaarheid.
+
+### Pairwise subjects
+
+Pairwise subjects beperken correlatie door de subjectidentifier te binden aan de relevante app/sectorcontext. Behandel `sub` als opaque. Parseer `usr_rout_...` niet voor een interne UUID; verwacht niet dat twee apps dezelfde identifier ontvangen.
+
+### Sybil-nullifiers
+
+Een Sybil-nullifier is een afzonderlijk, contextgebonden signaal. Vraag het alleen aan wanneer de toepassing het nodig heeft. Verwar het niet met een globale trackingidentifier of een onbeperkte garantie dat iedere bezoeker één account heeft. Controleer de vereiste verificatie en scope voordat je er beslissingen op baseert.
+
+## Bestaande sessie herkennen
+
+Een geldige ROUT-sessie kan de authorization flow verkorten. ROUT kan nog steeds toestemming of extra verificatie vragen. Een sessie bij ROUT is niet automatisch een sessie bij jouw app.
+
+### Expliciet silent controleren
+
+De implementatie heeft een `prompt=none`-pad. Dat vereist ingeschakelde account discovery voor de client, een actieve ROUT-sessie en bestaande toestemming. `login_hint` wordt tegen de actieve gebruiker gecontroleerd. Wanneer interactie nodig is, volgt een protocolfout in plaats van een verborgen toestemmingsscherm.
+
+Gebruik dit niet voor onbeperkte achtergrondpolling of ongewenste automatische redirects. Browsercookiebeleid kan een silent check beperken. Handel een ontbrekende sessie af als normale toestand en bied een zichtbare loginactie aan.
+
+## Lokale accounts koppelen is jouw verantwoordelijkheid
+
+Een geverifieerd e-mailadres is niet op zichzelf toestemming om een lokaal account over te nemen. Een veilige koppeling vereist een geauthenticeerde lokale gebruiker, expliciete toestemming en conflictcontrole.
+
+```sql
+-- Illustratief schema in de relying party, niet in ROUT.
+create table user_identities (
+  issuer text not null,
+  subject text not null,
+  local_user_id uuid not null,
+  primary key (issuer, subject)
+);
+```
+
+Bij meerdere treffers: stop en toon een expliciete keuze. Verplaats niet stilzwijgend betaaldata, rollen of historische gegevens. Een issuer + subject-conflict moet een fout zijn, geen automatische overschrijving.
+
+### ROUT-account merge is een andere flow
+
+Twee ROUT-accounts samenvoegen gebruikt een kortlevend PIN/QR-ticket, previewbinding, een e-mailcode, handle/designkeuzes en verse passkeyverificatie. De SQL-functie voert de afhankelijke overdrachten atomair uit.
+
+Identiteits-, financiële en ledgergegevens kunnen de merge blokkeren. Die transactie voegt geen accounts samen in jouw applicatie. Maak een afzonderlijke, gecontroleerde relying-party-koppeling als jouw gegevensmodel dat nodig heeft.
+
+## E-mailupdates zijn consent-based
+
+Per-app e-mailtoewijzingen zijn snapshots. Een wijziging van het primaire ROUT-adres past niet zonder meer alle gedeelde adressen aan. Geselecteerde toewijzingswijzigingen kunnen een ondertekend `user.email_updated`-bericht sturen.
+
+De huidige backchannel dispatcher is best-effort. Een verstuurd bericht bewijst geen ontvangst of verwerking. Zorg voor idempotente verwerking en een herstelpad; [Webhooks](/dev/webhooks) behandelt deze grenzen.
+
+## Tokens en fouten
+
+- Verwerp onbekende issuer, verkeerde audience, verlopen tokens en een niet-passende nonce.
+- Gebruik een eenmalige state en PKCE-verifier; verwijder ze na succes of fout.
+- Bewaar tokens niet in analytics, foutmeldingen of een openbare browser-URL.
+- Behandel geweigerde toestemming, verlopen codes en ontbrekende sessies als normale foutpaden.
+- Maak van een mislukte privé-e-mailkeuze nooit een fallback naar het primaire adres.
+- Een tijdelijk onbereikbare issuer is geen reden om tokenvalidatie over te slaan.
+
+## Verificatie vóór productie
+
+Test een nieuwe sessie, bestaande sessie, geweigerde consent, `prompt=none` zonder consent, verlopen code, verkeerde verifier, onjuiste redirect-URI, gewijzigde e-mailkeuze en dubbele lokale identitymapping. Test ook sleutelrotatie en tijdelijke JWKS-uitval.
+
+Pas daarna kun je je eigen integratie als werkend presenteren. De huidige ROUT-preview heeft nog een geblokkeerde runtimeverbinding en is daarvoor geen voltooid bewijs.

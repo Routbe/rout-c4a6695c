@@ -1,0 +1,29 @@
+---
+title: "Transparantie"
+description: "Wat ROUT kan waarnemen, wat wordt opgeslagen en wat versleuteld blijft."
+category: "safety"
+last_updated: "2026-11-01"
+ai_ready: true
+---
+
+# Transparantie
+
+## Wat ROUT kan waarnemen
+
+ROUT verwerkt standaard OIDC-aanvragen, sessies, toestemming en tokens. Een identity provider is geen blinde transportlaag. Pairwise subjects beperken correlatie door relying parties; ze verbergen het proces niet voor de issuer.
+
+## Wat versleuteld blijft
+
+De opt-in ledger bewaart payloads als ciphertext, met browser-generated keymateriaal en encrypted envelopes. Dat is geen claim dat alle operationele metadata versleuteld is.
+
+## Operationele gegevens
+
+Accounts, clientconfiguratie, toestemmingen, e-mailtoewijzingen en beveiligingsgebeurtenissen hebben afzonderlijke doelen. Retentie, beheerrechten en purgeprocessen moeten per categorie worden gecontroleerd. Deze pagina is geen volledige productie-inventaris of retentieschema.
+
+## Geen trackers
+
+Documentatie gebruikt lokale fonts, gebundelde content en lokale titelzoeking. Er is geen Algolia- of analyticsintegratie toegevoegd. Functionele sessiecookies zijn geen advertentietrackers.
+
+## Verifieerbare grenzen
+
+De huidige databaseverbinding wordt veilig geweigerd. S3-configuratie en live recovery/passkeyflows zijn nog niet afgerond. We presenteren code-aanwezigheid niet als operationeel bewijs.

@@ -1,0 +1,47 @@
+---
+title: "Teambeheer en rechten in een ROUT Workspace"
+description: "Owner, Admin, Developer, Editor en Viewer: wie mag wat in een gedeelde ROUT-omgeving."
+category: "support"
+last_updated: "2026-11-01"
+ai_ready: true
+seo_title: "Teambeheer en rechten in een ROUT Workspace | ROUT"
+seo_description: "Het rollenmodel (RBAC) van ROUT Workspaces: wie beheert facturatie, team, domeinen, API-sleutels, de Profiel Hub en QR-codes."
+seo_keywords: ["ROUT workspace rollen", "RBAC", "teamrechten", "workspace admin", "ROUT"]
+schema_type: "Article"
+---
+
+## Vijf rollen, één regelset
+
+Elke persoon in een workspace heeft precies één rol. De server controleert die rol bij elke actie; de knoppen in Studio volgen dezelfde regels. Klik hieronder op een rol om haar kolom te markeren.
+
+<RoleMatrix />
+
+## Wat elke rol betekent
+
+- **Eigenaar (Owner)** — eindverantwoordelijke. Beheert facturatie, kan iemand anders eigenaar maken en is de enige die de workspace kan verwijderen. Er blijft altijd minstens één eigenaar.
+- **Admin** — dagelijks beheer: leden uitnodigen of verwijderen, rollen wijzigen (behalve eigenaar), naam en adres aanpassen, een eigen domein koppelen en developer-tools gebruiken.
+- **Developer** — werkt in de Developer Console: API-sleutels, webhooks en OAuth-apps van de workspace. Beheert het team niet.
+- **Editor** — onderhoudt de Profiel Hub van de workspace en maakt QR-codes en korte links. Geen toegang tot de Developer Console.
+- **Viewer** — kijkt mee. Kan de Profiel Hub en instellingen bekijken, niet bewerken.
+
+<Callout type="info">
+QR-codes en korte links zijn op dit moment nog niet per rol afgeschermd: elk lid van de workspace kan ze maken. Geef alleen mensen toegang die je die ruimte wilt geven.
+</Callout>
+
+## Iemand uitnodigen
+
+1. Open **Studio → Workspace → Instellingen → Team**.
+2. Vul een e-mailadres of een ROUT **@gebruikersnaam** in en kies een rol.
+3. Via e-mail wordt de persoon lid zodra die inlogt met dat bevestigde adres. Via @gebruikersnaam wordt dat ROUT-account lid de volgende keer dat het Studio opent.
+
+Bij een uitnodiging via gebruikersnaam zie je als beheerder nooit het e-mailadres van die persoon.
+
+## Rollen wijzigen en leden verwijderen
+
+Rollen wijzigen en leden verwijderen vraagt een extra bevestiging van je identiteit. Alleen een eigenaar kan een andere eigenaar aanpassen, en de laatste eigenaar kan niet worden verwijderd of gedegradeerd.
+
+<FAQ items={[
+  { question: "Kan een Admin de workspace verwijderen?", answer: "Nee. Alleen een eigenaar kan dat, na het intypen van de exacte workspace-naam." },
+  { question: "Kan ik iemand toevoegen via zijn gebruikersnaam?", answer: "Ja. Typ @gebruikersnaam in het uitnodigingsveld. Bestaat dat account niet, dan krijg je meteen een melding." },
+  { question: "Wat gebeurt er met API-sleutels als een developer vertrekt?", answer: "Sleutels die in de workspace zijn gemaakt, staan in de lijst van de workspace. Rouleer ze bij vertrek; zie de gids over de Developer Console." }
+]} />

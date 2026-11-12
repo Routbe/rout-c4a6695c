@@ -1,0 +1,35 @@
+---
+title: "Architectuur"
+description: "Neon, first-party proxies en afzonderlijke opslag van versleutelde data."
+category: "safety"
+last_updated: "2026-11-01"
+ai_ready: true
+---
+
+# Architectuur
+
+ROUT scheidt de applicatie, relationele gegevens en bestanden. Die grenzen maken beheer zichtbaar, maar zijn alleen bruikbaar wanneer elke deployment de juiste credentials en rechten gebruikt.
+
+## Applicatie en identiteit
+
+TanStack Start verzorgt publieke pagina’s en serverfuncties. Better Auth is het bestaande accountsysteem. De ROUT OIDC-provider is een afzonderlijke protocolrol voor aangesloten apps; een publieke documentatiepagina hoeft geen accountsessie te openen.
+
+## Neon en beperkte toegang
+
+Applicatiequery’s lopen via de gekoppelde Neon gateway. De verbinding moet de beperkte `rout_app`-rol gebruiken. Een ownerverbinding wordt geweigerd. Migratiecredentials horen niet in de gewone runtime; een geslaagde query is ook geen reden om rechten te verruimen.
+
+## Bestanden en externe diensten
+
+Het bestaande opslagpad gebruikt Scaleway/S3: gebruikersbestanden en interne assets hebben verschillende buckets en rechten. Neon bewaart metadata. Mail, betalingen en sociale providers hebben afzonderlijke configuratie en mogen niet stil worden nagebootst als credentials ontbreken.
+
+## Hostingregio’s
+
+Een Europese of Zwitserse hostingvisie bewijst niet de actuele locatie van iedere laag. Vercel-hosting, Neon-regio’s, objectopslag en contractuele subverwerkers moeten voor de echte deployment worden vastgesteld voordat een geografische garantie wordt gepubliceerd.
+
+## Deployments zijn afzonderlijke controles
+
+De bron bevat routes en beveiligingsregels, maar de werking van accounttransacties, callbacks, opslag en herstel moet op het eigen domein worden getest. Geen publieke healthcheck hoort private configuratie of credentials terug te geven.
+
+## Verder lezen
+
+[Transparantie](/safety/transparency), [Cryptografie](/safety/cryptography) en [Ecosysteem](/about/ecosystem).

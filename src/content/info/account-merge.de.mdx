@@ -1,0 +1,23 @@
+---
+title: "Accounts zusammenführen"
+description: "Zwei ROUT-Accounts zusammenführen mit Kontrolle über Daten und Identität."
+category: "info"
+last_updated: "2026-11-01"
+ai_ready: true
+---
+
+# Accounts zusammenführen
+
+## Zuerst beide Accounts überprüfen
+
+Ein ROUT-Merge nutzt ein kurzlebiges Ticket des Haupt-Accounts, eine Vorschau durch den zweiten Account, einen E-Mail-Code und explizite Entscheidungen für Name und Design. Die Handler erfordern eine frische Passkey-Verifizierung.
+
+<StepByStep><Step title="Starte mit dem Account, der bleibt">Erstelle ein PIN/QR-Ticket. Ein Ticket ersetzt keine Verifizierung.</Step><Step title="Zweiten Account überprüfen">Sieh dir die Vorschau an und bestätige den E-Mail-Code.</Step><Step title="Entscheide bewusst">Wähle den Namen und das Design. Die Datenbank führt die abhängigen Mutationen atomar aus.</Step></StepByStep>
+
+## Nicht alle Accounts können zusammengeführt werden
+
+Identitäts-, Finanz-, Encrypted-Ledger- und Disclosure-Daten können den Merge blockieren. Duplikate folgen expliziten Regeln; nicht alles wird blind verschoben. Dadurch werden keine Accounts in externen Apps zusammengeführt.
+
+## Aktuelle Verfügbarkeit
+
+Die SQL-Capability ist vorbereitet und offline getestet, aber die Live-Migrationen und die rout_app-Verbindung bleiben blockiert. Die Vorschau beweist noch keinen abgeschlossenen Anmelde- oder Merge-Flow.

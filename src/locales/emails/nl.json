@@ -1,0 +1,12 @@
+{
+  "login.subject": "Je inloglink voor ROUT",
+  "login.preview": "Je code is {{otp_code}} — of tik op de knop om in te loggen.",
+  "login.greeting": "Hoi {{user_handle}},",
+  "login.greetingAnon": "Hoi,",
+  "login.body": "Tik op de knop om meteen in te loggen. Op een ander toestel? Typ dan deze code in het inlogscherm.",
+  "login.cta": "Inloggen bij ROUT",
+  "login.codeLabel": "Je inlogcode",
+  "login.expiry": "Link en code werken 15 minuten en maar één keer.",
+  "login.ignore": "Niet aangevraagd? Dan kun je deze mail gewoon negeren.",
+  "footer": "ROUT · Gemaakt in België · Geen tracking in deze mail."
+}

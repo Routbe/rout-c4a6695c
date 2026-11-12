@@ -1,0 +1,46 @@
+---
+title: "Custom domeinen koppelen aan een workspace"
+description: "Bewijs met één DNS-record dat jullie bedrijfsdomein van de workspace is."
+category: "support"
+last_updated: "2026-11-01"
+ai_ready: true
+seo_title: "Custom domeinen koppelen aan een workspace | ROUT"
+seo_description: "Koppel een eigen bedrijfsdomein zoals link.bedrijf.be aan je ROUT Workspace en verifieer het eigendom met een TXT-record."
+seo_keywords: ["custom domein", "eigen domein", "DNS verificatie", "white-label QR", "ROUT workspace"]
+schema_type: "HowTo"
+steps:
+  - title: "Vul het domein in"
+    text: "Open Workspace → Instellingen → Domein en vul bijvoorbeeld link.bedrijf.be in."
+  - title: "Kopieer het TXT-record"
+    text: "ROUT toont een recordnaam (_rout.<jouw domein>) en een unieke waarde."
+  - title: "Zet het record bij je DNS-provider"
+    text: "Maak een TXT-record met exact die naam en waarde."
+  - title: "Klik op Verifiëren"
+    text: "ROUT leest het TXT-record en markeert het domein als geverifieerd."
+---
+
+## Waarom een eigen domein
+
+Met een geverifieerd domein toont de workspace-pagina `rout.be/w/<naam>` jullie domein als officiële link, en bewijs je bezoekers dat de workspace echt van jullie bedrijf is. Volledig white-label QR-codes en korte links op dat domein horen bij de duurdere plannen en hangen af van actieve rechten.
+
+## Domein koppelen en verifiëren
+
+Alleen een Eigenaar of Admin kan een domein koppelen.
+
+<OnboardingSteps steps={[
+  { title: "Vul het domein in", text: "Open Workspace → Instellingen → Domein en vul bijvoorbeeld link.bedrijf.be in." },
+  { title: "Kopieer het TXT-record", text: "ROUT toont een recordnaam (_rout.<jouw domein>) en een unieke waarde voor deze workspace." },
+  { title: "Zet het record bij je DNS-provider", text: "Maak een TXT-record met exact die naam en waarde. Wijziging kan tot enkele uren duren." },
+  { title: "Klik op Verifiëren", text: "ROUT leest het TXT-record. Klopt het, dan staat het domein als geverifieerd." }
+]} />
+
+De waarde is cryptografisch aan jullie workspace gebonden: een andere workspace kan hetzelfde record niet hergebruiken. Een domein kan aan maar één workspace tegelijk gekoppeld zijn.
+
+<Callout type="info">
+Om korte links en QR-codes echt via jullie domein te laten lopen, laat je het domein daarnaast naar ROUT wijzen (CNAME of A-record). Controleer eerst of er geen ander CNAME-record op dezelfde naam staat: een naam kan maar één CNAME hebben.
+</Callout>
+
+<FAQ items={[
+  { question: "Wijzigt het domein na verificatie?", answer: "Pas je het domein aan, dan vervalt de verificatie en verifieer je opnieuw." },
+  { question: "Werkt verificatie zonder de serverinstelling?", answer: "Nee. Ziet u de melding dat domeinverificatie nog niet is ingesteld, dan moet de beheerder van ROUT die eerst activeren." }
+]} />

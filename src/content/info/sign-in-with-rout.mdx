@@ -1,0 +1,33 @@
+---
+title: "Login met ROUT"
+description: "Inloggen zonder wachtwoord met passkeys, en met je ROUT ID inloggen bij andere apps via OpenID Connect, met toestemming per gegeven."
+category: "info"
+last_updated: "2026-11-04"
+ai_ready: true
+seo_keywords: ["Login met ROUT", "ROUT ID", "passkey", "OpenID Connect", "single sign-on"]
+faqs:
+  - question: "Ziet een app mijn e-mailadres als ik inlog met ROUT?"
+    answer: "Alleen als je daar toestemming voor geeft. Je kiest per gegeven wat een app mag lezen, en kunt een privacy-alias gebruiken die je echte adres afschermt."
+  - question: "Heb ik een wachtwoord nodig?"
+    answer: "Nee. Je logt in met een passkey op je toestel. Gevoelige wijzigingen vragen daarnaast een eenmalige code per e-mail."
+---
+
+# Login met ROUT
+
+Je ROUT ID is één account waarmee je bij ROUT én bij andere apps inlogt.
+
+## Zonder wachtwoord
+
+Passkeys gebruiken de beveiliging van je toestel: geen wachtwoord dat kan lekken of gephisht worden. Voor onomkeerbare wijzigingen, zoals accounts samenvoegen of 2FA aanpassen, vraagt ROUT een eenmalige code van zes cijfers per e-mail.
+
+## Inloggen bij andere apps
+
+Apps en partners gebruiken de open standaard OpenID Connect. Bij de eerste keer zie je welke gegevens een app vraagt en kies je wat je deelt. Een app krijgt nooit meer dan je toestaat.
+
+## Andere manieren om in te loggen
+
+Je kunt ook Google, Apple, Bluesky, Mastodon en andere accounts koppelen. Accounts zonder door de aanbieder bevestigd e-mailadres worden pas gekoppeld na een e-mailcode, zodat niemand jouw adres kan intypen en zo je account overneemt.
+
+## Verder lezen
+
+[Accountbeveiliging](/info/account-security), [Accounts samenvoegen](/info/account-merge) en voor developers [Identiteit via OIDC](/dev/identity-oidc).
