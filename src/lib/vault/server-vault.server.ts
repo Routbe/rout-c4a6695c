@@ -16,7 +16,7 @@ import { envelopeKeyId, generateRecipientKeys, keyId, openEnvelope, publicKeyOf,
 import { deriveVaultKek, type VaultKek } from "./server-kek";
 import type { OpaqueToken } from "./token-boundary";
 import { vaultContext } from "./vault-context";
-import { VaultDeniedError, vaultPort, type IVaultPort, type VaultCaller, type WrappedServerKey } from "./vault-port.server";
+import { readVaultEnvelope, VaultDeniedError, vaultPort, type IVaultPort, type VaultCaller, type WrappedServerKey } from "./vault-port.server";
 
 export type ServerTokenKind = "vtk" | "sdm";
 
@@ -123,7 +123,6 @@ export async function openWithServerKey(
 
 /** Reads and opens a vtk_ token: needs the member's fresh passkey step-up (spent once). */
 export async function openServerToken(userId: string, ref: OpaqueToken<"vtk">, purpose: string): Promise<Uint8Array> {
-  const { readVaultEnvelope } = await import("./vault-port.server");
   const { envelope } = await readVaultEnvelope(userId, ref);
   return openWithServerKey(userId, "vtk", purpose, envelope);
 }

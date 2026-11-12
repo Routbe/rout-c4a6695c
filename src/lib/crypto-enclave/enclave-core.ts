@@ -32,6 +32,9 @@ import { createDpopProof } from "@/lib/protocol/dpop";
 import { signEvent, verifyEvent, verifyChain } from "@/lib/protocol/events";
 import { eventAad, identityAad, loadIdentity, saveIdentity } from "@/lib/protocol/identity-store";
 import type { EnclaveErrorCode, EnclaveOp, EnclaveOps } from "./protocol";
+import { ENVELOPE_MAX_BYTES, ENVELOPE_MAX_PLAINTEXT, generateRecipientKeys, keyId, openEnvelope, PUBLIC_KEY_BYTES, publicKeyOf, sealEnvelope } from "./pqc-envelope";
+import { loadRve1Key, rve1SeedAad, saveRve1Key } from "./rve1-key-store";
+import { vaultContext } from "@/lib/vault/vault-context";
 
 const enc = new TextEncoder();
 const dec = new TextDecoder();
@@ -133,6 +136,49 @@ async function withIdentity<T>(userId: string, fn: (sk: Uint8Array, did: string)
     wipe(sk);
   }
 }
+
+const sameBytes = (a: Uint8Array, b: Uint8Array) => a.length === b.length && a.every((x, i) => x === b[i]);
+
+/**
+ * Runs `fn` with the member's RVE1 device seed, creating the key on first use.
+ * The seed exists in memory only for the duration of `fn`.
+ */
+async function withRve1Key<T>(userId: string, fn: (seed: Uint8Array, publicKey: Uint8Array, kid: string) => T | Promise<T>): Promise<T> {
+  const owner = str(userId, 200);
+  const dk = await deviceKeyFor(owner);
+  let stored = await loadRve1Key(owner);
+  let seed: Uint8Array | null = null;
+  let derived: Uint8Array | null = null;
+  try {
+    if (!stored) {
+      const fresh = generateRecipientKeys("member_device");
+      seed = fresh.secretKey;
+      const kid = b64u.encode(fresh.kid);
+      stored = { kid, publicKey: b64u.encode(fresh.publicKey), keyId: dk.keyId, sealedSeed: await sealBytes(dk.key, seed, rve1SeedAad(owner, kid)) };
+      await saveRve1Key(owner, stored);
+    } else {
+      if (stored.keyId !== dk.keyId) fail("decrypt_failed");
+      seed = await openBytes(dk.key, stored.sealedSeed, rve1SeedAad(owner, stored.kid));
+    }
+    if (seed.length !== 32) fail("decrypt_failed");
+    // The stored public key must be the one this seed produces.
+    derived = publicKeyOf(seed);
+    const publicKey = b64u.decode(stored.publicKey);
+    if (publicKey.length !== PUBLIC_KEY_BYTES || !sameBytes(derived, publicKey) || b64u.encode(keyId(derived)) !== stored.kid) fail("decrypt_failed");
+    return await fn(seed, publicKey, stored.kid);
+  } finally {
+    wipe(seed, derived);
+  }
+}
+
+const vccKind = (kind: unknown): "vcc" => (kind === "vcc" ? "vcc" : fail("invalid_input"));
+const vccContext = (userId: string, purpose: unknown) => {
+  try {
+    return vaultContext(str(userId, 200), "vcc", str(purpose, 64));
+  } catch {
+    return fail("invalid_input");
+  }
+};
 
 async function storeMaster(userId: string, entropy: Uint8Array) {
   try {
@@ -492,6 +538,38 @@ export const handlers: Handlers = {
       }
     }
     return hits;
+  },
+
+  async "rve1.deviceKey"({ userId }) {
+    return withRve1Key(userId, (_seed, publicKey, kid) => ({ kid, publicKey }));
+  },
+
+  async "rve1.seal"({ userId, kind, purpose, plaintext }) {
+    const pt = bytes(plaintext);
+    try {
+      vccKind(kind);
+      const context = vccContext(userId, purpose);
+      if (pt.byteLength > ENVELOPE_MAX_PLAINTEXT) fail("invalid_input");
+      return await withRve1Key(userId, (_seed, recipientPublicKey) => ({
+        envelope: sealEnvelope({ kind: "vcc", holder: "member_device", recipientPublicKey, plaintext: pt, context }),
+      }));
+    } finally {
+      wipe(pt);
+    }
+  },
+
+  async "rve1.open"({ userId, kind, purpose, envelope }) {
+    vccKind(kind);
+    const context = vccContext(userId, purpose);
+    const env = bytes(envelope);
+    if (env.byteLength > ENVELOPE_MAX_BYTES) fail("invalid_input");
+    return withRve1Key(userId, (secretKey) => {
+      try {
+        return { plaintext: openEnvelope({ envelope: env, expectedKind: "vcc", holder: "member_device", secretKey, context }) }; // transferred, not copied
+      } catch {
+        return fail("decrypt_failed");
+      }
+    });
   },
 
   async "hash.sha256Hex"({ text }) {
