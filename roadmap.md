@@ -131,9 +131,9 @@
 ## Sovereign Identity Enclave (mission directive, Nov 12)
 - [x] Token boundary `src/lib/vault/token-boundary.ts` (vtk_/vcc_/mpc_/sdm_, zod, tests)
 - [x] Vault migration written + tested: `db/0221_vault_enclave_isolation.sql` (0215 was taken)
-- [ ] Apply 0221 to the live Neon database (waits on owner's OK for the exact statements)
+- [x] Apply 0221 to the live Neon database (applied + verified: no table rights for rout_app, chain valid, no drift)
 - [ ] Wire passkey step-up → `register_step_up_proof` (new step-up action for vault reads)
-- [ ] `crypto-enclave/pqc-envelope.ts` (ML-KEM-1024 + X25519, emits 'RVE1') — waits on owner: who holds the decryption key
+- [ ] `crypto-enclave/pqc-envelope.ts` (ML-KEM-1024 + X25519, emits RVE1) — owner chose key holder per token kind; waits on confirming the per-kind mapping
 - [ ] `crypto-enclave/sdm-verifier.ts` (NTAG 424 DNA SUN/SDM)
 - [ ] `crypto-enclave/recovery-mpc.ts` (Shamir 2-of-3)
 - [ ] `vault/vault-port.server.ts` (IVaultPort + LocalPostgresVaultAdapter)
