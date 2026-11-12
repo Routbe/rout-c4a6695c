@@ -9,6 +9,7 @@ import {
   STEP_UP_REQUIRED,
   allowedStepUpMethods,
   isSingleUseStepUpAction,
+  newStepUpJti,
   parseStepUpPayload,
   proofCoversAction,
   stepUpPayload,
@@ -132,11 +133,27 @@ export async function ensureStepUpSession(userId: string, action: StepUpAction, 
   return (await ensureStepUpProof(userId, action, readCookie)).method;
 }
 
+/**
+ * Records a just-verified passkey proof in the vault enclave on the database's
+ * own clock (db/0221). A failure only means vault reads stay closed for this
+ * proof; other step-up uses are unaffected.
+ */
+async function registerVaultPasskeyProof(userId: string, jti: string) {
+  try {
+    const [{ vaultPort }, { stepUpProofId }] = await Promise.all([import("@/lib/vault/vault-port.server"), import("@/lib/vault/step-up-proof-id")]);
+    await vaultPort().registerPasskeyStepUp({ userId }, stepUpProofId(jti));
+  } catch {
+    console.error("[vault] passkey proof not registered");
+  }
+}
+
 export async function grantStepUp(userId: string, method: StepUpMethod, emitCookie?: (name: string, value: string) => void, action?: StepUpAction) {
   const allowed = allowedStepUpMethods(await enrolledFactors(userId), action);
   if (!allowed.includes(method)) throw new Error("Deze verificatiemethode is niet toegestaan voor je account.");
   // Every proof except a passkey is bound to the action it was confirmed for.
-  const value = await sign(stepUpPayload(userId, method, Math.floor(Date.now() / 1000), action ?? "*"));
+  const jti = newStepUpJti();
+  const value = await sign(stepUpPayload(userId, method, Math.floor(Date.now() / 1000), action ?? "*", jti));
+  if (method === "passkey") await registerVaultPasskeyProof(userId, jti);
   if (emitCookie) emitCookie(STEP_UP_COOKIE, value);
   else {
     const { writeResponseCookie: setCookie } = await import("@/lib/request-context");

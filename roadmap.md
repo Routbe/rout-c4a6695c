@@ -132,9 +132,14 @@
 - [x] Token boundary `src/lib/vault/token-boundary.ts` (vtk_/vcc_/mpc_/sdm_, zod, tests)
 - [x] Vault migration written + tested: `db/0221_vault_enclave_isolation.sql` (0215 was taken)
 - [x] Apply 0221 to the live Neon database (applied + verified: no table rights for rout_app, chain valid, no drift)
-- [ ] Wire passkey step-up → `register_step_up_proof` (new step-up action for vault reads)
-- [ ] `crypto-enclave/pqc-envelope.ts` (ML-KEM-1024 + X25519, emits RVE1) — owner chose key holder per token kind; waits on confirming the per-kind mapping
-- [ ] `crypto-enclave/sdm-verifier.ts` (NTAG 424 DNA SUN/SDM)
-- [ ] `crypto-enclave/recovery-mpc.ts` (Shamir 2-of-3)
-- [ ] `vault/vault-port.server.ts` (IVaultPort + LocalPostgresVaultAdapter)
+- [x] Wire passkey step-up → `register_step_up_proof` (new passkey-only, single-use action `vault_token_read`)
+- [x] `crypto-enclave/pqc-envelope.ts` (ML-KEM-1024 + X25519 KitchenSink, XChaCha20-Poly1305, per-kind key holder)
+- [x] `crypto-enclave/sdm-verifier.ts` (NTAG 424 DNA SUN/SDM, matches NXP AN12196 vector)
+- [x] `crypto-enclave/recovery-mpc.ts` (Shamir 2-of-3, BIP39 paper factor)
+- [x] `vault/vault-port.server.ts` (IVaultPort + LocalPostgresVaultAdapter, tested over real SQL)
 - [ ] Account deletion/merge: handle vault tokens explicitly (FK is RESTRICT, so these fail closed today)
+- [ ] Server vault key for vtk_/sdm_ (generate + keep as server secret; later the SEV-SNP enclave)
+- [ ] NFC card recovery factor: decide how the card shard key is released (Web NFC only reads the tap URL) — waits on owner
+- [ ] Expose device-side envelope/recovery operations through the crypto-enclave worker protocol
+- [ ] Owner decides: new 2-of-3 recovery vs existing 3-of-5 recovery vault (and the Shamir library choice)
+- [ ] Finding: live database has no record of 0204–0207 and 0213 — check separately
