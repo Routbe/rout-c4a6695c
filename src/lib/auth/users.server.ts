@@ -9,7 +9,6 @@ import {
 } from "@/lib/auth-email-templates";
 import type { EmailCategory } from "@/emails/template-ids";
 
-import { generateToken, hashToken } from "./token-hash.server";
 import { toSessionUser, type SessionUser } from "./session.server";
 
 /**
@@ -231,8 +230,6 @@ export async function requestMagicLink(rawEmail: string, origin: string) {
 // ---------------------------------------------------------------------------
 // E-mail sign-in with a 6-digit code (same mail as the magic link)
 // ---------------------------------------------------------------------------
-
-const CODE_TTL_MINUTES = 15;
 
 function sixDigitCode(): string {
   const bytes = new Uint32Array(1);
