@@ -4,7 +4,8 @@
     "auth",
     "neon_auth",
     "public",
-    "storage"
+    "storage",
+    "vault_enclave"
   ],
   "extensions": [
     "btree_gist",
@@ -27143,6 +27144,290 @@
       "forceRls": false,
       "policies": [],
       "grants": {}
+    },
+    {
+      "schema": "vault_enclave",
+      "name": "audit_logs",
+      "columns": [
+        {
+          "name": "seq",
+          "type": "bigint",
+          "notNull": true,
+          "default": null,
+          "identity": "a",
+          "generated": null
+        },
+        {
+          "name": "occurred_at",
+          "type": "timestamp with time zone",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "actor_user_id",
+          "type": "uuid",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "action",
+          "type": "text",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "outcome",
+          "type": "text",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "reason",
+          "type": "text",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "token_ref",
+          "type": "text",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "prev_hash",
+          "type": "bytea",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "entry_hash",
+          "type": "bytea",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "audit_logs_action_check",
+          "kind": "c",
+          "def": "CHECK ((action = ANY (ARRAY['step_up_register'::text, 'token_store'::text, 'token_retrieve'::text])))"
+        },
+        {
+          "name": "audit_logs_entry_hash_key",
+          "kind": "u",
+          "def": "UNIQUE (entry_hash)"
+        },
+        {
+          "name": "audit_logs_hash_len",
+          "kind": "c",
+          "def": "CHECK (((octet_length(prev_hash) = 32) AND (octet_length(entry_hash) = 32)))"
+        },
+        {
+          "name": "audit_logs_outcome_check",
+          "kind": "c",
+          "def": "CHECK ((outcome = ANY (ARRAY['granted'::text, 'denied'::text])))"
+        },
+        {
+          "name": "audit_logs_pkey",
+          "kind": "p",
+          "def": "PRIMARY KEY (seq)"
+        },
+        {
+          "name": "audit_logs_prev_hash_key",
+          "kind": "u",
+          "def": "UNIQUE (prev_hash)"
+        }
+      ],
+      "indexes": [],
+      "triggers": [
+        "CREATE TRIGGER audit_logs_no_truncate BEFORE TRUNCATE ON vault_enclave.audit_logs FOR EACH STATEMENT EXECUTE FUNCTION vault_enclave.audit_logs_immutable()",
+        "CREATE TRIGGER audit_logs_no_update BEFORE DELETE OR UPDATE ON vault_enclave.audit_logs FOR EACH ROW EXECUTE FUNCTION vault_enclave.audit_logs_immutable()"
+      ],
+      "rls": true,
+      "forceRls": false,
+      "policies": [],
+      "grants": {}
+    },
+    {
+      "schema": "vault_enclave",
+      "name": "opaque_tokens",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "notNull": true,
+          "default": "gen_random_uuid()",
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "token_ref",
+          "type": "text",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "token_type",
+          "type": "text",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "owner_user_id",
+          "type": "uuid",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "encrypted_payload",
+          "type": "bytea",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "notNull": true,
+          "default": "now()",
+          "identity": null,
+          "generated": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "opaque_tokens_owner_user_id_fkey",
+          "kind": "f",
+          "def": "FOREIGN KEY (owner_user_id) REFERENCES users(id) ON DELETE RESTRICT"
+        },
+        {
+          "name": "opaque_tokens_payload_envelope",
+          "kind": "c",
+          "def": "CHECK ((((octet_length(encrypted_payload) >= 1600) AND (octet_length(encrypted_payload) <= 65536)) AND (SUBSTRING(encrypted_payload FROM 1 FOR 4) = '\\x52564531'::bytea)))"
+        },
+        {
+          "name": "opaque_tokens_pkey",
+          "kind": "p",
+          "def": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "opaque_tokens_ref_format",
+          "kind": "c",
+          "def": "CHECK ((token_ref ~ '^(vtk|vcc|mpc|sdm)_[0-9a-f]{64}$'::text))"
+        },
+        {
+          "name": "opaque_tokens_ref_matches_type",
+          "kind": "c",
+          "def": "CHECK ((\"left\"(token_ref, 3) = token_type))"
+        },
+        {
+          "name": "opaque_tokens_token_ref_key",
+          "kind": "u",
+          "def": "UNIQUE (token_ref)"
+        },
+        {
+          "name": "opaque_tokens_type_check",
+          "kind": "c",
+          "def": "CHECK ((token_type = ANY (ARRAY['vtk'::text, 'vcc'::text, 'mpc'::text, 'sdm'::text])))"
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX opaque_tokens_owner_idx ON vault_enclave.opaque_tokens USING btree (owner_user_id)"
+      ],
+      "triggers": [],
+      "rls": true,
+      "forceRls": false,
+      "policies": [],
+      "grants": {}
+    },
+    {
+      "schema": "vault_enclave",
+      "name": "step_up_proofs",
+      "columns": [
+        {
+          "name": "proof_id",
+          "type": "uuid",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "method",
+          "type": "text",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "verified_at",
+          "type": "timestamp with time zone",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "consumed_at",
+          "type": "timestamp with time zone",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "step_up_proofs_method_check",
+          "kind": "c",
+          "def": "CHECK ((method = 'passkey'::text))"
+        },
+        {
+          "name": "step_up_proofs_pkey",
+          "kind": "p",
+          "def": "PRIMARY KEY (proof_id)"
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX step_up_proofs_user_idx ON vault_enclave.step_up_proofs USING btree (user_id, verified_at)"
+      ],
+      "triggers": [],
+      "rls": true,
+      "forceRls": false,
+      "policies": [],
+      "grants": {}
     }
   ],
   "views": [
@@ -28361,6 +28646,54 @@
       "name": "foldername",
       "args": "name text",
       "def": "CREATE OR REPLACE FUNCTION storage.foldername(name text)\n RETURNS text[]\n LANGUAGE sql\n IMMUTABLE\nAS $function$\n  select string_to_array(regexp_replace(name, '/[^/]*$', ''), '/')\n$function$"
+    },
+    {
+      "schema": "vault_enclave",
+      "name": "append_audit",
+      "args": "p_actor uuid, p_action text, p_outcome text, p_reason text, p_ref text",
+      "def": "CREATE OR REPLACE FUNCTION vault_enclave.append_audit(p_actor uuid, p_action text, p_outcome text, p_reason text, p_ref text)\n RETURNS void\n LANGUAGE plpgsql\n SET search_path TO 'pg_catalog'\nAS $function$\ndeclare\n  v_prev bytea;\n  v_at timestamptz := pg_catalog.clock_timestamp();\nbegin\n  -- One writer at a time keeps the chain linear (prev_hash is unique: no forks).\n  perform pg_catalog.pg_advisory_xact_lock(7421003221);\n  select a.entry_hash into v_prev from vault_enclave.audit_logs a order by a.seq desc limit 1;\n  v_prev := coalesce(v_prev, pg_catalog.decode(pg_catalog.repeat('00', 32), 'hex'));\n  insert into vault_enclave.audit_logs (occurred_at, actor_user_id, action, outcome, reason, token_ref, prev_hash, entry_hash)\n  values (v_at, p_actor, p_action, p_outcome, p_reason, p_ref, v_prev,\n          vault_enclave.audit_entry_hash(v_prev, v_at, p_actor, p_action, p_outcome, p_reason, p_ref));\nend $function$"
+    },
+    {
+      "schema": "vault_enclave",
+      "name": "audit_entry_hash",
+      "args": "p_prev bytea, p_at timestamp with time zone, p_actor uuid, p_action text, p_outcome text, p_reason text, p_ref text",
+      "def": "CREATE OR REPLACE FUNCTION vault_enclave.audit_entry_hash(p_prev bytea, p_at timestamp with time zone, p_actor uuid, p_action text, p_outcome text, p_reason text, p_ref text)\n RETURNS bytea\n LANGUAGE sql\n IMMUTABLE\n SET search_path TO 'pg_catalog'\nAS $function$\n  select pg_catalog.sha256(p_prev || pg_catalog.convert_to(pg_catalog.concat_ws(chr(31),\n    pg_catalog.to_char(p_at at time zone 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS.US\"Z\"'),\n    coalesce(p_actor::text, '-'), p_action, p_outcome, p_reason, coalesce(p_ref, '-')), 'UTF8'))\n$function$"
+    },
+    {
+      "schema": "vault_enclave",
+      "name": "audit_logs_immutable",
+      "args": "",
+      "def": "CREATE OR REPLACE FUNCTION vault_enclave.audit_logs_immutable()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'pg_catalog'\nAS $function$\nbegin\n  raise exception 'vault_audit_immutable' using errcode = '42501';\nend $function$"
+    },
+    {
+      "schema": "vault_enclave",
+      "name": "caller_user_id",
+      "args": "",
+      "def": "CREATE OR REPLACE FUNCTION vault_enclave.caller_user_id()\n RETURNS uuid\n LANGUAGE plpgsql\n STABLE\n SET search_path TO 'pg_catalog'\nAS $function$\ndeclare v text := pg_catalog.current_setting('rout.current_user_id', true);\nbegin\n  if v is null or v !~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then return null; end if;\n  return v::uuid;\nend $function$"
+    },
+    {
+      "schema": "vault_enclave",
+      "name": "register_step_up_proof",
+      "args": "p_proof_id uuid, p_method text",
+      "def": "CREATE OR REPLACE FUNCTION vault_enclave.register_step_up_proof(p_proof_id uuid, p_method text)\n RETURNS boolean\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'pg_catalog'\nAS $function$\ndeclare v_caller uuid := vault_enclave.caller_user_id();\nbegin\n  if v_caller is null then\n    perform vault_enclave.append_audit(null, 'step_up_register', 'denied', 'no_caller', null); return false;\n  end if;\n  if p_method is distinct from 'passkey' then\n    perform vault_enclave.append_audit(v_caller, 'step_up_register', 'denied', 'method_not_passkey', null); return false;\n  end if;\n  if p_proof_id is null or exists (select 1 from vault_enclave.step_up_proofs s where s.proof_id = p_proof_id) then\n    perform vault_enclave.append_audit(v_caller, 'step_up_register', 'denied', 'proof_reused', null); return false;\n  end if;\n  -- Spent and stale proofs are useless after 300 s; keep the table small.\n  delete from vault_enclave.step_up_proofs s where s.verified_at < pg_catalog.clock_timestamp() - interval '1 hour';\n  insert into vault_enclave.step_up_proofs (proof_id, user_id, method, verified_at)\n  values (p_proof_id, v_caller, 'passkey', pg_catalog.clock_timestamp());\n  perform vault_enclave.append_audit(v_caller, 'step_up_register', 'granted', 'ok', null);\n  return true;\nend $function$"
+    },
+    {
+      "schema": "vault_enclave",
+      "name": "retrieve_opaque_token",
+      "args": "p_token_ref text, p_step_up_verified boolean, p_step_up_proof_id uuid",
+      "def": "CREATE OR REPLACE FUNCTION vault_enclave.retrieve_opaque_token(p_token_ref text, p_step_up_verified boolean, p_step_up_proof_id uuid)\n RETURNS TABLE(granted boolean, token_type text, encrypted_payload bytea)\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'pg_catalog'\nAS $function$\ndeclare\n  v_caller uuid := vault_enclave.caller_user_id();\n  v_now timestamptz := pg_catalog.clock_timestamp();\n  v_proof vault_enclave.step_up_proofs%rowtype;\n  v_token vault_enclave.opaque_tokens%rowtype;\n  v_ref text := case when p_token_ref ~ '^(vtk|vcc|mpc|sdm)_[0-9a-f]{64}$' then p_token_ref end;\nbegin\n  if v_caller is null then\n    perform vault_enclave.append_audit(null, 'token_retrieve', 'denied', 'no_caller', v_ref);\n    return query select false, null::text, null::bytea; return;\n  end if;\n  if v_ref is null then\n    perform vault_enclave.append_audit(v_caller, 'token_retrieve', 'denied', 'malformed_ref', null);\n    return query select false, null::text, null::bytea; return;\n  end if;\n  if p_step_up_verified is distinct from true then\n    perform vault_enclave.append_audit(v_caller, 'token_retrieve', 'denied', 'step_up_missing', v_ref);\n    return query select false, null::text, null::bytea; return;\n  end if;\n  select * into v_proof from vault_enclave.step_up_proofs s\n   where s.proof_id = p_step_up_proof_id and s.user_id = v_caller for update;\n  if not found then\n    perform vault_enclave.append_audit(v_caller, 'token_retrieve', 'denied', 'proof_unknown', v_ref);\n    return query select false, null::text, null::bytea; return;\n  end if;\n  if v_proof.consumed_at is not null then\n    perform vault_enclave.append_audit(v_caller, 'token_retrieve', 'denied', 'proof_replayed', v_ref);\n    return query select false, null::text, null::bytea; return;\n  end if;\n  if v_proof.method <> 'passkey' or v_now - v_proof.verified_at > interval '300 seconds'\n     or v_proof.verified_at > v_now + interval '5 seconds' then\n    perform vault_enclave.append_audit(v_caller, 'token_retrieve', 'denied', 'proof_expired', v_ref);\n    return query select false, null::text, null::bytea; return;\n  end if;\n  -- Spend the proof before the lookup, so a valid proof can't probe many refs.\n  update vault_enclave.step_up_proofs set consumed_at = v_now where proof_id = v_proof.proof_id;\n  select * into v_token from vault_enclave.opaque_tokens t\n   where t.token_ref = v_ref and t.owner_user_id = v_caller;\n  if not found then\n    perform vault_enclave.append_audit(v_caller, 'token_retrieve', 'denied', 'not_found', v_ref);\n    return query select false, null::text, null::bytea; return;\n  end if;\n  perform vault_enclave.append_audit(v_caller, 'token_retrieve', 'granted', 'ok', v_ref);\n  return query select true, v_token.token_type, v_token.encrypted_payload;\nend $function$"
+    },
+    {
+      "schema": "vault_enclave",
+      "name": "store_opaque_token",
+      "args": "p_token_type text, p_encrypted_payload bytea",
+      "def": "CREATE OR REPLACE FUNCTION vault_enclave.store_opaque_token(p_token_type text, p_encrypted_payload bytea)\n RETURNS text\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'pg_catalog'\nAS $function$\ndeclare\n  v_caller uuid := vault_enclave.caller_user_id();\n  v_ref text;\nbegin\n  if v_caller is null then\n    perform vault_enclave.append_audit(null, 'token_store', 'denied', 'no_caller', null); return null;\n  end if;\n  if p_token_type is null or p_token_type not in ('vtk', 'vcc', 'mpc', 'sdm') then\n    perform vault_enclave.append_audit(v_caller, 'token_store', 'denied', 'bad_type', null); return null;\n  end if;\n  if p_encrypted_payload is null or octet_length(p_encrypted_payload) not between 1600 and 65536\n     or substring(p_encrypted_payload from 1 for 4) <> '\\x52564531'::bytea then\n    perform vault_enclave.append_audit(v_caller, 'token_store', 'denied', 'not_an_envelope', null); return null;\n  end if;\n  if not exists (select 1 from public.users u where u.id = v_caller) then\n    perform vault_enclave.append_audit(v_caller, 'token_store', 'denied', 'unknown_member', null); return null;\n  end if;\n  -- 256 random bits from the database's CSPRNG; the caller never chooses a ref.\n  v_ref := p_token_type || '_' || pg_catalog.encode(public.gen_random_bytes(32), 'hex');\n  insert into vault_enclave.opaque_tokens (token_ref, token_type, owner_user_id, encrypted_payload)\n  values (v_ref, p_token_type, v_caller, p_encrypted_payload);\n  perform vault_enclave.append_audit(v_caller, 'token_store', 'granted', 'ok', v_ref);\n  return v_ref;\nend $function$"
+    },
+    {
+      "schema": "vault_enclave",
+      "name": "verify_audit_chain",
+      "args": "",
+      "def": "CREATE OR REPLACE FUNCTION vault_enclave.verify_audit_chain()\n RETURNS boolean\n LANGUAGE plpgsql\n STABLE\n SET search_path TO 'pg_catalog'\nAS $function$\ndeclare\n  r record;\n  v_prev bytea := pg_catalog.decode(pg_catalog.repeat('00', 32), 'hex');\nbegin\n  for r in select * from vault_enclave.audit_logs order by seq loop\n    if r.prev_hash <> v_prev or r.entry_hash <> vault_enclave.audit_entry_hash(\n         r.prev_hash, r.occurred_at, r.actor_user_id, r.action, r.outcome, r.reason, r.token_ref) then\n      return false;\n    end if;\n    v_prev := r.entry_hash;\n  end loop;\n  return true;\nend $function$"
     }
   ],
   "schemaGrants": {
@@ -28371,6 +28704,9 @@
       "USAGE"
     ],
     "public:rout_app": [
+      "USAGE"
+    ],
+    "vault_enclave:rout_app": [
       "USAGE"
     ]
   }
