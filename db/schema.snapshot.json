@@ -24214,16 +24214,6 @@
           "cmd": "ALL",
           "using": "true",
           "check": "true"
-        },
-        {
-          "name": "rout_owner",
-          "permissive": true,
-          "roles": [
-            "rout_app"
-          ],
-          "cmd": "ALL",
-          "using": "(((user_id)::text = current_setting('rout.current_user_id'::text, true)) OR rout_purge_due(user_id))",
-          "check": "((user_id)::text = current_setting('rout.current_user_id'::text, true))"
         }
       ],
       "grants": {

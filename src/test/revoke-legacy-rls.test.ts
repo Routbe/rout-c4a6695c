@@ -11,7 +11,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 const ALICE = "00000000-0000-4000-8000-00000000000a";
 const BOB = "00000000-0000-4000-8000-00000000000b";
-const OWNER_TABLES = ["oauth_step_up_challenges", "oauth_step_up_codes", "user_sessions"] as const;
+const OWNER_TABLES = ["oauth_step_up_challenges", "oauth_step_up_codes"] as const;
 let db: PGlite;
 
 async function asApp(ctx: { user?: string; purge?: string }, query: string) {
@@ -26,19 +26,21 @@ async function asApp(ctx: { user?: string; purge?: string }, query: string) {
 
 beforeAll(async () => {
   db = new PGlite({ extensions: { pgcrypto } });
-  const tables = [...OWNER_TABLES.map((t) => `create table public.${t} (id serial primary key, user_id uuid not null);`),
+  const tables = [...[...OWNER_TABLES, "user_sessions"].map((t) => `create table public.${t} (id serial primary key, user_id uuid not null);`),
     "create table public.analytics_events (id serial primary key, profile_id uuid);",
     "create table public.profile_ingest_tokens (id serial primary key, user_id uuid);"].join("\n");
   await db.exec(`create role rout_app;
     create table public.account_deletions (user_id uuid primary key, cancelled_at timestamptz, completed_at timestamptz, purge_after timestamptz not null);
     ${tables}`);
-  for (const t of [...OWNER_TABLES, "analytics_events", "profile_ingest_tokens"]) {
+  for (const t of [...OWNER_TABLES, "user_sessions", "analytics_events", "profile_ingest_tokens"]) {
     await db.exec(`grant select, insert, update, delete on public.${t} to rout_app; grant usage on all sequences in schema public to rout_app;
       alter table public.${t} enable row level security;
       create policy rout_server on public.${t} to rout_app using (true) with check (true);`);
   }
-  for (const t of OWNER_TABLES) await db.exec(`insert into public.${t} (user_id) values ('${ALICE}'), ('${BOB}')`);
-  await db.exec(readFileSync(new URL("../../db/0223_revoke_legacy_rls.sql", import.meta.url), "utf8"));
+  for (const t of [...OWNER_TABLES, "user_sessions"]) await db.exec(`insert into public.${t} (user_id) values ('${ALICE}'), ('${BOB}')`);
+  for (const f of ["0223_revoke_legacy_rls.sql", "0225_user_sessions_deny_runtime.sql"]) {
+    await db.exec(readFileSync(new URL(`../../db/${f}`, import.meta.url), "utf8"));
+  }
 }, 30_000);
 afterAll(async () => db?.close());
 
@@ -56,14 +58,20 @@ describe("db/0223 legacy free access revoked", () => {
   });
 
   it("lets the purge delete only when that account's deletion is due", async () => {
-    await asApp({ purge: BOB }, "delete from public.user_sessions");
-    expect((await db.query("select * from public.user_sessions where user_id = $1", [BOB])).rows).toHaveLength(1);
+    await asApp({ purge: BOB }, "delete from public.oauth_step_up_codes");
+    expect((await db.query("select * from public.oauth_step_up_codes where user_id = $1", [BOB])).rows).toHaveLength(1);
     await db.query("insert into public.account_deletions values ($1, null, null, now() + interval '1 day')", [BOB]);
-    await asApp({ purge: BOB }, "delete from public.user_sessions");
-    expect((await db.query("select * from public.user_sessions where user_id = $1", [BOB])).rows).toHaveLength(1);
+    await asApp({ purge: BOB }, "delete from public.oauth_step_up_codes");
+    expect((await db.query("select * from public.oauth_step_up_codes where user_id = $1", [BOB])).rows).toHaveLength(1);
     await db.query("update public.account_deletions set purge_after = now() - interval '1 minute' where user_id = $1", [BOB]);
-    await asApp({ purge: BOB }, "delete from public.user_sessions");
-    expect((await db.query("select user_id from public.user_sessions order by user_id")).rows.map((r) => (r as { user_id: string }).user_id)).toEqual([ALICE]);
+    await asApp({ purge: BOB }, "delete from public.oauth_step_up_codes");
+    expect((await db.query("select user_id from public.oauth_step_up_codes order by user_id")).rows.map((r) => (r as { user_id: string }).user_id)).toEqual([ALICE]);
+  });
+
+  it("keeps the legacy session table deny-by-default for the app", async () => {
+    expect(await asApp({ user: ALICE }, "select user_id from public.user_sessions")).toEqual([]);
+    await asApp({ user: ALICE }, "delete from public.user_sessions");
+    expect((await db.query("select * from public.user_sessions")).rows).toHaveLength(2);
   });
 
   it("closes the unused tables completely", async () => {
