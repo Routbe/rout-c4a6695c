@@ -21,12 +21,20 @@ export type VaultCaller = { readonly userId: string };
 /** A passkey step-up the server verified; proofId as registered in the enclave. */
 export type PasskeyStepUp = { readonly verified: true; readonly proofId: string };
 export type VaultEnvelope<K extends OpaqueTokenKind> = { readonly kind: K; readonly envelope: Uint8Array };
+/** A server vault recipient key as stored: public parts plus the KEK-wrapped seed (db/0222). */
+export type WrappedServerKey = { readonly kid: Uint8Array; readonly publicKey: Uint8Array; readonly wrappedSeed: Uint8Array; readonly kekId: Uint8Array };
 
 export interface IVaultPort {
   /** Records a just-verified passkey step-up on the enclave's own clock. */
   registerPasskeyStepUp(caller: VaultCaller, proofId: string): Promise<void>;
   storeToken<K extends OpaqueTokenKind>(caller: VaultCaller, kind: K, envelope: Uint8Array): Promise<OpaqueToken<K>>;
   retrieveToken<K extends OpaqueTokenKind>(caller: VaultCaller, ref: OpaqueToken<K>, stepUp: PasskeyStepUp): Promise<VaultEnvelope<K>>;
+  /** The server key that seals new envelopes, or null before the first one exists. */
+  activeServerKey(caller: VaultCaller): Promise<WrappedServerKey | null>;
+  /** Any server key by id (retired keys included, for older envelopes). */
+  serverKey(caller: VaultCaller, kid: Uint8Array): Promise<WrappedServerKey | null>;
+  /** Registers the first active key; false when one already exists. */
+  registerServerKey(caller: VaultCaller, key: WrappedServerKey): Promise<boolean>;
 }
 
 export class VaultDeniedError extends Error {
@@ -61,6 +69,27 @@ const RetrieveRow = z.object({
   token_type: z.enum(OPAQUE_TOKEN_KINDS).nullable(),
   payload_hex: z.string().max(ENVELOPE_MAX_BYTES * 2).nullable(),
 });
+
+const ServerKeyRow = z.object({
+  kid_hex: z.string().length(32),
+  public_key_hex: z.string().length(3200),
+  wrapped_seed_hex: z.string().length(160),
+  kek_id_hex: z.string().length(32),
+});
+const SERVER_KEY_COLUMNS =
+  "encode(kid, 'hex') as kid_hex, encode(public_key, 'hex') as public_key_hex, encode(wrapped_seed, 'hex') as wrapped_seed_hex, encode(kek_id, 'hex') as kek_id_hex";
+
+function serverKeyOf(rows: readonly Record<string, unknown>[]): WrappedServerKey | null {
+  if (rows.length === 0) return null;
+  const row = ServerKeyRow.safeParse(rows[0]);
+  if (!row.success) throw new VaultDeniedError();
+  return {
+    kid: fromHex(row.data.kid_hex),
+    publicKey: fromHex(row.data.public_key_hex),
+    wrappedSeed: fromHex(row.data.wrapped_seed_hex),
+    kekId: fromHex(row.data.kek_id_hex),
+  };
+}
 
 function callerId(caller: VaultCaller): string {
   const id = cleanContextId(caller.userId);
@@ -106,6 +135,28 @@ export class LocalPostgresVaultAdapter implements IVaultPort {
     const row = RetrieveRow.safeParse(rows[0]);
     if (!row.success || !row.data.granted || row.data.token_type !== kind || row.data.payload_hex === null) throw new VaultDeniedError();
     return { kind, envelope: fromHex(row.data.payload_hex) };
+  }
+
+  async activeServerKey(caller: VaultCaller): Promise<WrappedServerKey | null> {
+    return serverKeyOf(await this.exec(callerId(caller), `select ${SERVER_KEY_COLUMNS} from vault_enclave.server_key_active()`, []));
+  }
+
+  async serverKey(caller: VaultCaller, kid: Uint8Array): Promise<WrappedServerKey | null> {
+    if (kid.length !== 16) throw new VaultDeniedError();
+    return serverKeyOf(
+      await this.exec(callerId(caller), `select ${SERVER_KEY_COLUMNS} from vault_enclave.server_key_get(decode($1, 'hex'))`, [toHex(kid)]),
+    );
+  }
+
+  async registerServerKey(caller: VaultCaller, key: WrappedServerKey): Promise<boolean> {
+    const rows = await this.exec(
+      callerId(caller),
+      "select vault_enclave.register_server_key(decode($1, 'hex'), decode($2, 'hex'), decode($3, 'hex'), decode($4, 'hex')) as ok",
+      [toHex(key.kid), toHex(key.publicKey), toHex(key.wrappedSeed), toHex(key.kekId)],
+    );
+    const row = RegisterRow.safeParse(rows[0]);
+    if (!row.success) throw new VaultDeniedError();
+    return row.data.ok;
   }
 }
 
