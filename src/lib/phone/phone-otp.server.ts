@@ -47,11 +47,12 @@ export async function requestPhoneCode(userId: string, phone: string, ip: string
   const code = generateOtp();
   const expiresAt = new Date(Date.now() + OTP_TTL_MS).toISOString();
   const last4 = phone.slice(-4);
-  // Older open codes for this user stop working.
-  await sql`update public.phone_otp_codes set consumed_at = now() where user_id = ${userId} and consumed_at is null`;
-  await sql`insert into public.phone_otp_codes (user_id, phone_hash, phone_number_enc, phone_last4, code_hash, expires_at)
-    values (${userId}, ${phoneHash}, ${await encryptText(phone, secret())}, ${last4},
-            ${await keyedHash(`${userId}:${code}`, secret())}, ${expiresAt})`;
+  // The database retires older open codes and enforces its own hourly caps (db/0226).
+  const issued = (await sql`select public.rout_phone_code_issue(${userId}::uuid, ${phoneHash}, ${await encryptText(phone, secret())},
+    ${last4}, ${await keyedHash(`${userId}:${code}`, secret())}, ${expiresAt}::timestamptz) as status`) as { status: string }[];
+  const issueStatus = issued[0]?.status;
+  if (issueStatus === "rate_limited") return { status: "rate_limited", retryAfter: 3600 };
+  if (issueStatus !== "ok") throw new Error(`phone_code_${issueStatus ?? "missing"}`);
   if (!auto) {
     // International: the member sends this code from their own number (or via
     // Telegram); an admin/inbound handler confirms it. No costly outbound SMS.
@@ -70,32 +71,17 @@ export type VerifyResult = { status: "verified"; masked: string } | { status: "e
 export async function verifyPhoneCode(userId: string, code: string): Promise<VerifyResult> {
   const limit = await hitRateLimit("sms-verify", userId, RATE_RULES.smsVerify);
   if (!limit.ok) return { status: "rate_limited" };
-  const rows = (await sql`select * from public.phone_otp_codes where user_id = ${userId} and consumed_at is null
-    order by created_at desc limit 1`) as Record<string, unknown>[];
-  const row = rows[0];
-  if (!row) return { status: "no_code" };
-  const matches = (await keyedHash(`${userId}:${code}`, secret())) === row["code_hash"];
-  const outcome = evaluateOtp(
-    { expiresAt: new Date(row["expires_at"] as string).getTime(), attempts: Number(row["attempts"]), consumed: false },
-    Date.now(),
-    matches,
-  );
-  if (outcome === "invalid") {
-    await sql`update public.phone_otp_codes set attempts = attempts + 1 where id = ${row["id"] as string}`;
-    return { status: "invalid" };
-  }
-  if (outcome !== "ok") return { status: outcome === "consumed" ? "no_code" : outcome };
-  await sql`update public.phone_otp_codes set consumed_at = now() where id = ${row["id"] as string}`;
-  await sql`insert into public.user_phone_numbers (user_id, phone_number_enc, phone_hash, phone_last4, phone_verified, phone_verified_at)
-    values (${userId}, ${row["phone_number_enc"] as string}, ${row["phone_hash"] as string}, ${row["phone_last4"] as string}, true, now())
-    on conflict (user_id) do update set phone_number_enc = excluded.phone_number_enc, phone_hash = excluded.phone_hash,
-      phone_last4 = excluded.phone_last4, phone_verified = true, phone_verified_at = now(), updated_at = now()`;
-  return { status: "verified", masked: maskPhone(String(row["phone_last4"])) };
+  const rows = (await sql`select status, last4 from public.rout_phone_code_verify(${userId}::uuid,
+    ${await keyedHash(`${userId}:${code}`, secret())})`) as { status: string; last4: string | null }[];
+  const r = rows[0];
+  if (r?.status === "verified" && r.last4) return { status: "verified", masked: maskPhone(r.last4) };
+  if (r?.status === "expired" || r?.status === "too_many_attempts" || r?.status === "invalid") return { status: r.status };
+  return { status: "no_code" };
 }
 
 export async function removePhone(userId: string): Promise<void> {
   await sql`delete from public.user_phone_numbers where user_id = ${userId}`;
-  await sql`update public.phone_otp_codes set consumed_at = now() where user_id = ${userId} and consumed_at is null`;
+  await sql`select public.rout_phone_code_cancel(${userId}::uuid)`;
 }
 
 /**
@@ -107,26 +93,20 @@ export async function confirmInboundCode(fromPhone: string, text: string): Promi
   const code = text.match(/\b(\d{6})\b/)?.[1];
   if (!code) return false;
   const phoneHash = await keyedHash(fromPhone, secret());
-  const rows = (await sql`select * from public.phone_otp_codes where phone_hash = ${phoneHash}
-    and consumed_at is null and expires_at > now() order by created_at desc limit 1`) as Record<string, unknown>[];
-  const row = rows[0];
-  if (!row) return false;
-  const userId = row["user_id"] as string;
-  if ((await keyedHash(`${userId}:${code}`, secret())) !== row["code_hash"]) return false;
-  await sql`update public.phone_otp_codes set consumed_at = now() where id = ${row["id"] as string}`;
-  await sql`insert into public.user_phone_numbers (user_id, phone_number_enc, phone_hash, phone_last4, phone_verified, phone_verified_at)
-    values (${userId}, ${row["phone_number_enc"] as string}, ${phoneHash}, ${row["phone_last4"] as string}, true, now())
-    on conflict (user_id) do update set phone_number_enc = excluded.phone_number_enc, phone_hash = excluded.phone_hash,
-      phone_last4 = excluded.phone_last4, phone_verified = true, phone_verified_at = now(), updated_at = now()`;
-  return true;
+  // Two steps: the code digest is keyed on the member, which only the database knows for this number.
+  const found = (await sql`select code_id, user_id from public.rout_phone_inbound_candidate(${phoneHash})`) as { code_id: string; user_id: string }[];
+  const candidate = found[0];
+  if (!candidate) return false;
+  const done = (await sql`select public.rout_phone_inbound_confirm(${candidate.code_id}::uuid, ${phoneHash},
+    ${await keyedHash(`${candidate.user_id}:${code}`, secret())}) as ok`) as { ok: boolean }[];
+  return done[0]?.ok === true;
 }
 
 export type PendingPhoneVerification = { id: string; masked: string; createdAt: string; attempts: number };
 
 /** Admin queue: open, unexpired phone codes (never exposes the number or code). */
 export async function listPendingPhoneVerifications(limit = 50): Promise<PendingPhoneVerification[]> {
-  const rows = (await sql`select id, phone_last4, created_at, attempts from public.phone_otp_codes
-    where consumed_at is null and expires_at > now() order by created_at desc limit ${limit}`) as Record<string, unknown>[];
+  const rows = (await sql`select id, phone_last4, created_at, attempts from public.rout_phone_pending_list(${limit}::integer)`) as Record<string, unknown>[];
   return rows.map((r) => ({
     id: String(r["id"]),
     masked: maskPhone(String(r["phone_last4"])),
@@ -137,14 +117,6 @@ export async function listPendingPhoneVerifications(limit = 50): Promise<Pending
 
 /** Admin: consume an open code and mark the member's number verified. */
 export async function approvePhoneVerification(codeId: string): Promise<boolean> {
-  const rows = (await sql`update public.phone_otp_codes set consumed_at = now()
-    where id = ${codeId} and consumed_at is null and expires_at > now()
-    returning user_id, phone_number_enc, phone_hash, phone_last4`) as Record<string, unknown>[];
-  const row = rows[0];
-  if (!row) return false;
-  await sql`insert into public.user_phone_numbers (user_id, phone_number_enc, phone_hash, phone_last4, phone_verified, phone_verified_at)
-    values (${row["user_id"] as string}, ${row["phone_number_enc"] as string}, ${row["phone_hash"] as string}, ${row["phone_last4"] as string}, true, now())
-    on conflict (user_id) do update set phone_number_enc = excluded.phone_number_enc, phone_hash = excluded.phone_hash,
-      phone_last4 = excluded.phone_last4, phone_verified = true, phone_verified_at = now(), updated_at = now()`;
-  return true;
+  const rows = (await sql`select public.rout_phone_admin_approve(${codeId}::uuid) as ok`) as { ok: boolean }[];
+  return rows[0]?.ok === true;
 }
