@@ -11,7 +11,9 @@
 
 export type Exec = (query: string) => Promise<Record<string, unknown>[]>;
 
-export const SNAPSHOT_SCHEMAS = ["public", "neon_auth", "auth", "storage"] as const;
+export const SNAPSHOT_SCHEMAS = ["public", "neon_auth", "auth", "storage", "vault_enclave"] as const;
+/** Schemas app code must never query directly: no row types are generated for them. */
+export const UNTYPED_SCHEMAS: ReadonlySet<string> = new Set(["vault_enclave"]);
 /** Roles whose grants are part of the schema (platform roles are managed by Neon). */
 export const SNAPSHOT_ROLES = ["rout_app"] as const;
 
@@ -469,6 +471,7 @@ export function renderDbTypes(catalog: Catalog): string {
   L.push("");
   const entries: string[] = [];
   for (const t of catalog.tables) {
+    if (UNTYPED_SCHEMAS.has(t.schema)) continue;
     const name = `${pascal(t.schema)}${pascal(t.name)}Row`;
     L.push(`export interface ${name} {`);
     for (const c of t.columns) {
