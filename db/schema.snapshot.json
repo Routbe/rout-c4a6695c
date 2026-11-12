@@ -27122,7 +27122,7 @@
         {
           "name": "audit_logs_action_check",
           "kind": "c",
-          "def": "CHECK ((action = ANY (ARRAY['step_up_register'::text, 'token_store'::text, 'token_retrieve'::text])))"
+          "def": "CHECK ((action = ANY (ARRAY['step_up_register'::text, 'token_store'::text, 'token_retrieve'::text, 'server_key_register'::text])))"
         },
         {
           "name": "audit_logs_entry_hash_key",
@@ -27254,6 +27254,108 @@
         "CREATE INDEX opaque_tokens_owner_idx ON vault_enclave.opaque_tokens USING btree (owner_user_id)"
       ],
       "triggers": [],
+      "rls": true,
+      "forceRls": false,
+      "policies": [],
+      "grants": {}
+    },
+    {
+      "schema": "vault_enclave",
+      "name": "server_keys",
+      "columns": [
+        {
+          "name": "kid",
+          "type": "bytea",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "public_key",
+          "type": "bytea",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "wrapped_seed",
+          "type": "bytea",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "kek_id",
+          "type": "bytea",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "notNull": true,
+          "default": "clock_timestamp()",
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "retired_at",
+          "type": "timestamp with time zone",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "server_keys_kek_len",
+          "kind": "c",
+          "def": "CHECK ((octet_length(kek_id) = 16))"
+        },
+        {
+          "name": "server_keys_kid_len",
+          "kind": "c",
+          "def": "CHECK ((octet_length(kid) = 16))"
+        },
+        {
+          "name": "server_keys_kid_matches",
+          "kind": "c",
+          "def": "CHECK ((kid = SUBSTRING(sha256((convert_to('rout.rve1.kid'::text, 'UTF8'::name) || public_key)) FROM 1 FOR 16)))"
+        },
+        {
+          "name": "server_keys_pkey",
+          "kind": "p",
+          "def": "PRIMARY KEY (kid)"
+        },
+        {
+          "name": "server_keys_public_key_len",
+          "kind": "c",
+          "def": "CHECK ((octet_length(public_key) = 1600))"
+        },
+        {
+          "name": "server_keys_wrap_len",
+          "kind": "c",
+          "def": "CHECK ((octet_length(wrapped_seed) = 80))"
+        },
+        {
+          "name": "server_keys_wrap_magic",
+          "kind": "c",
+          "def": "CHECK ((SUBSTRING(wrapped_seed FROM 1 FOR 4) = '\\x52564b31'::bytea))"
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX server_keys_one_active ON vault_enclave.server_keys USING btree ((true)) WHERE (retired_at IS NULL)"
+      ],
+      "triggers": [
+        "CREATE TRIGGER server_keys_guard BEFORE DELETE OR UPDATE ON vault_enclave.server_keys FOR EACH ROW EXECUTE FUNCTION vault_enclave.server_keys_guard()",
+        "CREATE TRIGGER server_keys_no_truncate BEFORE TRUNCATE ON vault_enclave.server_keys FOR EACH STATEMENT EXECUTE FUNCTION vault_enclave.audit_logs_immutable()"
+      ],
       "rls": true,
       "forceRls": false,
       "policies": [],
@@ -28569,6 +28671,12 @@
     },
     {
       "schema": "vault_enclave",
+      "name": "register_server_key",
+      "args": "p_kid bytea, p_public_key bytea, p_wrapped_seed bytea, p_kek_id bytea",
+      "def": "CREATE OR REPLACE FUNCTION vault_enclave.register_server_key(p_kid bytea, p_public_key bytea, p_wrapped_seed bytea, p_kek_id bytea)\n RETURNS boolean\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'pg_catalog'\nAS $function$\ndeclare\n  v_caller uuid := vault_enclave.caller_user_id();\n  v_rows int;\nbegin\n  if v_caller is null then\n    perform vault_enclave.append_audit(null, 'server_key_register', 'denied', 'no_caller', null); return false;\n  end if;\n  begin\n    insert into vault_enclave.server_keys (kid, public_key, wrapped_seed, kek_id)\n    values (p_kid, p_public_key, p_wrapped_seed, p_kek_id)\n    on conflict do nothing;\n    get diagnostics v_rows = row_count;\n  exception when check_violation or not_null_violation then\n    perform vault_enclave.append_audit(v_caller, 'server_key_register', 'denied', 'malformed', null); return false;\n  end;\n  if v_rows = 0 then\n    perform vault_enclave.append_audit(v_caller, 'server_key_register', 'denied', 'active_key_exists', null); return false;\n  end if;\n  perform vault_enclave.append_audit(v_caller, 'server_key_register', 'granted', 'ok', null);\n  return true;\nend $function$"
+    },
+    {
+      "schema": "vault_enclave",
       "name": "register_step_up_proof",
       "args": "p_proof_id uuid, p_method text",
       "def": "CREATE OR REPLACE FUNCTION vault_enclave.register_step_up_proof(p_proof_id uuid, p_method text)\n RETURNS boolean\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'pg_catalog'\nAS $function$\ndeclare v_caller uuid := vault_enclave.caller_user_id();\nbegin\n  if v_caller is null then\n    perform vault_enclave.append_audit(null, 'step_up_register', 'denied', 'no_caller', null); return false;\n  end if;\n  if p_method is distinct from 'passkey' then\n    perform vault_enclave.append_audit(v_caller, 'step_up_register', 'denied', 'method_not_passkey', null); return false;\n  end if;\n  if p_proof_id is null or exists (select 1 from vault_enclave.step_up_proofs s where s.proof_id = p_proof_id) then\n    perform vault_enclave.append_audit(v_caller, 'step_up_register', 'denied', 'proof_reused', null); return false;\n  end if;\n  -- Spent and stale proofs are useless after 300 s; keep the table small.\n  delete from vault_enclave.step_up_proofs s where s.verified_at < pg_catalog.clock_timestamp() - interval '1 hour';\n  insert into vault_enclave.step_up_proofs (proof_id, user_id, method, verified_at)\n  values (p_proof_id, v_caller, 'passkey', pg_catalog.clock_timestamp());\n  perform vault_enclave.append_audit(v_caller, 'step_up_register', 'granted', 'ok', null);\n  return true;\nend $function$"
@@ -28578,6 +28686,24 @@
       "name": "retrieve_opaque_token",
       "args": "p_token_ref text, p_step_up_verified boolean, p_step_up_proof_id uuid",
       "def": "CREATE OR REPLACE FUNCTION vault_enclave.retrieve_opaque_token(p_token_ref text, p_step_up_verified boolean, p_step_up_proof_id uuid)\n RETURNS TABLE(granted boolean, token_type text, encrypted_payload bytea)\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'pg_catalog'\nAS $function$\ndeclare\n  v_caller uuid := vault_enclave.caller_user_id();\n  v_now timestamptz := pg_catalog.clock_timestamp();\n  v_proof vault_enclave.step_up_proofs%rowtype;\n  v_token vault_enclave.opaque_tokens%rowtype;\n  v_ref text := case when p_token_ref ~ '^(vtk|vcc|mpc|sdm)_[0-9a-f]{64}$' then p_token_ref end;\nbegin\n  if v_caller is null then\n    perform vault_enclave.append_audit(null, 'token_retrieve', 'denied', 'no_caller', v_ref);\n    return query select false, null::text, null::bytea; return;\n  end if;\n  if v_ref is null then\n    perform vault_enclave.append_audit(v_caller, 'token_retrieve', 'denied', 'malformed_ref', null);\n    return query select false, null::text, null::bytea; return;\n  end if;\n  if p_step_up_verified is distinct from true then\n    perform vault_enclave.append_audit(v_caller, 'token_retrieve', 'denied', 'step_up_missing', v_ref);\n    return query select false, null::text, null::bytea; return;\n  end if;\n  select * into v_proof from vault_enclave.step_up_proofs s\n   where s.proof_id = p_step_up_proof_id and s.user_id = v_caller for update;\n  if not found then\n    perform vault_enclave.append_audit(v_caller, 'token_retrieve', 'denied', 'proof_unknown', v_ref);\n    return query select false, null::text, null::bytea; return;\n  end if;\n  if v_proof.consumed_at is not null then\n    perform vault_enclave.append_audit(v_caller, 'token_retrieve', 'denied', 'proof_replayed', v_ref);\n    return query select false, null::text, null::bytea; return;\n  end if;\n  if v_proof.method <> 'passkey' or v_now - v_proof.verified_at > interval '300 seconds'\n     or v_proof.verified_at > v_now + interval '5 seconds' then\n    perform vault_enclave.append_audit(v_caller, 'token_retrieve', 'denied', 'proof_expired', v_ref);\n    return query select false, null::text, null::bytea; return;\n  end if;\n  -- Spend the proof before the lookup, so a valid proof can't probe many refs.\n  update vault_enclave.step_up_proofs set consumed_at = v_now where proof_id = v_proof.proof_id;\n  select * into v_token from vault_enclave.opaque_tokens t\n   where t.token_ref = v_ref and t.owner_user_id = v_caller;\n  if not found then\n    perform vault_enclave.append_audit(v_caller, 'token_retrieve', 'denied', 'not_found', v_ref);\n    return query select false, null::text, null::bytea; return;\n  end if;\n  perform vault_enclave.append_audit(v_caller, 'token_retrieve', 'granted', 'ok', v_ref);\n  return query select true, v_token.token_type, v_token.encrypted_payload;\nend $function$"
+    },
+    {
+      "schema": "vault_enclave",
+      "name": "server_key_active",
+      "args": "",
+      "def": "CREATE OR REPLACE FUNCTION vault_enclave.server_key_active()\n RETURNS TABLE(kid bytea, public_key bytea, wrapped_seed bytea, kek_id bytea)\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'pg_catalog'\nAS $function$\n  select k.kid, k.public_key, k.wrapped_seed, k.kek_id from vault_enclave.server_keys k where k.retired_at is null\n$function$"
+    },
+    {
+      "schema": "vault_enclave",
+      "name": "server_key_get",
+      "args": "p_kid bytea",
+      "def": "CREATE OR REPLACE FUNCTION vault_enclave.server_key_get(p_kid bytea)\n RETURNS TABLE(kid bytea, public_key bytea, wrapped_seed bytea, kek_id bytea)\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'pg_catalog'\nAS $function$\n  select k.kid, k.public_key, k.wrapped_seed, k.kek_id from vault_enclave.server_keys k where k.kid = p_kid\n$function$"
+    },
+    {
+      "schema": "vault_enclave",
+      "name": "server_keys_guard",
+      "args": "",
+      "def": "CREATE OR REPLACE FUNCTION vault_enclave.server_keys_guard()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'pg_catalog'\nAS $function$\nbegin\n  if tg_op = 'DELETE' then raise exception 'vault_enclave.server_keys is append-only'; end if;\n  if old.retired_at is not null or new.retired_at is null\n     or (new.kid, new.public_key, new.wrapped_seed, new.kek_id, new.created_at)\n        is distinct from (old.kid, old.public_key, old.wrapped_seed, old.kek_id, old.created_at) then\n    raise exception 'vault_enclave.server_keys rows can only be retired once';\n  end if;\n  return new;\nend $function$"
     },
     {
       "schema": "vault_enclave",
