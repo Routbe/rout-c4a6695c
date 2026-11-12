@@ -138,8 +138,12 @@
 - [x] `crypto-enclave/recovery-mpc.ts` (Shamir 2-of-3, BIP39 paper factor)
 - [x] `vault/vault-port.server.ts` (IVaultPort + LocalPostgresVaultAdapter, tested over real SQL)
 - [ ] Account deletion/merge: handle vault tokens explicitly (FK is RESTRICT, so these fail closed today)
-- [ ] Server vault key for vtk_/sdm_ (generate + keep as server secret; later the SEV-SNP enclave)
-- [ ] NFC card recovery factor: decide how the card shard key is released (Web NFC only reads the tap URL) — waits on owner
-- [ ] Expose device-side envelope/recovery operations through the crypto-enclave worker protocol
-- [ ] Owner decides: new 2-of-3 recovery vs existing 3-of-5 recovery vault (and the Shamir library choice)
-- [ ] Finding: live database has no record of 0204–0207 and 0213 — check separately
+- [x] Server vault key: ROUT_VAULT_KEK (AES-256-GCM) wraps the server RVE1 seed; key ring db/0222 applied live
+- [x] Worker basis: rve1.deviceKey / rve1.seal / rve1.open for vcc_ (device key sealed under the device key)
+- [ ] Worker: 2-of-3 recovery ceremony ops (passkey PRF, card shard, paper words)
+- [x] Owner decided: 2-of-3 only, 3-of-5 deprecated, keep shamir-secret-sharing
+- [ ] Retire the 3-of-5 recovery vault screens and code
+- [x] 0205/0206/0207/0213 recorded live; 0204 archived to db-archive/ and removed from the model
+- [ ] Finding: live database still has 61 wide-open `rout_server` access rules (23 not in the model, e.g. psp_credentials, security_codes, user_sessions) — needs owner decision
+- [ ] sdm_ read path: card keys must be readable for a tap check without a passkey (recovery case) — design with owner
+- [ ] NFC card shard release after SDM CMAC check (owner approved)
