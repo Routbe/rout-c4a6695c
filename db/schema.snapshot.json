@@ -3119,14 +3119,7 @@
           "check": "true"
         }
       ],
-      "grants": {
-        "rout_app": [
-          "DELETE",
-          "INSERT",
-          "SELECT",
-          "UPDATE"
-        ]
-      }
+      "grants": {}
     },
     {
       "schema": "public",
@@ -13315,6 +13308,16 @@
           "cmd": "ALL",
           "using": "true",
           "check": "true"
+        },
+        {
+          "name": "rout_owner",
+          "permissive": true,
+          "roles": [
+            "rout_app"
+          ],
+          "cmd": "ALL",
+          "using": "(((user_id)::text = current_setting('rout.current_user_id'::text, true)) OR rout_purge_due(user_id))",
+          "check": "((user_id)::text = current_setting('rout.current_user_id'::text, true))"
         }
       ],
       "grants": {
@@ -13448,6 +13451,16 @@
           "cmd": "ALL",
           "using": "true",
           "check": "true"
+        },
+        {
+          "name": "rout_owner",
+          "permissive": true,
+          "roles": [
+            "rout_app"
+          ],
+          "cmd": "ALL",
+          "using": "(((user_id)::text = current_setting('rout.current_user_id'::text, true)) OR rout_purge_due(user_id))",
+          "check": "((user_id)::text = current_setting('rout.current_user_id'::text, true))"
         }
       ],
       "grants": {
@@ -15971,14 +15984,7 @@
           "check": "true"
         }
       ],
-      "grants": {
-        "rout_app": [
-          "DELETE",
-          "INSERT",
-          "SELECT",
-          "UPDATE"
-        ]
-      }
+      "grants": {}
     },
     {
       "schema": "public",
@@ -27122,7 +27128,7 @@
         {
           "name": "audit_logs_action_check",
           "kind": "c",
-          "def": "CHECK ((action = ANY (ARRAY['step_up_register'::text, 'token_store'::text, 'token_retrieve'::text, 'server_key_register'::text])))"
+          "def": "CHECK ((action = ANY (ARRAY['step_up_register'::text, 'token_store'::text, 'token_retrieve'::text, 'server_key_register'::text, 'sdm_card_register'::text, 'sdm_recovery_retrieve'::text, 'sdm_recovery_confirm'::text])))"
         },
         {
           "name": "audit_logs_entry_hash_key",
@@ -27252,6 +27258,201 @@
       ],
       "indexes": [
         "CREATE INDEX opaque_tokens_owner_idx ON vault_enclave.opaque_tokens USING btree (owner_user_id)"
+      ],
+      "triggers": [],
+      "rls": true,
+      "forceRls": false,
+      "policies": [],
+      "grants": {}
+    },
+    {
+      "schema": "vault_enclave",
+      "name": "sdm_cards",
+      "columns": [
+        {
+          "name": "card_id",
+          "type": "uuid",
+          "notNull": true,
+          "default": "gen_random_uuid()",
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "owner_user_id",
+          "type": "uuid",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "sdm_ref",
+          "type": "text",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "last_counter",
+          "type": "integer",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "notNull": true,
+          "default": "clock_timestamp()",
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "revoked_at",
+          "type": "timestamp with time zone",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "sdm_cards_counter_range",
+          "kind": "c",
+          "def": "CHECK (((last_counter IS NULL) OR ((last_counter >= 0) AND (last_counter <= 16777214))))"
+        },
+        {
+          "name": "sdm_cards_owner_user_id_fkey",
+          "kind": "f",
+          "def": "FOREIGN KEY (owner_user_id) REFERENCES users(id) ON DELETE RESTRICT"
+        },
+        {
+          "name": "sdm_cards_pkey",
+          "kind": "p",
+          "def": "PRIMARY KEY (card_id)"
+        },
+        {
+          "name": "sdm_cards_ref_kind",
+          "kind": "c",
+          "def": "CHECK ((\"left\"(sdm_ref, 4) = 'sdm_'::text))"
+        },
+        {
+          "name": "sdm_cards_sdm_ref_fkey",
+          "kind": "f",
+          "def": "FOREIGN KEY (sdm_ref) REFERENCES vault_enclave.opaque_tokens(token_ref) ON DELETE RESTRICT"
+        },
+        {
+          "name": "sdm_cards_sdm_ref_key",
+          "kind": "u",
+          "def": "UNIQUE (sdm_ref)"
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX sdm_cards_owner_idx ON vault_enclave.sdm_cards USING btree (owner_user_id)"
+      ],
+      "triggers": [],
+      "rls": true,
+      "forceRls": false,
+      "policies": [],
+      "grants": {}
+    },
+    {
+      "schema": "vault_enclave",
+      "name": "sdm_recovery_attempts",
+      "columns": [
+        {
+          "name": "attempt_id",
+          "type": "uuid",
+          "notNull": true,
+          "default": "gen_random_uuid()",
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "card_id",
+          "type": "uuid",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "owner_user_id",
+          "type": "uuid",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "tap_digest",
+          "type": "bytea",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "started_at",
+          "type": "timestamp with time zone",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "outcome",
+          "type": "text",
+          "notNull": true,
+          "default": "'pending'::text",
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "closed_at",
+          "type": "timestamp with time zone",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "read_counter",
+          "type": "integer",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "sdm_attempts_digest_len",
+          "kind": "c",
+          "def": "CHECK ((octet_length(tap_digest) = 32))"
+        },
+        {
+          "name": "sdm_attempts_outcome",
+          "kind": "c",
+          "def": "CHECK ((outcome = ANY (ARRAY['pending'::text, 'verified'::text, 'failed'::text])))"
+        },
+        {
+          "name": "sdm_recovery_attempts_card_id_fkey",
+          "kind": "f",
+          "def": "FOREIGN KEY (card_id) REFERENCES vault_enclave.sdm_cards(card_id) ON DELETE RESTRICT"
+        },
+        {
+          "name": "sdm_recovery_attempts_pkey",
+          "kind": "p",
+          "def": "PRIMARY KEY (attempt_id)"
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX sdm_attempts_card_idx ON vault_enclave.sdm_recovery_attempts USING btree (card_id, started_at)",
+        "CREATE INDEX sdm_attempts_owner_idx ON vault_enclave.sdm_recovery_attempts USING btree (owner_user_id, started_at)"
       ],
       "triggers": [],
       "rls": true,
@@ -28305,6 +28506,12 @@
     },
     {
       "schema": "public",
+      "name": "rout_purge_due",
+      "args": "p_user uuid",
+      "def": "CREATE OR REPLACE FUNCTION public.rout_purge_due(p_user uuid)\n RETURNS boolean\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'pg_catalog'\nAS $function$\n  select p_user is not null\n     and pg_catalog.current_setting('rout.purge_user_id', true) = p_user::text\n     and exists (select 1 from public.account_deletions d\n                  where d.user_id = p_user and d.cancelled_at is null and d.completed_at is null\n                    and d.purge_after <= pg_catalog.now())\n$function$"
+    },
+    {
+      "schema": "public",
       "name": "rout_purge_expired_agent_sandboxes",
       "args": "",
       "def": "CREATE OR REPLACE FUNCTION public.rout_purge_expired_agent_sandboxes()\n RETURNS integer\n LANGUAGE sql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\n  with d as (delete from public.agent_sandboxes s\n              where s.expires_at <= now() - interval '1 day' and s.workspace_id is null\n              returning 1)\n  select count(*)::integer from d\n$function$"
@@ -28671,6 +28878,18 @@
     },
     {
       "schema": "vault_enclave",
+      "name": "confirm_sdm_recovery",
+      "args": "p_attempt_id uuid, p_picc_data bytea, p_cmac bytea, p_verified boolean, p_read_counter integer",
+      "def": "CREATE OR REPLACE FUNCTION vault_enclave.confirm_sdm_recovery(p_attempt_id uuid, p_picc_data bytea, p_cmac bytea, p_verified boolean, p_read_counter integer)\n RETURNS boolean\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'pg_catalog'\nAS $function$\ndeclare\n  v_now timestamptz := pg_catalog.clock_timestamp();\n  v_attempt vault_enclave.sdm_recovery_attempts%rowtype;\n  v_ref text;\n  v_rows int;\nbegin\n  select * into v_attempt from vault_enclave.sdm_recovery_attempts a where a.attempt_id = p_attempt_id for update;\n  if not found or v_attempt.outcome <> 'pending' then\n    perform vault_enclave.append_audit(null, 'sdm_recovery_confirm', 'denied', 'attempt_not_pending', null);\n    return false;\n  end if;\n  select c.sdm_ref into v_ref from vault_enclave.sdm_cards c where c.card_id = v_attempt.card_id;\n  if p_verified is distinct from true\n     or v_now - v_attempt.started_at > interval '60 seconds'\n     or p_picc_data is null or p_cmac is null\n     or pg_catalog.sha256(p_picc_data || p_cmac) <> v_attempt.tap_digest\n     or p_read_counter is null or p_read_counter not between 0 and 16777214 then\n    update vault_enclave.sdm_recovery_attempts set outcome = 'failed', closed_at = v_now where attempt_id = v_attempt.attempt_id;\n    perform vault_enclave.append_audit(v_attempt.owner_user_id, 'sdm_recovery_confirm', 'denied',\n      case when p_verified is distinct from true then 'cmac_invalid'\n           when v_now - v_attempt.started_at > interval '60 seconds' then 'attempt_expired'\n           when p_read_counter is null or p_read_counter not between 0 and 16777214 then 'bad_counter'\n           else 'tap_mismatch' end, v_ref);\n    return false;\n  end if;\n  -- Strictly increasing counter, atomically: the same tap URL never works twice.\n  update vault_enclave.sdm_cards c set last_counter = p_read_counter\n   where c.card_id = v_attempt.card_id and c.revoked_at is null\n     and (c.last_counter is null or c.last_counter < p_read_counter);\n  get diagnostics v_rows = row_count;\n  if v_rows = 0 then\n    update vault_enclave.sdm_recovery_attempts set outcome = 'failed', closed_at = v_now where attempt_id = v_attempt.attempt_id;\n    perform vault_enclave.append_audit(v_attempt.owner_user_id, 'sdm_recovery_confirm', 'denied', 'replayed', v_ref);\n    return false;\n  end if;\n  update vault_enclave.sdm_recovery_attempts\n     set outcome = 'verified', closed_at = v_now, read_counter = p_read_counter\n   where attempt_id = v_attempt.attempt_id;\n  perform vault_enclave.append_audit(v_attempt.owner_user_id, 'sdm_recovery_confirm', 'granted', 'ok', v_ref);\n  return true;\nend $function$"
+    },
+    {
+      "schema": "vault_enclave",
+      "name": "register_sdm_card",
+      "args": "p_sdm_ref text",
+      "def": "CREATE OR REPLACE FUNCTION vault_enclave.register_sdm_card(p_sdm_ref text)\n RETURNS uuid\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'pg_catalog'\nAS $function$\ndeclare\n  v_caller uuid := vault_enclave.caller_user_id();\n  v_ref text := case when p_sdm_ref ~ '^sdm_[0-9a-f]{64}$' then p_sdm_ref end;\n  v_card uuid;\nbegin\n  if v_caller is null then\n    perform vault_enclave.append_audit(null, 'sdm_card_register', 'denied', 'no_caller', v_ref); return null;\n  end if;\n  if v_ref is null or not exists (\n       select 1 from vault_enclave.opaque_tokens t where t.token_ref = v_ref and t.owner_user_id = v_caller and t.token_type = 'sdm') then\n    perform vault_enclave.append_audit(v_caller, 'sdm_card_register', 'denied', 'not_owned_sdm', v_ref); return null;\n  end if;\n  if exists (select 1 from vault_enclave.sdm_cards c where c.sdm_ref = v_ref) then\n    perform vault_enclave.append_audit(v_caller, 'sdm_card_register', 'denied', 'already_linked', v_ref); return null;\n  end if;\n  insert into vault_enclave.sdm_cards (owner_user_id, sdm_ref) values (v_caller, v_ref) returning card_id into v_card;\n  perform vault_enclave.append_audit(v_caller, 'sdm_card_register', 'granted', 'ok', v_ref);\n  return v_card;\nend $function$"
+    },
+    {
+      "schema": "vault_enclave",
       "name": "register_server_key",
       "args": "p_kid bytea, p_public_key bytea, p_wrapped_seed bytea, p_kek_id bytea",
       "def": "CREATE OR REPLACE FUNCTION vault_enclave.register_server_key(p_kid bytea, p_public_key bytea, p_wrapped_seed bytea, p_kek_id bytea)\n RETURNS boolean\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'pg_catalog'\nAS $function$\ndeclare\n  v_caller uuid := vault_enclave.caller_user_id();\n  v_rows int;\nbegin\n  if v_caller is null then\n    perform vault_enclave.append_audit(null, 'server_key_register', 'denied', 'no_caller', null); return false;\n  end if;\n  begin\n    insert into vault_enclave.server_keys (kid, public_key, wrapped_seed, kek_id)\n    values (p_kid, p_public_key, p_wrapped_seed, p_kek_id)\n    on conflict do nothing;\n    get diagnostics v_rows = row_count;\n  exception when check_violation or not_null_violation then\n    perform vault_enclave.append_audit(v_caller, 'server_key_register', 'denied', 'malformed', null); return false;\n  end;\n  if v_rows = 0 then\n    perform vault_enclave.append_audit(v_caller, 'server_key_register', 'denied', 'active_key_exists', null); return false;\n  end if;\n  perform vault_enclave.append_audit(v_caller, 'server_key_register', 'granted', 'ok', null);\n  return true;\nend $function$"
@@ -28686,6 +28905,18 @@
       "name": "retrieve_opaque_token",
       "args": "p_token_ref text, p_step_up_verified boolean, p_step_up_proof_id uuid",
       "def": "CREATE OR REPLACE FUNCTION vault_enclave.retrieve_opaque_token(p_token_ref text, p_step_up_verified boolean, p_step_up_proof_id uuid)\n RETURNS TABLE(granted boolean, token_type text, encrypted_payload bytea)\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'pg_catalog'\nAS $function$\ndeclare\n  v_caller uuid := vault_enclave.caller_user_id();\n  v_now timestamptz := pg_catalog.clock_timestamp();\n  v_proof vault_enclave.step_up_proofs%rowtype;\n  v_token vault_enclave.opaque_tokens%rowtype;\n  v_ref text := case when p_token_ref ~ '^(vtk|vcc|mpc|sdm)_[0-9a-f]{64}$' then p_token_ref end;\nbegin\n  if v_caller is null then\n    perform vault_enclave.append_audit(null, 'token_retrieve', 'denied', 'no_caller', v_ref);\n    return query select false, null::text, null::bytea; return;\n  end if;\n  if v_ref is null then\n    perform vault_enclave.append_audit(v_caller, 'token_retrieve', 'denied', 'malformed_ref', null);\n    return query select false, null::text, null::bytea; return;\n  end if;\n  if p_step_up_verified is distinct from true then\n    perform vault_enclave.append_audit(v_caller, 'token_retrieve', 'denied', 'step_up_missing', v_ref);\n    return query select false, null::text, null::bytea; return;\n  end if;\n  select * into v_proof from vault_enclave.step_up_proofs s\n   where s.proof_id = p_step_up_proof_id and s.user_id = v_caller for update;\n  if not found then\n    perform vault_enclave.append_audit(v_caller, 'token_retrieve', 'denied', 'proof_unknown', v_ref);\n    return query select false, null::text, null::bytea; return;\n  end if;\n  if v_proof.consumed_at is not null then\n    perform vault_enclave.append_audit(v_caller, 'token_retrieve', 'denied', 'proof_replayed', v_ref);\n    return query select false, null::text, null::bytea; return;\n  end if;\n  if v_proof.method <> 'passkey' or v_now - v_proof.verified_at > interval '300 seconds'\n     or v_proof.verified_at > v_now + interval '5 seconds' then\n    perform vault_enclave.append_audit(v_caller, 'token_retrieve', 'denied', 'proof_expired', v_ref);\n    return query select false, null::text, null::bytea; return;\n  end if;\n  -- Spend the proof before the lookup, so a valid proof can't probe many refs.\n  update vault_enclave.step_up_proofs set consumed_at = v_now where proof_id = v_proof.proof_id;\n  select * into v_token from vault_enclave.opaque_tokens t\n   where t.token_ref = v_ref and t.owner_user_id = v_caller;\n  if not found then\n    perform vault_enclave.append_audit(v_caller, 'token_retrieve', 'denied', 'not_found', v_ref);\n    return query select false, null::text, null::bytea; return;\n  end if;\n  perform vault_enclave.append_audit(v_caller, 'token_retrieve', 'granted', 'ok', v_ref);\n  return query select true, v_token.token_type, v_token.encrypted_payload;\nend $function$"
+    },
+    {
+      "schema": "vault_enclave",
+      "name": "retrieve_sdm_for_recovery",
+      "args": "p_card_id uuid, p_picc_data bytea, p_cmac bytea",
+      "def": "CREATE OR REPLACE FUNCTION vault_enclave.retrieve_sdm_for_recovery(p_card_id uuid, p_picc_data bytea, p_cmac bytea)\n RETURNS TABLE(granted boolean, attempt_id uuid, owner_user_id uuid, sdm_ref text, encrypted_payload bytea, last_counter integer)\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'pg_catalog'\nAS $function$\ndeclare\n  v_now timestamptz := pg_catalog.clock_timestamp();\n  v_card vault_enclave.sdm_cards%rowtype;\n  v_fail record;\n  v_attempt uuid;\n  v_payload bytea;\nbegin\n  select * into v_card from vault_enclave.sdm_cards c where c.card_id = p_card_id for update;\n  if not found or v_card.revoked_at is not null then\n    perform vault_enclave.append_audit(null, 'sdm_recovery_retrieve', 'denied', case when found then 'card_revoked' else 'unknown_card' end, v_card.sdm_ref);\n    return query select false, null::uuid, null::uuid, null::text, null::bytea, null::integer; return;\n  end if;\n  -- Serialise all of this member's recovery attempts, so parallel taps cannot\n  -- all pass the lockout check before any of them is counted.\n  perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(v_card.owner_user_id::text, 7421003224));\n  -- Closed attempts older than a day no longer affect the lockout; the audit chain keeps the history.\n  delete from vault_enclave.sdm_recovery_attempts a where a.owner_user_id = v_card.owner_user_id and a.started_at < v_now - interval '1 day';\n  select * into v_fail from vault_enclave.sdm_failures(v_card.card_id, v_card.owner_user_id, v_now);\n  if v_fail.card_failures >= 3 or v_fail.owner_failures >= 3 then\n    perform vault_enclave.append_audit(v_card.owner_user_id, 'sdm_recovery_retrieve', 'denied',\n      case when v_fail.card_failures >= 3 then 'card_locked' else 'account_locked' end, v_card.sdm_ref);\n    return query select false, null::uuid, null::uuid, null::text, null::bytea, null::integer; return;\n  end if;\n  if p_picc_data is null or p_cmac is null or octet_length(p_picc_data) <> 16 or octet_length(p_cmac) <> 8 then\n    insert into vault_enclave.sdm_recovery_attempts (card_id, owner_user_id, tap_digest, started_at, outcome, closed_at)\n    values (v_card.card_id, v_card.owner_user_id, pg_catalog.sha256(coalesce(p_picc_data, ''::bytea) || coalesce(p_cmac, ''::bytea)), v_now, 'failed', v_now);\n    perform vault_enclave.append_audit(v_card.owner_user_id, 'sdm_recovery_retrieve', 'denied', 'malformed_tap', v_card.sdm_ref);\n    return query select false, null::uuid, null::uuid, null::text, null::bytea, null::integer; return;\n  end if;\n  select t.encrypted_payload into v_payload from vault_enclave.opaque_tokens t\n   where t.token_ref = v_card.sdm_ref and t.owner_user_id = v_card.owner_user_id and t.token_type = 'sdm';\n  if not found then\n    perform vault_enclave.append_audit(v_card.owner_user_id, 'sdm_recovery_retrieve', 'denied', 'envelope_missing', v_card.sdm_ref);\n    return query select false, null::uuid, null::uuid, null::text, null::bytea, null::integer; return;\n  end if;\n  insert into vault_enclave.sdm_recovery_attempts (card_id, owner_user_id, tap_digest, started_at)\n  values (v_card.card_id, v_card.owner_user_id, pg_catalog.sha256(p_picc_data || p_cmac), v_now)\n  returning sdm_recovery_attempts.attempt_id into v_attempt;\n  perform vault_enclave.append_audit(v_card.owner_user_id, 'sdm_recovery_retrieve', 'granted', 'pending', v_card.sdm_ref);\n  return query select true, v_attempt, v_card.owner_user_id, v_card.sdm_ref, v_payload, v_card.last_counter;\nend $function$"
+    },
+    {
+      "schema": "vault_enclave",
+      "name": "sdm_failures",
+      "args": "p_card uuid, p_owner uuid, p_now timestamp with time zone",
+      "def": "CREATE OR REPLACE FUNCTION vault_enclave.sdm_failures(p_card uuid, p_owner uuid, p_now timestamp with time zone)\n RETURNS TABLE(card_failures integer, owner_failures integer)\n LANGUAGE sql\n STABLE\n SET search_path TO 'pg_catalog'\nAS $function$\n  select\n    (select count(*)::int from vault_enclave.sdm_recovery_attempts a\n      where a.card_id = p_card and a.outcome <> 'verified' and a.started_at > p_now - interval '10 minutes'),\n    (select count(*)::int from vault_enclave.sdm_recovery_attempts a\n      where a.owner_user_id = p_owner and a.outcome <> 'verified' and a.started_at > p_now - interval '10 minutes')\n$function$"
     },
     {
       "schema": "vault_enclave",

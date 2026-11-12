@@ -19,7 +19,9 @@ export const Route = createFileRoute("/api_/user/vault/export")({
         const limit = await hitRateLimit("vault-export", user.id, { limit: 5, windowSec: 3600 });
         if (!limit.ok) return new Response("Too many exports, try again later", { status: 429 });
         const { buildVaultZip } = await import("@/lib/vault-export.server");
-        const body = await buildVaultZip(user.id);
+        const { withDbContext } = await import("@/lib/neon");
+        // Read as the member: owner-only tables return nothing without this context.
+        const body = await withDbContext({ userId: user.id, workspaceId: null }, () => buildVaultZip(user.id));
         return new Response(body as unknown as BodyInit, {
           headers: {
             "content-type": "application/zip",

@@ -23,6 +23,16 @@ export type PasskeyStepUp = { readonly verified: true; readonly proofId: string 
 export type VaultEnvelope<K extends OpaqueTokenKind> = { readonly kind: K; readonly envelope: Uint8Array };
 /** A server vault recipient key as stored: public parts plus the KEK-wrapped seed (db/0222). */
 export type WrappedServerKey = { readonly kid: Uint8Array; readonly publicKey: Uint8Array; readonly wrappedSeed: Uint8Array; readonly kekId: Uint8Array };
+/** Raw NTAG 424 DNA SUN tap bytes: encrypted PICCData (16) and truncated CMAC (8). */
+export type SdmTapBytes = { readonly piccData: Uint8Array; readonly cmac: Uint8Array };
+/** An open recovery attempt (db/0224): counted as a failure until confirmed. */
+export type SdmRecoveryChallenge = {
+  readonly attemptId: string;
+  readonly ownerUserId: string;
+  readonly sdmRef: OpaqueToken<"sdm">;
+  readonly envelope: Uint8Array;
+  readonly lastCounter: number | null;
+};
 
 export interface IVaultPort {
   /** Records a just-verified passkey step-up on the enclave's own clock. */
@@ -35,6 +45,12 @@ export interface IVaultPort {
   serverKey(caller: VaultCaller, kid: Uint8Array): Promise<WrappedServerKey | null>;
   /** Registers the first active key; false when one already exists. */
   registerServerKey(caller: VaultCaller, key: WrappedServerKey): Promise<boolean>;
+  /** Links one of the caller's own sdm_ envelopes to a new card; returns the card id. */
+  registerSdmCard(caller: VaultCaller, sdmRef: OpaqueToken<"sdm">): Promise<string>;
+  /** Pre-authentication: opens a recovery attempt for a card tap (lockout-checked). */
+  beginSdmRecovery(cardId: string, tap: SdmTapBytes): Promise<SdmRecoveryChallenge>;
+  /** Closes the attempt; true only for a verified tap with a strictly higher counter. */
+  confirmSdmRecovery(attemptId: string, tap: SdmTapBytes, verified: boolean, readCounter: number | null): Promise<boolean>;
 }
 
 export class VaultDeniedError extends Error {
@@ -69,6 +85,23 @@ const RetrieveRow = z.object({
   token_type: z.enum(OPAQUE_TOKEN_KINDS).nullable(),
   payload_hex: z.string().max(ENVELOPE_MAX_BYTES * 2).nullable(),
 });
+
+const SdmCardRow = z.object({ card_id: z.string().regex(UUID_RE).nullable() });
+const SdmRetrieveRow = z.object({
+  granted: z.boolean(),
+  attempt_id: z.string().regex(UUID_RE).nullable(),
+  owner_user_id: z.string().regex(UUID_RE).nullable(),
+  sdm_ref: z.string().nullable(),
+  payload_hex: z.string().max(ENVELOPE_MAX_BYTES * 2).nullable(),
+  last_counter: z.number().int().min(0).max(0xfffffe).nullable(),
+});
+/** Anonymous (pre-authentication) calls run with an empty caller context. */
+const NO_CALLER = "";
+
+function tapHex(tap: SdmTapBytes): [string, string] {
+  if (tap.piccData.length !== 16 || tap.cmac.length !== 8) throw new VaultDeniedError();
+  return [toHex(tap.piccData), toHex(tap.cmac)];
+}
 
 const ServerKeyRow = z.object({
   kid_hex: z.string().length(32),
@@ -157,6 +190,50 @@ export class LocalPostgresVaultAdapter implements IVaultPort {
     const row = RegisterRow.safeParse(rows[0]);
     if (!row.success) throw new VaultDeniedError();
     return row.data.ok;
+  }
+
+  async registerSdmCard(caller: VaultCaller, sdmRef: OpaqueToken<"sdm">): Promise<string> {
+    if (opaqueTokenKind(sdmRef) !== "sdm") throw new VaultDeniedError();
+    const rows = await this.exec(callerId(caller), "select vault_enclave.register_sdm_card($1)::text as card_id", [sdmRef]);
+    const row = SdmCardRow.safeParse(rows[0]);
+    if (!row.success || row.data.card_id === null) throw new VaultDeniedError();
+    return row.data.card_id;
+  }
+
+  async beginSdmRecovery(cardId: string, tap: SdmTapBytes): Promise<SdmRecoveryChallenge> {
+    if (!UUID_RE.test(cardId)) throw new VaultDeniedError();
+    // Malformed taps still reach the enclave so they count against the lockout.
+    const picc = tap.piccData.length <= 64 ? toHex(tap.piccData) : "";
+    const mac = tap.cmac.length <= 64 ? toHex(tap.cmac) : "";
+    const rows = await this.exec(
+      NO_CALLER,
+      "select granted, attempt_id::text as attempt_id, owner_user_id::text as owner_user_id, sdm_ref, encode(encrypted_payload, 'hex') as payload_hex, last_counter from vault_enclave.retrieve_sdm_for_recovery($1::uuid, decode($2, 'hex'), decode($3, 'hex'))",
+      [cardId, picc, mac],
+    );
+    const row = SdmRetrieveRow.safeParse(rows[0]);
+    if (!row.success || !row.data.granted || !row.data.attempt_id || !row.data.owner_user_id || !row.data.sdm_ref || !row.data.payload_hex) {
+      throw new VaultDeniedError();
+    }
+    let sdmRef: OpaqueToken<"sdm">;
+    try {
+      sdmRef = parseOpaqueToken(row.data.sdm_ref, "sdm");
+    } catch {
+      throw new VaultDeniedError();
+    }
+    return { attemptId: row.data.attempt_id, ownerUserId: row.data.owner_user_id, sdmRef, envelope: fromHex(row.data.payload_hex), lastCounter: row.data.last_counter };
+  }
+
+  async confirmSdmRecovery(attemptId: string, tap: SdmTapBytes, verified: boolean, readCounter: number | null): Promise<boolean> {
+    if (!UUID_RE.test(attemptId)) throw new VaultDeniedError();
+    const [picc, mac] = tapHex(tap);
+    const counter = readCounter !== null && Number.isInteger(readCounter) && readCounter >= 0 && readCounter <= 0xfffffe ? readCounter : null;
+    const rows = await this.exec(
+      NO_CALLER,
+      "select vault_enclave.confirm_sdm_recovery($1::uuid, decode($2, 'hex'), decode($3, 'hex'), $4, $5::int) as ok",
+      [attemptId, picc, mac, verified === true, counter],
+    );
+    const row = RegisterRow.safeParse(rows[0]);
+    return row.success && row.data.ok;
   }
 }
 

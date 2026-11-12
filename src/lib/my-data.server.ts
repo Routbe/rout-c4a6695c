@@ -45,7 +45,7 @@ export async function exportMyData(userId: string) {
         >,
     ),
     safe(
-      () => sql`select * from public.links where user_id = ${userId}` as unknown as Promise<Row[]>,
+      () => sql`select * from public.links where profile_id = ${userId}` as unknown as Promise<Row[]>,
     ),
     safe(
       () =>

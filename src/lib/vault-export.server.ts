@@ -28,7 +28,7 @@ export async function buildVaultZip(userId: string): Promise<Uint8Array> {
     safe(() => sql`select id, user_agent, created_at, last_seen_at, expires_at, revoked_at from public.user_sessions where user_id = ${userId}`),
     safe(() => sql`select id, "userAgent" as user_agent, "createdAt" as created_at, "expiresAt" as expires_at
       from neon_auth.session where "userId"::text = ${authId}`),
-    safe(() => sql`select g.client_id, c.name, g.scopes, g.created_at, g.revoked_at
+    safe(() => sql`select g.client_id, c.name, g.scopes, g.granted_at, g.revoked_at
       from public.oauth_consents g left join public.oauth_clients c on c.client_id = g.client_id where g.user_id = ${userId}`),
   ]);
   const zip = new JSZip();
