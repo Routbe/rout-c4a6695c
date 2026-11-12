@@ -1,3 +1,6 @@
+-- ARCHIVED 2026-11-12 — never run. Superseded by the vault enclave (db/0221) and 2-of-3 recovery;
+-- its passkey/recovery key wraps belonged to the deprecated 3-of-5 recovery vault.
+-- Kept outside db/ so no migration runner can pick it up.
 -- E2EE hybrid schema. Apply ONLY to the Neon branch 'feat-e2e-encryption' first; never auto-applied.
 -- Blind columns hold client-side AES-256-GCM ciphertext ("v1.<iv>.<ct>"); the server cannot read them.
 -- Public profile fields (handle, name, avatar, bio) stay readable but get a DID-signed JWS.
