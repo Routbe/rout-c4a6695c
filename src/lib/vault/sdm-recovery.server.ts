@@ -18,7 +18,7 @@
  * enclave's audit chain.
  */
 import { z } from "zod";
-import { SdmError, verifySdmTap } from "@/lib/crypto-enclave/sdm-verifier";
+import { verifySdmTap } from "@/lib/crypto-enclave/sdm-verifier";
 import type { VaultKek } from "./server-kek";
 import { openWithServerKey, sealServerToken } from "./server-vault.server";
 import { VaultDeniedError, vaultPort, type IVaultPort, type SdmTapBytes } from "./vault-port.server";
@@ -126,10 +126,10 @@ export async function verifyRecoveryTap(
     const ok = await port.confirmSdmRecovery(challenge.attemptId, tap, true, verified.readCounter);
     if (!ok) throw new VaultDeniedError();
     return { ownerUserId: challenge.ownerUserId, cardFactorSecret: card.cardFactorSecret.slice() };
-  } catch (error) {
-    // Close the attempt as failed (it already counts); never leak why.
+  } catch {
+    // Close the attempt as failed (it already counts); never say why (SdmError,
+    // a wrong KEK or a broken envelope all look the same to the tapping device).
     if (verified === null) await port.confirmSdmRecovery(challenge.attemptId, tap, false, null).catch(() => false);
-    if (error instanceof VaultDeniedError || error instanceof SdmError) throw new VaultDeniedError();
     throw new VaultDeniedError();
   } finally {
     plain?.fill(0);
