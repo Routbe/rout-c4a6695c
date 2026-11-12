@@ -126,4 +126,4 @@
 ## Import into this project (Nov 12)
 - [x] Verify the Route repository (github.com/Routbe/route-compass-5c35c38a) is fully imported into this project
 - [x] Read all code and every page to understand Route
-- [ ] Then request Neon and Scaleway secrets
+- [x] Then request Neon and Scaleway secrets (Neon linked as owner login; Scaleway keys saved)
