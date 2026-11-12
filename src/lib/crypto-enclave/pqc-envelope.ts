@@ -201,9 +201,13 @@ export function openEnvelope(input: {
     // secret (implicit rejection) and the AEAD tag check below rejects it.
     sharedSecret = kem.decapsulate(envelope.subarray(OFF_KEM, OFF_NONCE), secretKey);
     const nonce = envelope.subarray(OFF_NONCE, OFF_BODY);
-    return xchacha20poly1305(sharedSecret, nonce, aad(envelope.subarray(0, OFF_BODY), context)).decrypt(
+    const view = xchacha20poly1305(sharedSecret, nonce, aad(envelope.subarray(0, OFF_BODY), context)).decrypt(
       envelope.subarray(OFF_BODY),
     );
+    // Hand back an exact, independent copy; wipe the library's buffer view.
+    const plaintext = view.slice();
+    wipe(view);
+    return plaintext;
   } catch (error) {
     if (error instanceof EnvelopePolicyError) throw error;
     throw new EnvelopeError();
