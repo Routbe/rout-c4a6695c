@@ -124,6 +124,6 @@
 - [ ] Bevinding: vergelijking database ↔ vastgelegde beschrijving toont 48 oudere verschillen (o.a. brede `rout_server`-regels uit 0154 op ~60 tabellen) — los nakijken
 
 ## Import into this project (Nov 12)
-- [ ] Verify the Route repository (github.com/Routbe/route-compass-5c35c38a) is fully imported into this project
-- [ ] Read all code and every page to understand Route
+- [x] Verify the Route repository (github.com/Routbe/route-compass-5c35c38a) is fully imported into this project
+- [x] Read all code and every page to understand Route
 - [ ] Then request Neon and Scaleway secrets
