@@ -142,6 +142,6 @@
 - [x] Owner decided: 2-of-3 only, 3-of-5 deprecated, keep shamir-secret-sharing
 - [ ] Retire the 3-of-5 recovery vault screens and code
 - [x] 0205/0206/0207/0213 recorded live; 0204 archived to db-archive/ and removed from the model
-- [ ] Finding: live database ↔ model now differ in 40 older points, mainly 61 wide-open `rout_server` access rules (23 not in the model, e.g. psp_credentials, security_codes, user_sessions) — needs owner decision
-- [ ] sdm_ read path: card keys must be readable for a tap check without a passkey (recovery case) — design with owner
-- [ ] NFC card shard release after SDM CMAC check (owner approved)
+- [x] 0223/0225 live: free `rout_server` access removed from 5 of the 23 tables (step-up tables owner-only, user_sessions/analytics_events/profile_ingest_tokens closed)
+- [ ] 0223 next phases: replace the free rule on the other 18 tables with narrow database functions, one feature at a time (sign-in codes, OAuth, payments, admin, bookings, background jobs)
+- [x] 0224 live: card recovery gate without passkey — two-step tap check, 3 failures per 10 min locks card and account, card factor released only after CMAC

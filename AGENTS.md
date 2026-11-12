@@ -57,3 +57,6 @@ use the editor.
 - The Master KEK (ROUT_VAULT_KEK, read per call in server-vault.server.ts) only wraps the server vault's RVE1 seed with AES-256-GCM; wrapped seeds live in vault_enclave.server_keys (db/0222) and a wrap that does not authenticate under the KEK is never used. Why: neither the database nor the environment alone can open vtk_/sdm_.
 - vcc_ envelopes are sealed and opened only by the crypto worker's rve1.* ops with a device key whose seed is sealed under the device key; the UI gets plaintext only through enclave.rve1.withCredential, which wipes it after the callback. Why: private keys never reach the main thread and plaintext is short-lived.
 - Archived migrations live in db-archive/, never in db/. Why: every file in db/ is replayed by the runner and the snapshot check.
+
+## Legacy runtime access
+- The free `rout_server` policies from db/0154 are removed table by table, only after every runtime read/write is moved into the owner's context or a narrow SECURITY DEFINER function; account purge deletes rely on `public.rout_purge_due(user_id)`. Why: dropping them all at once stops sign-in, payments and admin, and the purge runs without a member context.
