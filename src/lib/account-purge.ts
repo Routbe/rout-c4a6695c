@@ -1,7 +1,7 @@
 /** Reviewed Neon tables without cascading owner FKs. Never derive SQL identifiers from requests. */
 export const PURGE_OWNER_TABLES = [
   "app_email_assignments", "oauth_auth_codes", "oauth_consents", "oauth_step_up_codes", "oauth_step_up_challenges",
-  "oauth_email_deliveries", "oauth_email_forwarding_rules", "phone_otp_codes", "security_codes",
+  "oauth_email_deliveries", "oauth_email_forwarding_rules",
   "psp_credentials", "tip_settings", "user_phone_numbers", "user_custom_badges",
   "identity_link_events", "business_verifications", "influencer_requests", "badge_claim_redemptions",
   "subdomain_root_claims", "security_audit_logs", "invoice_deliveries",
@@ -19,6 +19,8 @@ export function accountPurgeStatements(userId: string, authId: string) {
     { query: `delete from public.profile_subscribers where owner_user_id = $1`, params },
     { query: `delete from public.onboarding_drafts where lower(email) in (select lower(email) from public.users where id = $1)`, params },
     ...PURGE_OWNER_TABLES.map((table) => ({ query: `delete from public.${table} where user_id = $1`, params })),
+    // Sign-in codes are closed to the app role; the database re-checks that this deletion is due (db/0226).
+    { query: `select public.rout_auth_secrets_purge($1::uuid)`, params },
     { query: `delete from public.merged_auth_account_archive where primary_user_id = $1`, params },
     { query: `delete from public.webhook_endpoints where owner_user_id = $1`, params },
     { query: `delete from public.oauth_clients where owner_user_id = $1 and workspace_id is null`, params },

@@ -1,7 +1,7 @@
 import { sql } from "@/lib/neon";
 import { hitRateLimit } from "@/lib/rate-limit-db.server";
 import { RATE_RULES } from "@/lib/rate-limit-rules";
-import { INBOUND_VERIFY_LINE, usesAutoSms, evaluateOtp, generateOtp, maskPhone, OTP_TTL_MS } from "./otp-rules";
+import { INBOUND_VERIFY_LINE, usesAutoSms, generateOtp, maskPhone, OTP_TTL_MS } from "./otp-rules";
 import { encryptText, keyedHash } from "./phone-crypto";
 import { getSmsSender, missingSmsKeys } from "./sms-provider.server";
 

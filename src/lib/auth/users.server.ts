@@ -127,38 +127,22 @@ const TOKEN_TTL_MINUTES: Record<TokenPurpose, number> = {
   email_change: 60 * 24,
 };
 
+/**
+ * Retired: Better Auth issues every sign-in, reset and confirmation link. The
+ * old auth_tokens table is closed to the app role (db/0226) and nothing could
+ * redeem these links any more, so issuing one fails loudly instead.
+ */
 export async function issueToken(
-  userId: string,
-  purpose: TokenPurpose,
-  payload: Record<string, unknown> = {},
-) {
-  const token = generateToken(32);
-  const tokenHash = await hashToken(token);
-  await sql`
-    insert into public.auth_tokens (user_id, purpose, token_hash, payload, expires_at)
-    values (${userId}, ${purpose}, ${tokenHash}, ${JSON.stringify(payload)},
-            now() + make_interval(mins => ${TOKEN_TTL_MINUTES[purpose]}))
-  `;
-  return token;
+  _userId: string,
+  _purpose: TokenPurpose,
+  _payload: Record<string, unknown> = {},
+): Promise<string> {
+  throw new AuthError("invalid_token", "Legacy one-time links are retired; sign-in links come from Better Auth.");
 }
 
-/** Consumes a token exactly once and returns the owning user. */
-export async function consumeToken(token: string, purpose: TokenPurpose) {
-  const tokenHash = await hashToken(token);
-  const rows = (await sql`
-    update public.auth_tokens
-       set consumed_at = now()
-     where token_hash = ${tokenHash}
-       and purpose = ${purpose}
-       and consumed_at is null
-       and expires_at > now()
-    returning user_id, payload
-  `) as Row[];
-  const row = rows[0];
-  if (!row) throw new AuthError("invalid_token", "This link is invalid or has expired.");
-  const user = await findUserById(row["user_id"] as string);
-  if (!user) throw new AuthError("not_found");
-  return { user, payload: (row["payload"] as Record<string, unknown>) ?? {} };
+/** Retired together with issueToken. */
+export async function consumeToken(_token: string, _purpose: TokenPurpose): Promise<never> {
+  throw new AuthError("invalid_token", "This link is invalid or has expired.");
 }
 
 /**
@@ -268,16 +252,6 @@ export async function requestEmailCode(rawEmail: string, origin: string) {
 
   const userId = row["id"] as string;
   const code = sixDigitCode();
-  const codeHash = await hashToken(`${userId}:${code}`);
-  await sql`
-    update public.auth_tokens set consumed_at = now()
-     where user_id = ${userId} and purpose = 'email_code' and consumed_at is null
-  `;
-  await sql`
-    insert into public.auth_tokens (user_id, purpose, token_hash, payload, expires_at)
-    values (${userId}, 'email_code', ${codeHash}, '{}'::jsonb,
-            now() + make_interval(mins => ${CODE_TTL_MINUTES}))
-  `;
 
   const linkToken = await issueToken(userId, "magic_link");
   const sent = await mailAuthAction(

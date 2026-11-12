@@ -323,7 +323,8 @@ async function scrubOne(u: { id: string; ba: string | null }) {
       // The grace-period admin seat ends with the login.
       sql`delete from public.workspace_members where user_id = ${u.id} and role = ${SUNSET_MEMBER_ROLE}`,
       sql`delete from public.user_sessions where user_id = ${u.id}`,
-      sql`delete from public.auth_tokens where user_id = ${u.id}`,
+      // Codes and legacy tokens are closed tables; the database clears them for this member (db/0226).
+      sql`select public.rout_auth_secrets_clear()`,
       sql`update public.users set email = ${`${u.id}@retired.invalid`}, is_disabled = true,
           account_status = 'retired', user_metadata = user_metadata - 'neon_auth_id', updated_at = now() where id = ${u.id}`,
     ]);
