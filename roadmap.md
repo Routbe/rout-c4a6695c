@@ -138,10 +138,15 @@
 - [ ] Account deletion/merge: handle vault tokens explicitly (FK is RESTRICT, so these fail closed today)
 - [x] Server vault key: ROUT_VAULT_KEK (AES-256-GCM) wraps the server RVE1 seed; key ring db/0222 applied live
 - [x] Worker basis: rve1.deviceKey / rve1.seal / rve1.open for vcc_ (device key sealed under the device key)
-- [ ] Worker: 2-of-3 recovery ceremony ops (passkey PRF, card shard, paper words)
 - [x] Owner decided: 2-of-3 only, 3-of-5 deprecated, keep shamir-secret-sharing
 - [ ] Retire the 3-of-5 recovery vault screens and code
 - [x] 0205/0206/0207/0213 recorded live; 0204 archived to db-archive/ and removed from the model
 - [x] 0223/0225 live: free `rout_server` access removed from 5 of the 23 tables (step-up tables owner-only, user_sessions/analytics_events/profile_ingest_tokens closed)
-- [ ] 0223 next phases: replace the free rule on the other 18 tables with narrow database functions, one feature at a time (sign-in codes, OAuth, payments, admin, bookings, background jobs)
+- [ ] 0223 next phases (owner approved 12-11, continue without asking when live tests pass):
+  - [ ] Sign-in & 2FA codes: security_codes, phone_otp_codes, auth_tokens -> database functions only
+  - [ ] ROUT ID / OAuth: oauth_auth_codes, oauth_consents, api_keys
+  - [ ] Payments: psp_credentials, verification_payments, sepa_review_queue
+  - [ ] Admin: user_roles, admin_permissions, security_events, account_merge_tickets
+  - [ ] Bookings, links & jobs: booking_requests, availability_jobs, alias_sync_jobs, forwarding_confirmation_sends, links
+- [ ] Worker: 2-of-3 recovery ceremony — only after all 18 are replaced
 - [x] 0224 live: card recovery gate without passkey — two-step tap check, 3 failures per 10 min locks card and account, card factor released only after CMAC

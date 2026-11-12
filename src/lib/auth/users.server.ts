@@ -9,7 +9,6 @@ import {
 } from "@/lib/auth-email-templates";
 import type { EmailCategory } from "@/emails/template-ids";
 
-import { generateToken, hashToken } from "./token-hash.server";
 import { toSessionUser, type SessionUser } from "./session.server";
 
 /**
@@ -120,45 +119,22 @@ export async function changeEmail(userId: string, newEmail: string) {
 
 export type TokenPurpose = "magic_link" | "password_reset" | "email_confirm" | "email_change";
 
-const TOKEN_TTL_MINUTES: Record<TokenPurpose, number> = {
-  magic_link: 15,
-  password_reset: 60,
-  email_confirm: 60 * 24,
-  email_change: 60 * 24,
-};
-
+/**
+ * Retired: Better Auth issues every sign-in, reset and confirmation link. The
+ * old auth_tokens table is closed to the app role (db/0226) and nothing could
+ * redeem these links any more, so issuing one fails loudly instead.
+ */
 export async function issueToken(
-  userId: string,
-  purpose: TokenPurpose,
-  payload: Record<string, unknown> = {},
-) {
-  const token = generateToken(32);
-  const tokenHash = await hashToken(token);
-  await sql`
-    insert into public.auth_tokens (user_id, purpose, token_hash, payload, expires_at)
-    values (${userId}, ${purpose}, ${tokenHash}, ${JSON.stringify(payload)},
-            now() + make_interval(mins => ${TOKEN_TTL_MINUTES[purpose]}))
-  `;
-  return token;
+  _userId: string,
+  _purpose: TokenPurpose,
+  _payload: Record<string, unknown> = {},
+): Promise<string> {
+  throw new AuthError("invalid_token", "Legacy one-time links are retired; sign-in links come from Better Auth.");
 }
 
-/** Consumes a token exactly once and returns the owning user. */
-export async function consumeToken(token: string, purpose: TokenPurpose) {
-  const tokenHash = await hashToken(token);
-  const rows = (await sql`
-    update public.auth_tokens
-       set consumed_at = now()
-     where token_hash = ${tokenHash}
-       and purpose = ${purpose}
-       and consumed_at is null
-       and expires_at > now()
-    returning user_id, payload
-  `) as Row[];
-  const row = rows[0];
-  if (!row) throw new AuthError("invalid_token", "This link is invalid or has expired.");
-  const user = await findUserById(row["user_id"] as string);
-  if (!user) throw new AuthError("not_found");
-  return { user, payload: (row["payload"] as Record<string, unknown>) ?? {} };
+/** Retired together with issueToken. */
+export async function consumeToken(_token: string, _purpose: TokenPurpose): Promise<never> {
+  throw new AuthError("invalid_token", "This link is invalid or has expired.");
 }
 
 /**
@@ -248,8 +224,6 @@ export async function requestMagicLink(rawEmail: string, origin: string) {
 // E-mail sign-in with a 6-digit code (same mail as the magic link)
 // ---------------------------------------------------------------------------
 
-const CODE_TTL_MINUTES = 15;
-
 function sixDigitCode(): string {
   const bytes = new Uint32Array(1);
   crypto.getRandomValues(bytes);
@@ -268,16 +242,6 @@ export async function requestEmailCode(rawEmail: string, origin: string) {
 
   const userId = row["id"] as string;
   const code = sixDigitCode();
-  const codeHash = await hashToken(`${userId}:${code}`);
-  await sql`
-    update public.auth_tokens set consumed_at = now()
-     where user_id = ${userId} and purpose = 'email_code' and consumed_at is null
-  `;
-  await sql`
-    insert into public.auth_tokens (user_id, purpose, token_hash, payload, expires_at)
-    values (${userId}, 'email_code', ${codeHash}, '{}'::jsonb,
-            now() + make_interval(mins => ${CODE_TTL_MINUTES}))
-  `;
 
   const linkToken = await issueToken(userId, "magic_link");
   const sent = await mailAuthAction(

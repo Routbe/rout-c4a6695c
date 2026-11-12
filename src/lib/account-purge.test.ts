@@ -30,6 +30,11 @@ async function fixture() {
     create table public.oauth_access_tokens (user_id uuid references users(id) on delete cascade, token text);
     create table public.oauth_refresh_tokens (user_id uuid references users(id) on delete cascade, token text);`);
   for (const table of PURGE_OWNER_TABLES) await db.exec(`create table public.${table} (user_id uuid, secret text)`);
+  // Closed sign-in code tables (db/0226) are cleared by a database function; the real one is tested in auth-codes-rpc.test.ts.
+  await db.exec(`create table public.security_codes (user_id uuid, secret text);
+    create table public.phone_otp_codes (user_id uuid, secret text);
+    create function public.rout_auth_secrets_purge(p uuid) returns void language sql as
+      $f$ delete from public.security_codes where user_id = p; delete from public.phone_otp_codes where user_id = p; $f$;`);
   await db.exec(`alter table security_audit_logs alter column user_id type text using user_id::text;
     alter table security_audit_logs add column created_at timestamptz not null default now();
     create table public.user_ledger_keys(user_id uuid references users(id) on delete cascade,key_id text,primary key(user_id,key_id));
@@ -46,7 +51,7 @@ async function fixture() {
     await db.query("insert into profiles values ($1,$2)", [id, id]);
     await db.query("insert into account_deletions values ($1,null,null,now()-interval '1 day')", [id]);
     await db.query("insert into merged_auth_account_archive values ($1,'archived identity')", [id]);
-    for (const table of PURGE_OWNER_TABLES) await db.query(`insert into ${table}(user_id,secret) values ($1,'sensitive')`, [id]);
+    for (const table of [...PURGE_OWNER_TABLES, "security_codes", "phone_otp_codes"]) await db.query(`insert into ${table}(user_id,secret) values ($1,'sensitive')`, [id]);
     await db.query("insert into user_ledger_keys values($1,'key')",[id]);
     await db.query("insert into user_encrypted_audit_logs values($1,'key','ciphertext')",[id]);
     for (const table of ["identity_disclosure_logs","account_email_changes"]) await db.query(`insert into ${table} values($1,'sensitive')`,[id]);
@@ -62,7 +67,7 @@ describe("irreversible credential purge", () => {
     await conn.transaction(async (tx) => {
       for (const s of accountPurgeStatements(user, user)) await tx.query(s.query, s.params);
     });
-    for (const table of ["users", "oauth_access_tokens", "oauth_refresh_tokens", "app_email_assignments", "account_deletions", "user_ledger_keys", "user_encrypted_audit_logs", "identity_disclosure_logs", "account_email_changes"]) {
+    for (const table of ["users", "security_codes", "phone_otp_codes", "oauth_access_tokens", "oauth_refresh_tokens", "app_email_assignments", "account_deletions", "user_ledger_keys", "user_encrypted_audit_logs", "identity_disclosure_logs", "account_email_changes"]) {
       const column = table === "users" ? "id" : "user_id";
       expect((await conn.query(`select * from ${table} where ${column}=$1`, [user])).rows).toHaveLength(0);
       expect((await conn.query(`select * from ${table} where ${column}=$1`, [other])).rows).toHaveLength(1);
