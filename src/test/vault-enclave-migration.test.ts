@@ -17,7 +17,9 @@ const PROOF_3 = "33333333-3333-4333-8333-333333333333";
 const PROOF_BOB = "44444444-4444-4444-8444-444444444444";
 
 /** 'RVE1' + 1596 bytes = smallest accepted envelope. */
-const ENVELOPE = `\\x52564531${"ab".repeat(1596)}`;
+const ENVELOPE = new Uint8Array(1600).fill(0xab);
+ENVELOPE.set([0x52, 0x56, 0x45, 0x31]);
+const PLAINTEXT_IBAN = new TextEncoder().encode("NL91ABNA0417164300");
 
 let db: PGlite;
 
@@ -31,8 +33,8 @@ async function as(user: string | null, sql: string, params: unknown[] = []) {
     await db.exec("reset role");
   }
 }
-const store = async (user: string | null, type: string, payload: string) =>
-  (await as(user, "select vault_enclave.store_opaque_token($1, $2::bytea) as ref", [type, payload])).rows[0]?.["ref"] as string | null;
+const store = async (user: string | null, type: string, payload: Uint8Array) =>
+  (await as(user, "select vault_enclave.store_opaque_token($1, $2) as ref", [type, payload])).rows[0]?.["ref"] as string | null;
 const register = async (user: string, proof: string, method = "passkey") =>
   (await as(user, "select vault_enclave.register_step_up_proof($1::uuid, $2) as ok", [proof, method])).rows[0]?.["ok"];
 const retrieve = async (user: string, ref: string, verified: boolean | null, proof: string | null) =>
@@ -66,7 +68,7 @@ describe("vault enclave (db/0221)", () => {
   });
 
   it("stores only sealed envelopes and mints the reference itself", async () => {
-    expect(await store(ALICE, "vtk", "\\x4e4c3931414e4241")).toBeNull(); // plaintext "NL91ANBA"
+    expect(await store(ALICE, "vtk", PLAINTEXT_IBAN)).toBeNull();
     expect(await lastReason()).toBe("not_an_envelope");
     expect(await store(ALICE, "xyz", ENVELOPE)).toBeNull();
     expect(await store(null, "vtk", ENVELOPE)).toBeNull();
