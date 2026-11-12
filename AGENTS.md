@@ -45,3 +45,9 @@ use the editor.
 
 ## Discover pages
 - Product landing pages live at /discover/<topic>; slugs, main buttons and detail links come from src/lib/discover/topics.ts and per-locale copy from copy.<locale>.ts, with accents in src/styles/discover.css. Why: one source keeps the home page, detail-page buttons and sitemap pointing at the same product pages instead of the sign-in wall.
+
+## Vault enclave
+- Raw identifiers live only as sealed 'RVE1' envelopes in the vault_enclave schema (db/0221); rout_app has no table rights and reaches it only through register_step_up_proof, store_opaque_token and retrieve_opaque_token, with the caller taken from the transaction context. Why: a compromised app role can neither read ciphertext in bulk nor act for another member.
+- Outside the vault, data travels only as opaque refs validated by src/lib/vault/token-boundary.ts; refs are minted by the database, never by callers. Why: one strict boundary keeps raw values out of the browser, logs and APIs.
+- Vault retrieval needs p_step_up_verified plus a passkey proof registered on the database clock, used once within 300 s; denials return granted=false instead of raising so their audit row commits. Why: a bare boolean is forgeable, and failed attempts must stay on the hash-chained audit log.
+- vault_enclave is in the schema snapshot but gets no generated row types. Why: drift stays detectable while app code has no typed path to the tables.

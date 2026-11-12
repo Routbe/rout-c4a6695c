@@ -51,7 +51,7 @@ begin
     select 1 from pg_roles where rolname = current_user and (rolbypassrls or rolsuper)
   ) or exists (
     select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace
-    where n.nspname in ('public','neon_auth') and c.relkind in ('r','p')
+    where n.nspname in ('public','neon_auth','vault_enclave') and c.relkind in ('r','p')
       and pg_has_role(current_user, c.relowner, 'USAGE')
   ) then
     raise exception 'runtime_role_unsafe' using errcode = '42501';
