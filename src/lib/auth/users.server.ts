@@ -119,13 +119,6 @@ export async function changeEmail(userId: string, newEmail: string) {
 
 export type TokenPurpose = "magic_link" | "password_reset" | "email_confirm" | "email_change";
 
-const TOKEN_TTL_MINUTES: Record<TokenPurpose, number> = {
-  magic_link: 15,
-  password_reset: 60,
-  email_confirm: 60 * 24,
-  email_change: 60 * 24,
-};
-
 /**
  * Retired: Better Auth issues every sign-in, reset and confirmation link. The
  * old auth_tokens table is closed to the app role (db/0226) and nothing could
