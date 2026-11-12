@@ -766,13 +766,6 @@ export interface PublicDomainClaimsRow {
   "created_at": string | Date;
 }
 
-export interface PublicE2eeKeyWrapsRow {
-  "user_id": string;
-  "wrap_id": string;
-  "wrapped_dek": string;
-  "created_at": string | Date;
-}
-
 export interface PublicEmailAliasesRow {
   "id": string;
   "user_id": string;
@@ -1653,10 +1646,6 @@ export interface PublicProfilesRow {
   "workspace_id": string | null;
   "is_early_verified": boolean;
   "early_believer_at": string | Date | null;
-  "did_jwk": string | null;
-  "public_profile_jws": string | null;
-  "encrypted_blob": string | null;
-  "e2ee_migrated_at": string | Date | null;
 }
 
 export interface PublicPromoCodeEventsRow {
@@ -2615,7 +2604,6 @@ export interface DbTables {
   "public.custom_domains": PublicCustomDomainsRow;
   "public.didit_monthly_usage": PublicDiditMonthlyUsageRow;
   "public.domain_claims": PublicDomainClaimsRow;
-  "public.e2ee_key_wraps": PublicE2eeKeyWrapsRow;
   "public.email_aliases": PublicEmailAliasesRow;
   "public.entitlement_overrides": PublicEntitlementOverridesRow;
   "public.ephemeral_statuses": PublicEphemeralStatusesRow;
