@@ -84,7 +84,7 @@ zinnen vragen; techniek kan dwang niet wegnemen, alleen geloofwaardig maken dat 
 
 * **Wachttijd**: een echt herstel opent pas na een wachttijd (voorstel 72 uur, eigenaar kiest 24–168 u). Tijdens die
   tijd krijgt de eigenaar meldingen op elk kanaal en kan hij met eender welke actieve factor annuleren. Uitbreiding van
-  `auth_recovery_requests` (`db/0207`, nog niet live) met `vault_release_at`, `cancelled_at`.
+  `auth_recovery_requests` (`db/0207`, live) met `vault_release_at`, `cancelled_at`.
 * **Merkle-transparantie**: elke kluiswijziging wordt een blad `H(canonieke JSON)` in een append-only boom; de
   dagelijkse kop wordt ondertekend (zoals de bestaande `security_audit_checkpoints`). De browser vraagt voor zijn
   eigen wijzigingen een inclusiebewijs en bewaart de laatste kop, zodat een server die geschiedenis herschrijft
@@ -101,7 +101,7 @@ dat trekken we in dezelfde migratie recht).
 | Dreiging | Wat de aanvaller krijgt | Waarom het houdt / wat niet |
 |---|---|---|
 | **Volledig servercompromis** (DB + code) | Ciphertext, salts, wraps, auditlog | Geen woorden, E of VK: 256-bit zin + Argon2id. **Niet beschermd**: een aanvaller die de *code* aanpast, kan kwaadaardige JS serveren die de zin bij de volgende invoer steelt. Tegenmaatregel: SRI, ondertekende builds, Merkle-kop vergelijken, op termijn een aparte `vault.rout.be`-oorsprong met strikte CSP. |
-| **Kwantumcomputer** | — | AES-256-GCM en SHA-256/Argon2id houden ~128 bit tegen Grover. Shamir is informatietheoretisch veilig. Kwetsbaar: ECDSA/P-256 van passkeys (authenticatie, niet vertrouwelijkheid) en elke toekomstige ECDH-sleuteluitwisseling; daar hybride X25519 + ML-KEM (`@noble/post-quantum`, nog niet geïnstalleerd; zie `db/0204` featurebranch). |
+| **Kwantumcomputer** | — | AES-256-GCM en SHA-256/Argon2id houden ~128 bit tegen Grover. Shamir is informatietheoretisch veilig. Kwetsbaar: ECDSA/P-256 van passkeys (authenticatie, niet vertrouwelijkheid) en elke toekomstige ECDH-sleuteluitwisseling; daar hybride X25519 + ML-KEM (`@noble/post-quantum`, nu in gebruik in `crypto-enclave/pqc-envelope.ts`; het oude `db/0204`-ontwerp staat gearchiveerd in `db-archive/`). |
 | **XSS** | Alles wat de pagina ziet | De worker is geen XSS-grens (zie `crypto-enclave/SECURITY.md`): ingespoten script kan de zin lezen terwijl hij op het scherm staat, of de worker zelf aanroepen. Beperking: strikte CSP + Trusted Types, zin kort tonen, invoer op aparte oorsprong (voorstel). |
 | **Fysieke dwang** | Wat het slachtoffer afgeeft | Dwangzin opent de decoy-kluis; wachttijd + meldingen geven tijd om te annuleren of het account te bevriezen. Geen bescherming als beide zinnen worden afgedwongen. |
 | **Gestolen toestel** | Toestelsleutel achter OS-vergrendeling | Nieuwe zin/herstel vraagt step-up; herstel heeft wachttijd en meldingen. |

@@ -173,6 +173,12 @@ export function sealEnvelope(input: {
   }
 }
 
+/** Recipient key id of an envelope (a copy), to pick the right key before opening. */
+export function envelopeKeyId(envelope: Uint8Array): Uint8Array {
+  if (envelope.length < ENVELOPE_MIN_BYTES || !constantTimeEqual(envelope.subarray(0, 4), MAGIC)) throw new EnvelopeError();
+  return envelope.slice(OFF_KID, OFF_KEM);
+}
+
 /** Opens an envelope as `holder`. Throws EnvelopeError on any mismatch or tamper. */
 export function openEnvelope(input: {
   envelope: Uint8Array;

@@ -47,7 +47,7 @@
 - [x] Testen live-blokken en afspraakbevestiging uitgevoerd (55 geslaagd)
 - [x] Accounts samenvoegen: database-samenvoeging weigert nu als het tweede account nog kaart-, wallet-, herstel- of ouderrecords heeft (migratie 0215, nog niet op live Neon toegepast)
 - [x] Migraties 0214 en 0215 op live Neon toegepast en gecontroleerd
-- [ ] Overige wachtende migraties (0204 E2EE = alleen feature-branch, 0205–0207, 0213): eerst nakijken, dan akkoord vragen
+- [x] Overige wachtende migraties: 0205–0207 en 0213 geregistreerd, 0204 gearchiveerd
 - [x] Ontdek-pagina's: per onderdeel een eigen landingspagina (Profielen, QR Studio, Links & statistieken, ROUT ID, ROUT-kaart, Steun voor makers, Vragen & stories, Workspaces, Developers) met illustraties, effecten en links naar de detailpagina's, in NL/EN/FR/DE
 - [x] Hoofdpagina na de kop: meer visuele effecten (Neon-stijl met eigen zwier), onderdelen-overzicht als beeldtegels, knoppen naar de nieuwe Ontdek-pagina's i.p.v. inlogscherm
 - [x] Detailpagina's (docs): knop "Open ROUT Studio" is vervangen door link naar het onderdeel (klaar); vaste Nederlandse teksten ("Zo werkt het", "Veelgestelde vragen", "Verder met ROUT") nog vertalen
@@ -55,7 +55,7 @@
 ## Nieuwe vraag (11-11): 2FA, herstelsleutel, verificatieknop, Studio-concept
 - [x] ROUT-kaart: gebruiker met actieve tweestapsverificatie krijgt toch "zet eerst 2FA aan"
 - [x] Herstelsleutel (2FA): automatisch 24-woorden herstelzin maken in de enclave, kopiëren, downloaden, lokale PDF-noodkit; step-up (bestond) + audit bij aanmaken/gebruiken
-- [ ] Herstelkluis v2 (Argon2id-wrap, vaste container, decoy/verborgen kluis, wachttijd, Merkle): ontwerp in docs/security/recovery-vault-design.md, wacht op akkoord eigenaar (§7)
+- [x] Herstelkluis v2: vervallen — eigenaar koos 2-van-3 herstel, 3-van-5 kluis wordt afgeschaft
 - [x] Verificatieknop verbergen zodra iemand geverifieerd is (tot het opnieuw nodig is)
 - [x] Studio: oranje status "alleen op dit toestel bewaard" + lokaal bewaren + opnieuw proberen bij verbinding; echte foutmelding blijft nu zichtbaar
 - [ ] Studio "failed to fetch": oorzaak nog niet gereproduceerd; volgende melding toont de echte browserfout in het detailvenster
@@ -101,7 +101,6 @@
 - [x] ROUT-kaart: privégegevens bekijken max 2 minuten per bevestiging (was 5)
 - [x] Docs-pagina's: "Zo werkt het", "Veelgestelde vragen", "Verder met ROUT" vertalen
 - [x] Boekingen fase 2: live op Neon en getest met meerdere bezoekers
-- [ ] Herstelkluis v2 (Argon2id, wachttijd, Merkle): wacht op 4 keuzes van eigenaar (docs/security/recovery-vault-design.md §7)
 
 ## Nieuwe vraag (12-11): deelafbeeldingen in meerdere formaten
 - [x] Profiel- en uitnodigingskaarten (anoniem bericht, steun, fooi, afspraak) in 4 formaten: linkvoorbeeld 1200×630, vierkant 1080×1080, staand 1080×1350, story 1080×1920 (binnen de veilige zones)
@@ -121,7 +120,6 @@
 - [x] 0218, 0219, 0220 live na akkoord; drie-bezoekerstest geslaagd
 - [ ] Fase 4–7 boekingen: grote nieuwe onderdelen, elk eerst eigen plan + databaseakkoord
 - [ ] Fase 3: wacht op Google- en Microsoft-sleutels
-- [ ] Bevinding: vergelijking database ↔ vastgelegde beschrijving toont 48 oudere verschillen (o.a. brede `rout_server`-regels uit 0154 op ~60 tabellen) — los nakijken
 
 ## Import into this project (Nov 12)
 - [x] Verify the Route repository (github.com/Routbe/route-compass-5c35c38a) is fully imported into this project
@@ -138,8 +136,12 @@
 - [x] `crypto-enclave/recovery-mpc.ts` (Shamir 2-of-3, BIP39 paper factor)
 - [x] `vault/vault-port.server.ts` (IVaultPort + LocalPostgresVaultAdapter, tested over real SQL)
 - [ ] Account deletion/merge: handle vault tokens explicitly (FK is RESTRICT, so these fail closed today)
-- [ ] Server vault key for vtk_/sdm_ (generate + keep as server secret; later the SEV-SNP enclave)
-- [ ] NFC card recovery factor: decide how the card shard key is released (Web NFC only reads the tap URL) — waits on owner
-- [ ] Expose device-side envelope/recovery operations through the crypto-enclave worker protocol
-- [ ] Owner decides: new 2-of-3 recovery vs existing 3-of-5 recovery vault (and the Shamir library choice)
-- [ ] Finding: live database has no record of 0204–0207 and 0213 — check separately
+- [x] Server vault key: ROUT_VAULT_KEK (AES-256-GCM) wraps the server RVE1 seed; key ring db/0222 applied live
+- [x] Worker basis: rve1.deviceKey / rve1.seal / rve1.open for vcc_ (device key sealed under the device key)
+- [ ] Worker: 2-of-3 recovery ceremony ops (passkey PRF, card shard, paper words)
+- [x] Owner decided: 2-of-3 only, 3-of-5 deprecated, keep shamir-secret-sharing
+- [ ] Retire the 3-of-5 recovery vault screens and code
+- [x] 0205/0206/0207/0213 recorded live; 0204 archived to db-archive/ and removed from the model
+- [ ] Finding: live database ↔ model now differ in 40 older points, mainly 61 wide-open `rout_server` access rules (23 not in the model, e.g. psp_credentials, security_codes, user_sessions) — needs owner decision
+- [ ] sdm_ read path: card keys must be readable for a tap check without a passkey (recovery case) — design with owner
+- [ ] NFC card shard release after SDM CMAC check (owner approved)

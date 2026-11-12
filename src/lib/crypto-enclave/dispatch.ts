@@ -1,6 +1,9 @@
 import { wipeMessage } from "@/lib/crypto/wipe";
 import type { EnclaveErrorCode, EnclaveOp, EnclaveResponse } from "./protocol";
 
+/** Ops whose result carries plaintext: moved to the UI (never copied), then the worker's view is detached. */
+const PLAINTEXT_RESULT_OPS: ReadonlySet<EnclaveOp> = new Set<EnclaveOp>(["data.open", "protocol.openEvent", "rve1.open"]);
+
 type Outcome = { ok: true; result: unknown } | { ok: false; code: EnclaveErrorCode };
 
 /** An injectable, ordered worker dispatcher; queue and transfer behavior are testable without Web Crypto mocks. */
@@ -24,7 +27,7 @@ export function createEnclaveDispatcher(
       const response: EnclaveResponse = { id, ...outcome };
       try {
         const transfer: Transferable[] = [];
-        if (outcome.ok && (op === "data.open" || op === "protocol.openEvent")) {
+        if (outcome.ok && PLAINTEXT_RESULT_OPS.has(op)) {
           transfer.push((outcome.result as { plaintext: Uint8Array }).plaintext.buffer as ArrayBuffer);
         }
         post(response, transfer);

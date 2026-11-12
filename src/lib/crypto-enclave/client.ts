@@ -191,6 +191,25 @@ export const enclave = {
   pairwise: {
     claim: (root: Uint8Array, sector: string, nonce: string) => callEnclave("pairwise.claim", { root, sector, nonce }, moved(root)),
   },
+  rve1: {
+    /** This member's RVE1 device key: id and public key only. */
+    deviceKey: (userId: string) => callEnclave("rve1.deviceKey", { userId }),
+    /** UI → worker credential bytes (transferred: the caller's copy is emptied), worker → UI an RVE1 envelope. */
+    sealCredential: (userId: string, purpose: string, plaintext: Uint8Array) =>
+      callEnclave("rve1.seal", { userId, kind: "vcc", purpose, plaintext }, moved(plaintext)),
+    /**
+     * Opens a vcc_ credential for the duration of `use` only; the plaintext is
+     * zero-filled afterwards, whatever `use` returns or throws. Do not keep it.
+     */
+    withCredential: async <T>(userId: string, purpose: string, envelope: Uint8Array, use: (plaintext: Uint8Array) => T | Promise<T>): Promise<T> => {
+      const { plaintext } = await callEnclave("rve1.open", { userId, kind: "vcc", purpose, envelope: envelope.slice() });
+      try {
+        return await use(plaintext);
+      } finally {
+        plaintext.fill(0);
+      }
+    },
+  },
   hash: {
     sha256Hex: (text: string) => callEnclave("hash.sha256Hex", { text }),
   },

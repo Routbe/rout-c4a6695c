@@ -56,6 +56,17 @@ export interface EnclaveOps {
   /** Pairwise partner subject from a passkey PRF root (transferred, wiped). */
   "pairwise.claim": { req: { root: Uint8Array; sector: string; nonce: string }; res: SubjectClaim };
 
+  /**
+   * RVE1 member-device key (ML-KEM-1024 + X25519), created on first use. Its
+   * seed is sealed under the device key and never leaves the worker; only the
+   * key id and public key come back.
+   */
+  "rve1.deviceKey": { req: { userId: string }; res: { kid: string; publicKey: Uint8Array } };
+  /** Seal a vcc_ credential (plaintext transferred, wiped) for this member's own device key. */
+  "rve1.seal": { req: { userId: string; kind: "vcc"; purpose: string; plaintext: Uint8Array }; res: { envelope: Uint8Array } };
+  /** Open a vcc_ envelope; the plaintext is transferred to the UI, which must wipe it. */
+  "rve1.open": { req: { userId: string; kind: "vcc"; purpose: string; envelope: Uint8Array }; res: { plaintext: Uint8Array } };
+
   "hash.sha256Hex": { req: { text: string }; res: string };
   /**
    * Blind Hash Matching: hash the member's identities with the partner's
