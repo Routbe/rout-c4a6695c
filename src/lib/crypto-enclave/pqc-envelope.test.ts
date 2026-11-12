@@ -52,7 +52,7 @@ describe("RVE1 hybrid envelope", () => {
     expect(() => openEnvelope({ envelope: claim, expectedKind: "vcc", holder: "server_vault", secretKey: server.secretKey, context: ctx })).toThrow(
       EnvelopePolicyError,
     );
-    expect(openEnvelope({ envelope: claim, expectedKind: "vcc", holder: "member_device", secretKey: device.secretKey, context: ctx })).toEqual(iban);
+    expect([...openEnvelope({ envelope: claim, expectedKind: "vcc", holder: "member_device", secretKey: device.secretKey, context: ctx })]).toEqual([...iban]);
     // A vcc envelope is never accepted where a vtk is expected.
     expect(() => open(claim)).toThrow(EnvelopeError);
   });
