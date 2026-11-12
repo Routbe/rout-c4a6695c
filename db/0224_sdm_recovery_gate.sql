@@ -121,7 +121,9 @@ begin
   end if;
   -- Serialise all of this member's recovery attempts, so parallel taps cannot
   -- all pass the lockout check before any of them is counted.
-  perform pg_catalog.pg_advisory_xact_lock(7421003224, pg_catalog.hashtext(v_card.owner_user_id::text));
+  perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(v_card.owner_user_id::text, 7421003224));
+  -- Closed attempts older than a day no longer affect the lockout; the audit chain keeps the history.
+  delete from vault_enclave.sdm_recovery_attempts a where a.owner_user_id = v_card.owner_user_id and a.started_at < v_now - interval '1 day';
   select * into v_fail from vault_enclave.sdm_failures(v_card.card_id, v_card.owner_user_id, v_now);
   if v_fail.card_failures >= 3 or v_fail.owner_failures >= 3 then
     perform vault_enclave.append_audit(v_card.owner_user_id, 'sdm_recovery_retrieve', 'denied',
